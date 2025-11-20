@@ -25,8 +25,6 @@
 
 ## Network Map
 
-# OKD Homelab Network Diagram
-
 ```mermaid
 graph TB
     subgraph Internet
