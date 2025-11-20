@@ -23,6 +23,197 @@
 
 ---
 
+## Network Map
+
+# OKD Homelab Network Diagram
+
+```mermaid
+graph TB
+    subgraph Internet
+        WAN[Internet]
+    end
+
+    subgraph "Protectli VP2430 - OPNSense Firewall"
+        FW[OPNSense<br/>HAProxy Load Balancer<br/>VLAN Router]
+        VIP1[VIP: 10.0.20.5<br/>API]
+        VIP2[VIP: 10.0.20.6<br/>Apps Internal]
+        VIP3[VIP: 10.0.40.10<br/>Apps External]
+    end
+
+    subgraph "Main Managed Switch"
+        SW1[Core Switch<br/>VLANs: 1,10,20,30,40,50,60,99]
+    end
+
+    subgraph "VLAN 1 - Management<br/>10.0.1.0/24"
+        SW1M[Switch Mgmt<br/>10.0.1.2]
+        SW2M[Living Room SW<br/>10.0.1.3]
+        TNM[TrueNAS Mgmt<br/>10.0.1.4]
+        PI[Pi + KVM<br/>10.0.1.10<br/>Tailscale]
+        AP1M[WiFi AP1<br/>10.0.1.21]
+        AP2M[WiFi AP2<br/>10.0.1.22]
+    end
+
+    subgraph "VLAN 10 - Homelab<br/>10.0.10.0/24"
+        PC[Your Workstation<br/>10.0.10.100]
+        DEV[Dev Machines<br/>DHCP]
+    end
+
+    subgraph "VLAN 20 - OKD Infrastructure<br/>10.0.20.0/24"
+        TN20[TrueNAS<br/>10.0.20.2<br/>DNS/HTTP]
+        M1[Master1<br/>10.0.20.11<br/>UM890]
+        M2[Master2<br/>10.0.20.12<br/>UM890]
+        M3[Master3<br/>10.0.20.13<br/>UM890]
+        BOOT[Bootstrap<br/>10.0.20.10<br/>Temporary]
+    end
+
+    subgraph "VLAN 30 - Storage Backend<br/>10.0.30.0/24"
+        TN30[TrueNAS Storage<br/>10.0.30.2<br/>NFS/iSCSI]
+        M1S[Master1 Storage<br/>10.0.30.11]
+        M2S[Master2 Storage<br/>10.0.30.12]
+        M3S[Master3 Storage<br/>10.0.30.13]
+    end
+
+    subgraph "VLAN 40 - Services<br/>10.0.40.0/24"
+        SVC[Services VIP<br/>10.0.40.10<br/>HAProxy → OKD Apps]
+    end
+
+    subgraph "VLAN 50 - IoT/WiFi<br/>10.0.50.0/24"
+        WIFI1[WiFi Clients<br/>DHCP]
+        IOT[IoT Devices<br/>DHCP]
+    end
+
+    subgraph "VLAN 60 - Living Room<br/>10.0.60.0/24"
+        SW2[Living Room Switch]
+        LR1[TV/Devices<br/>DHCP]
+    end
+
+    subgraph "VLAN 99 - Guest WiFi<br/>10.0.99.0/24"
+        GUEST[Guest Devices<br/>DHCP<br/>Isolated]
+    end
+
+    subgraph "TrueNAS SCALE - N5 Pro<br/>96GB RAM, 2x4TB NVMe, 3x28TB HDD"
+        TNFAST[fast-pool<br/>NVMe Mirror<br/>Containers/VMs]
+        TNBULK[bulk-pool<br/>RAIDZ1/RAIDZ2<br/>OKD Storage]
+        BIND[Bind9 DNS<br/>Container]
+        NGINX[Nginx HTTP<br/>Container]
+        NFS[NFS Service]
+    end
+
+    subgraph "WiFi Access Points"
+        AP1[WiFi AP 1<br/>SSIDs: Home/Guest]
+        AP2[WiFi AP 2<br/>SSIDs: Home/Guest]
+    end
+
+    subgraph "OKD Cluster Pods"
+        POD1[Web Apps]
+        POD2[Services]
+        POD3[Registry]
+    end
+
+    subgraph "Remote Access"
+        TS[Tailscale VPN<br/>100.64.0.0/10]
+        REMOTE[Remote Users]
+    end
+
+    %% Internet Connections
+    WAN -->|WAN Port| FW
+    
+    %% Firewall to Switch
+    FW -->|Trunk<br/>All VLANs| SW1
+    
+    %% Switch to Devices
+    SW1 -.->|VLAN 1| SW1M
+    SW1 -.->|VLAN 1| TNM
+    SW1 -.->|VLAN 1| PI
+    SW1 -.->|VLAN 1| AP1M
+    SW1 -.->|VLAN 1| AP2M
+    SW1 -.->|VLAN 10| PC
+    SW1 -.->|VLAN 10| DEV
+    SW1 -.->|VLAN 20| TN20
+    SW1 -.->|VLAN 20| M1
+    SW1 -.->|VLAN 20| M2
+    SW1 -.->|VLAN 20| M3
+    SW1 -.->|VLAN 30| TN30
+    SW1 -.->|VLAN 30| M1S
+    SW1 -.->|VLAN 30| M2S
+    SW1 -.->|VLAN 30| M3S
+    SW1 -.->|VLAN 50| AP1
+    SW1 -.->|VLAN 50| AP2
+    SW1 -.->|Trunk<br/>VLAN 1,60,99| SW2
+    
+    %% Living Room Switch
+    SW2 -.->|VLAN 60| LR1
+    
+    %% WiFi APs to Clients
+    AP1 -.->|VLAN 50| WIFI1
+    AP1 -.->|VLAN 50| IOT
+    AP2 -.->|VLAN 50| WIFI1
+    AP1 -.->|VLAN 99| GUEST
+    AP2 -.->|VLAN 99| GUEST
+    
+    %% TrueNAS Internal
+    TN20 --> BIND
+    TN20 --> NGINX
+    TN30 --> NFS
+    TNFAST --> BIND
+    TNFAST --> NGINX
+    TNBULK --> NFS
+    
+    %% HAProxy VIPs
+    FW --> VIP1
+    FW --> VIP2
+    FW --> VIP3
+    
+    %% HAProxy to Masters
+    VIP1 -.->|API<br/>6443| M1
+    VIP1 -.->|API<br/>6443| M2
+    VIP1 -.->|API<br/>6443| M3
+    VIP2 -.->|Ingress<br/>80/443| M1
+    VIP2 -.->|Ingress<br/>80/443| M2
+    VIP2 -.->|Ingress<br/>80/443| M3
+    VIP3 -.->|Ingress<br/>80/443| M1
+    VIP3 -.->|Ingress<br/>80/443| M2
+    VIP3 -.->|Ingress<br/>80/443| M3
+    
+    %% Storage Connections
+    NFS -.->|NFS<br/>2049| M1S
+    NFS -.->|NFS<br/>2049| M2S
+    NFS -.->|NFS<br/>2049| M3S
+    
+    %% Masters to Pods
+    M1 --> POD1
+    M2 --> POD2
+    M3 --> POD3
+    
+    %% Tailscale
+    REMOTE --> TS
+    TS -.->|VPN| PI
+    TS -.->|Subnet Routes| FW
+    
+    %% Client Access to Services
+    PC -.->|HTTPS| SVC
+    WIFI1 -.->|HTTPS| SVC
+    LR1 -.->|HTTPS| SVC
+    
+    %% Styling
+    classDef firewall fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+    classDef switch fill:#4ecdc4,stroke:#087f5b,stroke-width:2px,color:#000
+    classDef server fill:#95e1d3,stroke:#0ca678,stroke-width:2px,color:#000
+    classDef storage fill:#ffd93d,stroke:#f08c00,stroke-width:2px,color:#000
+    classDef client fill:#a8dadc,stroke:#457b9d,stroke-width:2px,color:#000
+    classDef vip fill:#b794f4,stroke:#6b46c1,stroke-width:2px,color:#fff
+    classDef vlan fill:#e9ecef,stroke:#868e96,stroke-width:1px,color:#000
+    classDef remote fill:#f783ac,stroke:#e64980,stroke-width:2px,color:#000
+    
+    class FW firewall
+    class SW1,SW2 switch
+    class M1,M2,M3,TN20,TN30 server
+    class TNFAST,TNBULK,NFS storage
+    class PC,DEV,WIFI1,IOT,LR1,GUEST client
+    class VIP1,VIP2,VIP3,SVC vip
+    class TS,REMOTE remote
+
+
 ## Network Architecture
 
 ### VLAN Design
