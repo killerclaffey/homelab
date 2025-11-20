@@ -212,7 +212,7 @@ graph TB
     class PC,DEV,WIFI1,IOT,LR1,GUEST client
     class VIP1,VIP2,VIP3,SVC vip
     class TS,REMOTE remote
-
+```
 
 ## Network Architecture
 
