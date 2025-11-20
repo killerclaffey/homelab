@@ -12,7 +12,7 @@
 ### Compute & Storage
 - **Storage Node**: Minisforum N5 Pro
   - 96GB RAM
-  - 3x 28TB HDD (RAIDZ1/RAIDZ2)
+  - 3x 28TB HDD (RAIDZ1)
   - 2x 4TB NVMe SSD (mirrored)
   - Running TrueNAS SCALE
   
