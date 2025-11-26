@@ -4,7 +4,7 @@
 
 ### Networking Equipment
 - **Firewall**: Protectli VP2430 running OPNSense
-- **Main Switch**: Smart managed switch (VLAN capable)
+- **Main Switch**: Smart managed switch 
 - **Downstream Switch**: Living room managed switch
 - **WiFi APs**: 2x WiFi Access Points
 - **KVM**: Raspberry Pi with GL.iNet Comet (GL-RM1) Remote KVM
