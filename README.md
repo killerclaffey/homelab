@@ -4,17 +4,17 @@
 
 ### Networking Equipment
 - **Firewall**: Protectli VP2430 running OPNSense
-- **Main Switch**: Smart managed switch 
-- **Downstream Switch**: Living room managed switch
+- **Main Switch**: TPLink 8x 2.5G, 2x 10G Smart managed switch 
+- **Downstream Switch**: TPLink 5x Port 1G Living room managed switch
 - **WiFi APs**: 2x WiFi Access Points
 - **KVM**: Raspberry Pi with GL.iNet Comet (GL-RM1) Remote KVM
 
 ### Compute & Storage
 - **Storage Node**: Minisforum N5 Pro
   - 96GB RAM
-  - 3x 28TB HDD (RAIDZ1)
-  - 2x 4TB NVMe SSD (mirrored)
-  - Running TrueNAS SCALE
+  - 3x 28TB HDD Seagate {HAMR} (ZFS - RAIDZ1)
+  - 2x 4TB Crucial P310 4TB SSD, PCIe Gen4 NVMe SSDs (ZFS - mirrored)
+  - Running TrueNAS SCALE (Community Edition)
   
 - **OKD Cluster Nodes**: 3x Minisforum UM890
   - 96GB RAM each
