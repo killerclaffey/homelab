@@ -1,13 +1,33 @@
 # OKD Homelab Complete Setup Plan
 
+## Quick Navigation
+
+### Network Documentation
+- [network/](network/) - All network configuration documentation
+  - [OPNsense-FIREWALL/](network/OPNsense-FIREWALL/) - Firewall configuration (VLANs, DHCP, DNS, HAProxy, VIPs)
+  - [TRENDnet-SWITCH/](network/TRENDnet-SWITCH/) - Switch configuration
+  - [VLANs/](network/VLANs/) - VLAN implementation guides
+
+### Physical Infrastructure
+- [physical/](physical/) - Rack mounting and hardware setup documentation
+
+### Key Configuration Files
+- [VLAN Implementation Checklist](network/VLANs/VLAN_IMPLEMENTATION_CHECKLIST.md)
+- [OPNSense VLAN Configuration](network/OPNsense-FIREWALL/OPNSense_VLAN_Configuration_Details.md)
+- [OPNSense KEA DHCP Setup](network/OPNsense-FIREWALL/OPNSense_KEA_DHCP_Configuration.md)
+- [Switch Configuration Guide](network/TRENDnet-SWITCH/TRENDnet_TEG3102WS_Switch_Configuration.md)
+- [Rack Mounting Plan](physical/rackmount-plan.md)
+
+---
+
 ## Hardware Inventory
 
 ### Networking Equipment
-- **Firewall**: Protectli VP2430 running OPNSense
-- **Main Switch**: TPLink 8x 2.5G, 2x 10G Smart managed switch 
-- **Downstream Switch**: TPLink 5x Port 1G Living room managed switch
-- **WiFi APs**: 2x WiFi Access Points
+- **Firewall**: Protectli VP2430 running OPNSense (4x 2.5G ports)
+- **Main Switch**: TRENDnet TEG-3102WS 10-port multi-gig (8x 2.5G, 2x 10G)
+- **WiFi APs**: 2x Netgear RBK50 running OpenWRT (Voxel firmware) in mesh
 - **KVM**: Raspberry Pi with GL.iNet Comet (GL-RM1) Remote KVM
+- **Helium Hotspot**: Connected directly to OPNSense (separate 2.5G port)
 
 ### Compute & Storage
 - **Storage Node**: Minisforum N5 Pro
@@ -38,22 +58,18 @@ graph TB
         VIP3[VIP: 10.0.40.10<br/>Apps External]
     end
 
-    subgraph "Main Managed Switch"
-        SW1[Core Switch<br/>VLANs: 1,10,20,30,40,50,60,99]
+    subgraph "TRENDnet TEG-3102WS Switch"
+        SW1[Core Switch<br/>VLANs: 1,20,30,40,50,60,99]
     end
 
     subgraph "VLAN 1 - Management<br/>10.0.1.0/24"
         SW1M[Switch Mgmt<br/>10.0.1.2]
-        SW2M[Living Room SW<br/>10.0.1.3]
         TNM[TrueNAS Mgmt<br/>10.0.1.4]
         PI[Pi + KVM<br/>10.0.1.10<br/>Tailscale]
         AP1M[WiFi AP1<br/>10.0.1.21]
         AP2M[WiFi AP2<br/>10.0.1.22]
-    end
-
-    subgraph "VLAN 10 - Homelab<br/>10.0.10.0/24"
-        PC[Your Workstation<br/>10.0.10.100]
-        DEV[Dev Machines<br/>DHCP]
+        PC[Your Workstation<br/>10.0.1.100]
+        TV[TV/Living Room<br/>DHCP]
     end
 
     subgraph "VLAN 20 - OKD Infrastructure<br/>10.0.20.0/24"
@@ -75,14 +91,18 @@ graph TB
         SVC[Services VIP<br/>10.0.40.10<br/>HAProxy → OKD Apps]
     end
 
-    subgraph "VLAN 50 - IoT/WiFi<br/>10.0.50.0/24"
-        WIFI1[WiFi Clients<br/>DHCP]
+    subgraph "VLAN 50 - IoT/Surveillance<br/>10.0.50.0/24"
         IOT[IoT Devices<br/>DHCP]
+        CAM[Surveillance Cameras<br/>DHCP]
     end
 
-    subgraph "VLAN 60 - Living Room<br/>10.0.60.0/24"
-        SW2[Living Room Switch]
-        LR1[TV/Devices<br/>DHCP]
+    subgraph "VLAN 60 - Game Consoles<br/>10.0.60.0/24"
+        GAME1[Gaming Console 1<br/>DHCP<br/>uPNP]
+        GAME2[Gaming Console 2<br/>DHCP<br/>uPNP]
+    end
+
+    subgraph "VLAN 70 - Helium Hotspot<br/>10.0.70.0/24"
+        HELIUM[Helium Miner<br/>Direct to OPNSense]
     end
 
     subgraph "VLAN 99 - Guest WiFi<br/>10.0.99.0/24"
@@ -97,9 +117,9 @@ graph TB
         NFS[NFS Service]
     end
 
-    subgraph "WiFi Access Points"
-        AP1[WiFi AP 1<br/>SSIDs: Home/Guest]
-        AP2[WiFi AP 2<br/>SSIDs: Home/Guest]
+    subgraph "WiFi Access Points (OpenWRT)"
+        AP1[WiFi AP 1<br/>SSIDs: Home/IoT/Guest]
+        AP2[WiFi AP 2<br/>SSIDs: Home/IoT/Guest]
     end
 
     subgraph "OKD Cluster Pods"
@@ -125,8 +145,8 @@ graph TB
     SW1 -.->|VLAN 1| PI
     SW1 -.->|VLAN 1| AP1M
     SW1 -.->|VLAN 1| AP2M
-    SW1 -.->|VLAN 10| PC
-    SW1 -.->|VLAN 10| DEV
+    SW1 -.->|VLAN 1| PC
+    SW1 -.->|VLAN 1| TV
     SW1 -.->|VLAN 20| TN20
     SW1 -.->|VLAN 20| M1
     SW1 -.->|VLAN 20| M2
@@ -135,17 +155,19 @@ graph TB
     SW1 -.->|VLAN 30| M1S
     SW1 -.->|VLAN 30| M2S
     SW1 -.->|VLAN 30| M3S
-    SW1 -.->|VLAN 50| AP1
-    SW1 -.->|VLAN 50| AP2
-    SW1 -.->|Trunk<br/>VLAN 1,60,99| SW2
+    SW1 -.->|VLAN 60| GAME1
+    SW1 -.->|VLAN 60| GAME2
     
-    %% Living Room Switch
-    SW2 -.->|VLAN 60| LR1
+    %% Helium Hotspot (Direct to OPNSense)
+    FW -->|VLAN 70| HELIUM
     
     %% WiFi APs to Clients
-    AP1 -.->|VLAN 50| WIFI1
+    AP1 -.->|VLAN 1| PC
+    AP1 -.->|VLAN 1| TV
+    AP2 -.->|VLAN 1| PC
     AP1 -.->|VLAN 50| IOT
-    AP2 -.->|VLAN 50| WIFI1
+    AP1 -.->|VLAN 50| CAM
+    AP2 -.->|VLAN 50| IOT
     AP1 -.->|VLAN 99| GUEST
     AP2 -.->|VLAN 99| GUEST
     
@@ -190,8 +212,7 @@ graph TB
     
     %% Client Access to Services
     PC -.->|HTTPS| SVC
-    WIFI1 -.->|HTTPS| SVC
-    LR1 -.->|HTTPS| SVC
+    TV -.->|HTTPS| SVC
     
     %% Styling
     classDef firewall fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
@@ -207,7 +228,7 @@ graph TB
     class SW1,SW2 switch
     class M1,M2,M3,TN20,TN30 server
     class TNFAST,TNBULK,NFS storage
-    class PC,DEV,WIFI1,IOT,LR1,GUEST client
+    class PC,TV,IOT,CAM,GAME1,GAME2,HELIUM,GUEST client
     class VIP1,VIP2,VIP3,SVC vip
     class TS,REMOTE remote
 ```
@@ -218,30 +239,27 @@ graph TB
 
 | VLAN | Name | Subnet | Purpose | Devices |
 |------|------|---------|---------|---------|
-| 1 | Management | 10.0.1.0/24 | Infrastructure management | OPNSense, Switches, Pi+KVM, TrueNAS UI |
-| 10 | Homelab | 10.0.10.0/24 | Admin workstations | Your PC, dev machines |
+| 1 | Management | 10.0.1.0/24 | Infrastructure, workstations, living room | OPNSense, switches, APs, TrueNAS mgmt, Pi KVM, desktop, TV |
 | 20 | OKD-Infra | 10.0.20.0/24 | OKD cluster nodes | 3x UM890, bootstrap, DNS |
-| 30 | OKD-Storage | 10.0.30.0/24 | Storage backend (isolated) | TrueNAS NFS/iSCSI backend |
-| 40 | Services | 10.0.40.0/24 | Published OKD services | HAProxy VIP for apps |
-| 50 | IoT/WiFi | 10.0.50.0/24 | WiFi clients, IoT devices | WiFi AP clients |
-| 60 | Living-Room | 10.0.60.0/24 | Downstream switch | Living room wired devices |
-| 99 | Guest-WiFi | 10.0.99.0/24 | Isolated guest network | Guest devices |
+| 30 | OKD-Storage | 10.0.30.0/24 | Storage backend (isolated) | TrueNAS NFS/iSCSI |
+| 40 | Services | 10.0.40.0/24 | Published OKD services | HAProxy VIP |
+| 50 | IoT/Surveillance | 10.0.50.0/24 | IoT devices, cameras | WiFi SSID: Home-IoT |
+| 60 | Game Consoles | 10.0.60.0/24 | Gaming consoles (uPNP enabled) | Wired gaming devices |
+| 70 | Helium Hotspot | 10.0.70.0/24 | Helium miner | Direct to OPNSense |
+| 99 | Guest-WiFi | 10.0.99.0/24 | Isolated guest network | WiFi SSID: Guest |
 
 ### IP Allocation
 
 #### VLAN 1 - Management (10.0.1.0/24)
 - Gateway: 10.0.1.1 (OPNSense)
 - Main Switch: 10.0.1.2
-- Living Room Switch: 10.0.1.3
 - TrueNAS Management: 10.0.1.4
 - Raspberry Pi + KVM: 10.0.1.10
 - WiFi AP 1: 10.0.1.21
 - WiFi AP 2: 10.0.1.22
-
-#### VLAN 10 - Homelab (10.0.10.0/24)
-- Gateway: 10.0.10.1
-- DHCP Range: 10.0.10.100-200
-- Your Workstation: 10.0.10.100
+- Your Workstation: 10.0.1.100
+- DHCP Range: 10.0.1.100-250
+- TV/Living Room Devices: DHCP
 
 #### VLAN 20 - OKD Infrastructure (10.0.20.0/24)
 - Gateway: 10.0.20.1
@@ -264,13 +282,21 @@ graph TB
 - Gateway: 10.0.40.1
 - OKD Apps VIP: 10.0.40.10 (HAProxy → OKD Ingress)
 
-#### VLAN 50 - IoT/WiFi (10.0.50.0/24)
+#### VLAN 50 - IoT/Surveillance (10.0.50.0/24)
 - Gateway: 10.0.50.1
 - DHCP Range: 10.0.50.100-200
+- WiFi AP 1: 10.0.50.10
+- WiFi AP 2: 10.0.50.11
 
-#### VLAN 60 - Living Room (10.0.60.0/24)
+#### VLAN 60 - Game Consoles (10.0.60.0/24)
 - Gateway: 10.0.60.1
 - DHCP Range: 10.0.60.100-200
+- uPNP: Enabled (automatic port forwarding)
+
+#### VLAN 70 - Helium Hotspot (10.0.70.0/24)
+- Gateway: 10.0.70.1
+- DHCP Range: 10.0.70.100-200
+- Connected: Direct to OPNSense (separate 2.5G port)
 
 #### VLAN 99 - Guest WiFi (10.0.99.0/24)
 - Gateway: 10.0.99.1
@@ -280,51 +306,110 @@ graph TB
 
 ## Phase 1: OPNSense Configuration
 
-### 1.1 Create VLANs
+### 1.1 Create VLAN Interfaces
 - Navigate to: Interfaces → Other Types → VLAN
-- Create VLANs: 1, 10, 20, 30, 40, 50, 60, 99
-- Parent interface: Main trunk port
+- Create VLANs on the main trunk port (the 2.5G port connected to switch):
+  - VLAN 1 (Management) - Parent: Main trunk interface
+  - VLAN 20 (OKD-Infra) - Parent: Main trunk interface
+  - VLAN 30 (OKD-Storage) - Parent: Main trunk interface
+  - VLAN 40 (Services) - Parent: Main trunk interface
+  - VLAN 50 (IoT/Surveillance) - Parent: Main trunk interface
+  - VLAN 60 (Game Consoles) - Parent: Main trunk interface
+  - VLAN 99 (Guest-WiFi) - Parent: Main trunk interface
+
+**Note:** VLAN 70 (Helium) will be on a separate physical interface (the 2.5G port directly connected to Helium hotspot)
+
+**Detailed Configuration:** See `OPNSense_VLAN_Configuration_Details.md` for complete field-by-field configuration for each VLAN interface.
 
 ### 1.2 Assign VLAN Interfaces
 - Navigate to: Interfaces → Assignments
-- Assign each VLAN to an interface
-- Configure static IPs for each VLAN gateway
-- Enable all interfaces
+- For each VLAN (1, 20, 30, 40, 50, 60, 99):
+  1. Click "+" to add new interface
+  2. Select the VLAN interface
+  3. Enable the interface
+  4. Configure static IP:
+     - VLAN 1: 10.0.1.1/24
+     - VLAN 20: 10.0.20.1/24
+     - VLAN 30: 10.0.30.1/24
+     - VLAN 40: 10.0.40.1/24
+     - VLAN 50: 10.0.50.1/24
+     - VLAN 60: 10.0.60.1/24
+     - VLAN 99: 10.0.99.1/24
 
-### 1.3 Configure DHCP Services
-- Navigate to: Services → DHCPv4
-- Enable DHCP on:
-  - VLAN 10 (Homelab): 10.0.10.100-200
-  - VLAN 50 (IoT/WiFi): 10.0.50.100-200
-  - VLAN 60 (Living Room): 10.0.60.100-200
-  - VLAN 99 (Guest): 10.0.99.100-200
-- Set DNS servers: 10.0.20.2 (TrueNAS), 10.0.1.1 (OPNSense)
+**Detailed Configuration:** See `OPNSense_VLAN_Assignment_Details.md` for complete field-by-field configuration for assigning and configuring each VLAN interface.
 
-### 1.4 Install HAProxy Plugin
+### 1.3 Configure Helium Hotspot Interface
+- Navigate to: Interfaces → Assignments
+- Assign the physical 2.5G port connected to Helium hotspot
+- Enable interface
+- Configure static IP: 10.0.70.1/24
+- Description: "Helium Hotspot"
+
+### 1.4 Configure KEA DHCP v4 Services
+- Navigate to: Services → Kea DHCP → Settings
+- Enable KEA DHCP service
+- Navigate to: Services → Kea DHCP → DHCPv4
+- Create DHCP subnets for:
+  - **VLAN 1 (Management):** 10.0.1.100-250
+  - **VLAN 50 (IoT/Surveillance):** 10.0.50.100-200
+  - **VLAN 60 (Game Consoles):** 10.0.60.100-200
+  - **VLAN 70 (Helium):** 10.0.70.100-200
+  - **VLAN 99 (Guest):** 10.0.99.100-200
+- Configure Option Data for each subnet:
+  - Routers (gateway): VLAN gateway IP
+  - Domain Name Servers: 10.0.20.2 (TrueNAS), 10.0.1.1 (OPNSense Unbound)
+  - Domain Name: lab (optional)
+
+**Detailed Configuration:** 
+- See `OPNSense_KEA_DHCP_Configuration.md` for complete field-by-field configuration for KEA DHCP v4
+- See `OPNSense_KEA_DHCP_By_VLAN_Name.md` for quick reference organized by VLAN names (Management, Guest, etc.)
+
+### 1.5 Enable uPNP for Game Consoles VLAN
+- Navigate to: Services → UPnP & NAT-PMP
+- Enable UPnP & NAT-PMP
+- Interfaces: Select VLAN 60 (Game Consoles)
+- Allow UPnP: Enable
+- Default deny: Enable (only allow what's requested)
+- Log packets: Optional (for troubleshooting)
+
+**Important:** This allows game consoles to automatically open ports via uPNP while keeping them isolated from other VLANs.
+
+### 1.6 Install HAProxy Plugin
 - Navigate to: System → Firmware → Plugins
 - Search for: `os-haproxy`
 - Click install
 - Enable HAProxy: Services → HAProxy → Settings
 
-### 1.5 Create Virtual IPs
+### 1.7 Create Virtual IPs
 - Navigate to: Interfaces → Virtual IPs → Settings
 
 **API VIP (VLAN 20):**
-- Interface: VLAN20
-- Address: 10.0.20.5/24
-- Description: OKD API VIP
+- Mode: IP Alias
+- Interface: OKDInfra (VLAN20)
+- Network / Address: 10.0.20.5/24
+- Gateway: (Leave empty)
+- Deny service binding: Unchecked
+- Description: OKD API VIP - Load balances API requests to master nodes
 
 **Apps VIP Internal (VLAN 20):**
-- Interface: VLAN20
-- Address: 10.0.20.6/24
-- Description: OKD Apps Internal VIP
+- Mode: IP Alias
+- Interface: OKDInfra (VLAN20)
+- Network / Address: 10.0.20.6/24
+- Gateway: (Leave empty)
+- Deny service binding: Unchecked
+- Description: OKD Apps Internal VIP - Load balances internal app requests
 
 **Apps VIP Services (VLAN 40):**
-- Interface: VLAN40
-- Address: 10.0.40.10/24
-- Description: OKD Apps External Access
+- Mode: IP Alias
+- Interface: Services (VLAN40)
+- Network / Address: 10.0.40.10/24
+- Gateway: (Leave empty)
+- Deny service binding: Unchecked
+- Description: OKD Apps External Access - Published OKD services
 
-### 1.6 Configure HAProxy Backends
+**Detailed Configuration:** See `OPNSense_Virtual_IP_Configuration.md` for complete field-by-field configuration for all Virtual IPs.
+
+### 1.8 Configure HAProxy Backends
 - Navigate to: Services → HAProxy → Settings → Backend
 
 **Backend 1: okd_api_backend**
@@ -365,7 +450,7 @@ graph TB
   - master2: 10.0.20.12:443 (SSL, no verify)
   - master3: 10.0.20.13:443 (SSL, no verify)
 
-### 1.7 Configure HAProxy Frontends
+### 1.9 Configure HAProxy Frontends
 - Navigate to: Services → HAProxy → Settings → Frontend
 
 **Frontend 1: okd_api_frontend**
@@ -398,98 +483,128 @@ graph TB
 - Type: TCP
 - Backend: okd_ingress_https_backend
 
-### 1.8 Configure Firewall Rules
+### 1.10 Configure Firewall Rules
 
 #### VLAN 1 (Management)
-- Allow: SSH to OPNSense (22)
-- Allow: Pi KVM (10.0.1.10) to any (full admin access)
-- Allow: Access to switch management interfaces
-- Block: Everything else by default
-
-#### VLAN 10 (Homelab)
+- Allow: All traffic within VLAN 1 (intra-VLAN communication)
 - Allow: TCP to 10.0.40.10:80,443 (OKD Services)
 - Allow: TCP to 10.0.20.5:6443 (OKD API for kubectl)
 - Allow: TCP to 10.0.1.4:443 (TrueNAS UI)
 - Allow: To !RFC1918 (Internet)
-- Block: Everything else
+- Default deny: Everything else
 
 #### VLAN 20 (OKD-Infra)
 - Allow: Any to VLAN20 net (cluster mesh)
 - Allow: TCP to VLAN30 net:2049,111,3260 (NFS/iSCSI)
 - Allow: To !RFC1918 (Internet for image pulls)
-- Block: Everything else
+- Default deny: Everything else
 
-#### VLAN 30 (Storage)
-- Allow: TCP from VLAN20 net:2049,111,3260 (Storage protocols)
-- Block: Everything else
+#### VLAN 30 (OKD-Storage)
+- Allow: TCP from VLAN20 net:2049,111,3260 (Storage protocols only)
+- Default deny: Everything else (highly isolated)
 
 #### VLAN 40 (Services)
 - Allow: Established/related connections
-- (VIP only, no hosts)
+- (VIP only, no hosts on this VLAN)
 
-#### VLAN 50 (IoT/WiFi)
-- Allow: TCP to 10.0.40.10:80,443 (OKD Services)
+#### VLAN 50 (IoT/Surveillance)
 - Allow: UDP to 10.0.20.2,10.0.1.1:53 (DNS)
 - Allow: To !RFC1918 (Internet)
 - Block: To RFC1918 (isolate from infrastructure)
+- **No access to Services VLAN** (cameras don't need web apps)
 
-#### VLAN 60 (Living Room)
-- Allow: TCP to 10.0.40.10:80,443 (OKD Services)
+#### VLAN 60 (Game Consoles)
 - Allow: UDP to 10.0.20.2,10.0.1.1:53 (DNS)
 - Allow: To !RFC1918 (Internet)
 - Block: To RFC1918 (isolate from infrastructure)
+- **uPNP will handle port forwarding automatically**
+- **No access to Services VLAN**
 
-#### VLAN 99 (Guest)
+#### VLAN 70 (Helium Hotspot)
+- Allow: To !RFC1918 (Internet only)
+- Block: To RFC1918 (isolate from infrastructure)
+
+#### VLAN 99 (Guest-WiFi)
 - Allow: To !RFC1918 (Internet only)
 - Block: To RFC1918 (complete isolation)
 
-### 1.9 Configure DNS Forwarding
+### 1.11 Configure Unbound DNS
+- Navigate to: Services → Unbound DNS → General
+- Verify Unbound DNS is enabled
+- Configure Network Interfaces: Select all VLAN interfaces
+- Enable DNS Query Forwarding
+- Configure Upstream DNS Servers:
+  - Primary: 10.0.20.2 (TrueNAS Bind9)
+  - Secondary: 1.1.1.1 (Cloudflare) or 8.8.8.8 (Google)
 - Navigate to: Services → Unbound DNS → Overrides
 - Add Domain Override:
   - Domain: okd.lab
   - IP: 10.0.20.2
   - Description: Forward to TrueNAS Bind9
 
-### 1.10 Configure NAT/Outbound
+**Detailed Configuration:** See `OPNSense_Unbound_DNS_Configuration.md` for complete field-by-field configuration for Unbound DNS.
+
+### 1.12 Configure NAT/Outbound
 - Navigate to: Firewall → NAT → Outbound
 - Mode: Hybrid or Manual
 - Create outbound NAT rules for each VLAN → WAN
 
 ---
 
-## Phase 2: Switch Configuration
+## Phase 2: TRENDnet TEG-3102WS Switch Configuration
 
-### 2.1 Main Switch Setup
+### 2.1 Access Switch Management
+- Connect to switch management interface (likely 192.168.0.1 or check switch docs)
+- Login with admin credentials
 
-**Create VLANs:**
-- Create VLANs: 1, 10, 20, 30, 40, 50, 60, 99
+### 2.2 Configure Switch Management IP
+- Set static IP: 10.0.1.2/24
+- Gateway: 10.0.1.1
+- DNS: 10.0.20.2, 10.0.1.1
 
-**Port Configuration:**
+### 2.3 Create VLANs
+**Location:** VLAN → VLAN Configuration
 
-| Port | Device | Mode | VLANs | PVID |
-|------|--------|------|-------|------|
-| 1 | OPNSense | Trunk | 1,10,20,30,40,50,60,99 | 1 |
-| 2 | Living Room Switch | Trunk | 1,60,99 | 1 |
-| 3 | TrueNAS N5 Pro | Trunk | 1,20,30,40 | 1 |
-| 4 | UM890 Master1 | Trunk | 1,20,30 | 1 |
-| 5 | UM890 Master2 | Trunk | 1,20,30 | 1 |
-| 6 | UM890 Master3 | Trunk | 1,20,30 | 1 |
-| 7 | WiFi AP 1 | Trunk | 1,50,99 | 1 |
-| 8 | WiFi AP 2 | Trunk | 1,50,99 | 1 |
-| 9 | Raspberry Pi KVM | Access | 1 | 1 |
-| 10 | Your Workstation | Access | 10 | 10 |
+Create VLANs:
+- VLAN 1 (Management)
+- VLAN 20 (OKD-Infra)
+- VLAN 30 (OKD-Storage)
+- VLAN 40 (Services)
+- VLAN 50 (IoT/Surveillance)
+- VLAN 60 (Game Consoles)
+- VLAN 99 (Guest-WiFi)
 
-### 2.2 Living Room Switch Setup
+### 2.4 Configure Ports
 
-**Create VLANs:**
-- Create VLANs: 1, 60, 99
+| Port | Device | Mode | Tagged VLANs | Untagged/PVID |
+|------|--------|------|--------------|---------------|
+| 1 (2.5G) | OPNSense (trunk) | Trunk | 1,20,30,40,50,60,99 | 1 |
+| 2-8 (2.5G) | Available | Access | - | 1 (Management) |
+| 9 (10G) | TrueNAS | Trunk | 1,20,30,40 | 1 |
+| 10 (10G) | Desktop | Access | - | 1 (Management) |
 
-**Port Configuration:**
+**Port 1 (OPNSense Trunk):**
+- Mode: Trunk/Tagged
+- Tagged VLANs: 1,20,30,40,50,60,99
+- PVID: 1
 
-| Port | Device | Mode | VLANs | PVID |
-|------|--------|------|-------|------|
-| 1 | Uplink to Main Switch | Trunk | 1,60,99 | 1 |
-| 2-8 | Living Room Devices | Access | 60 | 60 |
+**Port 9 (TrueNAS):**
+- Mode: Trunk/Tagged
+- Tagged VLANs: 1,20,30,40
+- PVID: 1
+
+**Ports 2-8, 10 (Access ports):**
+- Mode: Access/Untagged
+- PVID: 1 (Management VLAN)
+
+**Note:** WiFi APs will connect to access ports and handle VLAN tagging internally via OpenWRT.
+
+### 2.5 Configure Port for Game Consoles (if needed)
+If you have a dedicated port for game consoles:
+- Set port to Access mode
+- PVID: 60 (Game Consoles VLAN)
+
+**Detailed Configuration:** See `TRENDnet_TEG3102WS_Switch_Configuration.md` for complete step-by-step configuration with all field details.
 
 ---
 
@@ -590,7 +705,7 @@ services:
 options {
     directory "/var/cache/bind";
     listen-on port 53 { 127.0.0.1; 10.0.20.2; };
-    allow-query { localhost; 10.0.20.0/24; 10.0.10.0/24; 10.0.50.0/24; 10.0.60.0/24; };
+    allow-query { localhost; 10.0.1.0/24; 10.0.20.0/24; 10.0.50.0/24; 10.0.60.0/24; };
     recursion yes;
     forwarders { 10.0.20.1; 1.1.1.1; 8.8.8.8; };
     dnssec-validation no;
@@ -752,38 +867,104 @@ sudo chmod +x /root/start-okd-helper.sh
 
 ---
 
-## Phase 4: WiFi Access Point Configuration
+## Phase 4: OpenWRT Access Point Configuration (Netgear RBK50)
 
-### 4.1 Access AP Management Interface
-- Connect to AP on VLAN 1
-- Access web UI at 10.0.1.21 and 10.0.1.22
+### 4.1 Access AP Management
+- Connect to AP via wired connection (will be on Management VLAN initially)
+- Access web UI (likely 192.168.1.1 or check current IP)
+- Login with admin credentials
 
 ### 4.2 Configure Management Interface
-- Set static IP: 10.0.1.21 (or 10.0.1.22)
+**Location:** Network → Interfaces → LAN
+
+- Protocol: Static
+- IP Address: 10.0.1.21 (for AP1) or 10.0.1.22 (for AP2)
+- Netmask: 255.255.255.0
 - Gateway: 10.0.1.1
 - DNS: 10.0.20.2, 10.0.1.1
 
-### 4.3 Configure SSIDs
+### 4.3 Configure VLANs on Switch Interface
+**Location:** Network → Switch
 
-**SSID 1: YourHomeNetwork**
-- VLAN: 50
-- Security: WPA3/WPA2
-- Password: [Your secure password]
-- Broadcast: Enabled
+Configure the switch interface to support VLAN tagging:
+- Create VLAN 1 (Management) - untagged on CPU port
+- Create VLAN 50 (IoT/Surveillance) - tagged
+- Create VLAN 99 (Guest-WiFi) - tagged
 
-**SSID 2: YourHomeNetwork-5G**
-- VLAN: 50
-- Security: WPA3/WPA2
-- Password: [Same as above]
-- Band: 5GHz only
-- Broadcast: Enabled
+### 4.4 Create VLAN Interfaces
+**Location:** Network → Interfaces
 
-**SSID 3: Guest**
-- VLAN: 99
-- Security: WPA2
-- Password: [Guest password]
-- Client Isolation: Enabled
-- Broadcast: Enabled
+**VLAN 50 (IoT/Surveillance):**
+- Protocol: Static
+- Device: eth0.50 (or appropriate VLAN interface)
+- IP Address: 10.0.50.10 (AP1) or 10.0.50.11 (AP2)
+- Netmask: 255.255.255.0
+- Gateway: 10.0.50.1
+
+**VLAN 99 (Guest-WiFi):**
+- Protocol: Static (optional, or use bridge without IP)
+- Device: eth0.99
+- IP Address: Not required (can be unconfigured for guest)
+
+### 4.5 Configure WiFi SSIDs
+**Location:** Wireless
+
+**SSID 1: YourHomeNetwork (2.4GHz)**
+- Network: LAN (Management VLAN 1)
+- Mode: Access Point
+- SSID: YourHomeNetwork
+- Encryption: WPA3/WPA2
+- Key: [Your secure password]
+- Network: Bridge to LAN interface
+
+**SSID 2: YourHomeNetwork-5G (5GHz)**
+- Network: LAN (Management VLAN 1)
+- Mode: Access Point
+- SSID: YourHomeNetwork-5G
+- Encryption: WPA3/WPA2
+- Key: [Same password]
+- Network: Bridge to LAN interface
+
+**SSID 3: Home-IoT (2.4GHz)**
+- Network: Create new interface "IoT" bridging to VLAN 50
+- Mode: Access Point
+- SSID: Home-IoT
+- Encryption: WPA2 (IoT devices often don't support WPA3)
+- Key: [IoT password]
+- Network: Bridge to VLAN 50 interface
+- Client Isolation: Enable (optional, prevents IoT devices from talking to each other)
+
+**SSID 4: Home-IoT-5G (5GHz)** (if needed)
+- Same as above but 5GHz
+
+**SSID 5: Guest (2.4GHz)**
+- Network: Create new interface "Guest" bridging to VLAN 99
+- Mode: Access Point
+- SSID: Guest
+- Encryption: WPA2
+- Key: [Guest password]
+- Network: Bridge to VLAN 99 interface
+- Client Isolation: Enable (required for guest network)
+
+**SSID 6: Guest-5G (5GHz)**
+- Same as above but 5GHz
+
+### 4.6 Configure Firewall Rules (OpenWRT)
+**Location:** Network → Firewall
+
+Ensure firewall rules allow:
+- Management VLAN: Full access
+- IoT VLAN: Internet only (handled by OPNSense, but AP should forward)
+- Guest VLAN: Internet only (handled by OPNSense)
+
+### 4.7 Configure Mesh (if using mesh mode)
+**Location:** Network → Wireless → Mesh
+
+- Ensure mesh is configured on Management VLAN (VLAN 1)
+- Mesh should work across both APs for Management SSIDs
+- IoT and Guest SSIDs may need separate mesh configuration if supported
+
+**Note:** Voxel firmware is based on OpenWRT, so standard OpenWRT configuration applies. If the web UI doesn't support all features, you may need to use SSH and edit `/etc/config/network` and `/etc/config/wireless` directly.
 
 ---
 
@@ -1013,7 +1194,7 @@ oc patch configs.imageregistry.operator.openshift.io cluster \
 ```
 
 ### 7.3 Access Web Console
-From your workstation (VLAN 10):
+From your workstation (VLAN 1 - Management):
 
 Add to /etc/hosts:
 ```
@@ -1073,7 +1254,7 @@ oc get pods --all-namespaces
 ### 8.1 Test DNS Resolution
 From various VLANs:
 ```bash
-# From workstation (VLAN 10)
+# From workstation (VLAN 1 - Management)
 dig api.okd.lab
 dig console-openshift-console.apps.okd.lab
 
@@ -1081,22 +1262,27 @@ dig console-openshift-console.apps.okd.lab
 ```
 
 ### 8.2 Test Cross-VLAN Access
-**From Homelab VLAN (10):**
+**From Management VLAN (1):**
 ```bash
 curl -k https://console-openshift-console.apps.okd.lab
 # Should connect
 ```
 
-**From WiFi VLAN (50):**
-- Connect to WiFi
-- Browse to https://console-openshift-console.apps.okd.lab
-- Should access web console
+**From IoT/Surveillance VLAN (50):**
+- Connect to "Home-IoT" WiFi SSID
+- Should get IP in 10.0.50.x range
+- Should NOT access internal services (10.0.40.10)
+- Should have internet only
 
-**From Living Room VLAN (60):**
-- Access any OKD app via browser
-- Should work
+**From Game Consoles VLAN (60):**
+- Connect game console to VLAN 60 port
+- Should get IP in 10.0.60.x range
+- Should have internet access
+- Should NOT access internal services
 
 **From Guest VLAN (99):**
+- Connect to "Guest" WiFi SSID
+- Should get IP in 10.0.99.x range
 - Should NOT access internal services
 - Should have internet only
 
@@ -1121,7 +1307,19 @@ oc get pvc
 # Should show Bound status
 ```
 
-### 8.4 Deploy Test Application
+### 8.4 Test uPNP on Game Consoles
+- Connect game console to VLAN 60 port
+- Verify console gets IP in 10.0.60.x range
+- Check OPNSense: Services → UPnP & NAT-PMP → Status
+- Should see port mappings created automatically when game starts
+- Verify isolation: console should NOT be able to ping other VLANs
+
+### 8.5 Test Helium Hotspot
+- Verify Helium hotspot gets IP in 10.0.70.x range
+- Check internet connectivity from hotspot
+- Verify isolation: hotspot should NOT be able to access other VLANs
+
+### 8.6 Deploy Test Application
 ```bash
 oc new-project test-app
 oc new-app --name=nginx --docker-image=nginx:alpine
@@ -1131,7 +1329,7 @@ oc get route
 # Access from browser: http://nginx-test-app.apps.okd.lab
 ```
 
-### 8.5 Test Remote Access via Tailscale
+### 8.7 Test Remote Access via Tailscale
 - Connect to Tailscale VPN
 - Access: https://console-openshift-console.apps.okd.lab
 - Should work from anywhere
@@ -1297,13 +1495,13 @@ oc get all --all-namespaces -o yaml > cluster-backup.yaml
 
 | Source VLAN | Can Access | Via | Notes |
 |-------------|------------|-----|-------|
-| Management (1) | Everything | Direct | Full admin access |
-| Homelab (10) | API + Services | 10.0.20.5, 10.0.40.10 | Full dev access |
+| Management (1) | Everything | Direct | Full admin access, includes workstations and living room devices |
 | OKD-Infra (20) | Cluster mesh | Internal | Backend only |
 | Storage (30) | None | - | Backend only |
 | Services (40) | N/A | VIP only | No hosts |
-| IoT/WiFi (50) | Web services only | 10.0.40.10:80,443 | Limited access |
-| Living Room (60) | Web services only | 10.0.40.10:80,443 | Limited access |
+| IoT/Surveillance (50) | Internet only | - | Isolated from infrastructure |
+| Game Consoles (60) | Internet only | - | Isolated, uPNP enabled |
+| Helium Hotspot (70) | Internet only | - | Isolated |
 | Guest (99) | None | - | Internet only |
 
 ---
