@@ -1,8 +1,8 @@
 # Firewall configuration with sensitive Cloudflare account info
 okd-cluster/Firewall_Configuration.md
 # OKC Cluster Firewall Configuration
-okd-cluster\trial-os-cluster1-test-installation\kubeconfig-noingress.yaml
-okd-cluster\trial-os-cluster1-test-installation\kubeconfig-noingress
+okd-cluster/trial-os-cluster1-test-installation/kubeconfig-noingress.yaml
+okd-cluster/trial-os-cluster1-test-installation/kubeconfig-noingress
 # Claude Code settings (local configurations)
 **/.claude/
 
