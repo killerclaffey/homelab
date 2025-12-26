@@ -1,0 +1,83 @@
+apiVersion: v1alpha1
+kind: AgentConfig
+metadata:
+  name: okd
+rendezvousIP: 10.0.20.100
+hosts:
+  - hostname: k81
+    role: master
+    interfaces:
+      - name: enp1s0
+        macAddress: "58:47:ca:7c:33:ae"
+    networkConfig:
+      interfaces:
+        - name: enp1s0
+          type: ethernet
+          state: up
+          ipv4:
+            enabled: true
+            address:
+              - ip: 10.0.20.100
+                prefix-length: 24
+            dhcp: false
+      dns-resolver:
+        config:
+          server:
+            - 10.0.20.1
+      routes:
+        config:
+          - destination: 0.0.0.0/0
+            next-hop-address: 10.0.20.1
+            next-hop-interface: enp1s0
+  
+  - hostname: k82
+    role: master
+    interfaces:
+      - name: enp1s0
+        macAddress: "58:47:ca:7b:8f:78"
+    networkConfig:
+      interfaces:
+        - name: enp1s0
+          type: ethernet
+          state: up
+          ipv4:
+            enabled: true
+            address:
+              - ip: 10.0.20.101
+                prefix-length: 24
+            dhcp: false
+      dns-resolver:
+        config:
+          server:
+            - 10.0.20.1
+      routes:
+        config:
+          - destination: 0.0.0.0/0
+            next-hop-address: 10.0.20.1
+            next-hop-interface: enp1s0
+  
+  - hostname: k83
+    role: master
+    interfaces:
+      - name: enp1s0
+        macAddress: "58:47:ca:7d:ee:43"
+    networkConfig:
+      interfaces:
+        - name: enp1s0
+          type: ethernet
+          state: up
+          ipv4:
+            enabled: true
+            address:
+              - ip: 10.0.20.102
+                prefix-length: 24
+            dhcp: false
+      dns-resolver:
+        config:
+          server:
+            - 10.0.20.1
+      routes:
+        config:
+          - destination: 0.0.0.0/0
+            next-hop-address: 10.0.20.1
+            next-hop-interface: enp1s0

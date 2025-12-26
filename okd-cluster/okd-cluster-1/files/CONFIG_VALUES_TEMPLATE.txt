@@ -1,0 +1,152 @@
+# Configuration Values Template
+# Fill in your specific values and use this as a reference when updating the config files
+
+## Cluster Information
+CLUSTER_NAME="okd"
+BASE_DOMAIN="claffey.cloud"
+FULL_CLUSTER_DOMAIN="okd.claffey.cloud"
+
+## Network Configuration
+NETWORK_CIDR="10.0.20.0/24"
+GATEWAY="10.0.20.1"
+DNS_SERVER="10.0.20.1"
+NETMASK_BITS="24"  # /24 = 255.255.255.0
+
+## Node Configuration
+# Format: NODE_NAME=IP_ADDRESS
+
+### Node: k81 (Rendezvous/First Master)
+K81_HOSTNAME="k81"
+K81_IP="10.0.20.100"
+K81_MAC="58:47:ca:7c:33:ae"
+K81_INTERFACE="enp1s0"        # <<< VERIFY THIS
+
+### Node: k82 (Second Master)
+K82_HOSTNAME="k82"
+K82_IP="10.0.20.101"
+K82_MAC="58:47:ca:7b:8f:78"
+K82_INTERFACE="enp1s0"        # <<< VERIFY THIS
+
+### Node: k83 (Third Master)
+K83_HOSTNAME="k83"
+K83_IP="10.0.20.102"
+K83_MAC="58:47:ca:7d:ee:43"
+K83_INTERFACE="enp1s0"        # <<< VERIFY THIS
+
+## SSH Configuration
+SSH_PUBLIC_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ..."  # <<< UPDATE THIS
+# Generate with: ssh-keygen -t rsa -b 4096 -C "okd-cluster"
+# Get value with: cat ~/.ssh/id_rsa.pub
+
+## Rendezvous Configuration
+# The rendezvous IP must be the IP of one of the master nodes
+# Typically the first master node
+RENDEZVOUS_IP="10.0.20.100"
+RENDEZVOUS_HOSTNAME="k81"
+
+## DNS Records Required
+# Add these to your DNS server:
+#
+# A Records:
+# api.okd.claffey.cloud                IN  A  10.0.20.100
+# api-int.okd.claffey.cloud            IN  A  10.0.20.100
+# k81.okd.claffey.cloud                IN  A  10.0.20.100
+# k82.okd.claffey.cloud                IN  A  10.0.20.101
+# k83.okd.claffey.cloud                IN  A  10.0.20.102
+# *.apps.okd.claffey.cloud             IN  A  10.0.20.100
+#
+# SRV Records:
+# _etcd-server-ssl._tcp.okd.claffey.cloud. 86400 IN SRV 0 10 2380 k81.okd.claffey.cloud.
+# _etcd-server-ssl._tcp.okd.claffey.cloud. 86400 IN SRV 0 10 2380 k82.okd.claffey.cloud.
+# _etcd-server-ssl._tcp.okd.claffey.cloud. 86400 IN SRV 0 10 2380 k83.okd.claffey.cloud.
+#
+# PTR Records (Reverse DNS):
+# 100.20.0.10.in-addr.arpa.            IN  PTR  k81.okd.claffey.cloud.
+# 101.20.0.10.in-addr.arpa.            IN  PTR  k82.okd.claffey.cloud.
+# 102.20.0.10.in-addr.arpa.            IN  PTR  k83.okd.claffey.cloud.
+
+## Cluster Networking (Internal)
+CLUSTER_NETWORK_CIDR="10.128.0.0/14"
+CLUSTER_NETWORK_HOST_PREFIX="23"
+SERVICE_NETWORK_CIDR="172.30.0.0/16"
+NETWORK_TYPE="OVNKubernetes"  # or "OpenShiftSDN"
+
+## How to Get Required Information
+
+### Get MAC Addresses:
+# Run on each node:
+#   ip link show
+# Look for the "link/ether" line for your primary interface
+# Example output:
+#   2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500
+#      link/ether 52:54:00:6b:8c:8e brd ff:ff:ff:ff:ff:ff
+
+### Get Interface Name:
+# Run on each node:
+#   ip link show
+# The interface name is before the colon (e.g., enp1s0, ens3, eth0)
+
+### Generate SSH Key:
+#   ssh-keygen -t rsa -b 4096 -C "okd-cluster-access"
+#   cat ~/.ssh/id_rsa.pub
+
+### Verify DNS:
+#   nslookup api.okd.claffey.cloud
+#   nslookup k81.okd.claffey.cloud
+#   nslookup 10.0.20.100
+
+## Installation Commands Reference
+
+### 1. Prepare Configuration:
+#   vim install-config.yaml  # Update SSH_PUBLIC_KEY
+#   vim agent-config.yaml    # Update MAC addresses and interface names
+
+### 2. Generate ISO:
+#   openshift-install agent create image
+
+### 3. Boot Nodes (IN ORDER):
+#   1. Boot k81 (10.0.20.100) - Wait 5-10 minutes
+#   2. Boot k82 (10.0.20.101)
+#   3. Boot k83 (10.0.20.102)
+
+### 4. Monitor Installation:
+#   openshift-install agent wait-for bootstrap-complete --log-level=info
+#   openshift-install agent wait-for install-complete --log-level=info
+
+### 5. Access Cluster:
+#   export KUBECONFIG=$PWD/auth/kubeconfig
+#   oc get nodes
+
+## Validation Checklist
+
+Before generating ISO, verify:
+- [ ] All MAC addresses are correct and unique
+- [ ] SSH public key is correct
+- [ ] Interface names match your hardware
+- [ ] DNS records are created and resolving
+- [ ] All IPs are in the same subnet as gateway
+- [ ] Gateway and DNS server are reachable from all nodes
+- [ ] Nodes have internet access
+- [ ] Firewall rules allow traffic between nodes
+
+## Expected Timeline
+
+- ISO Generation: 2-5 minutes
+- Bootstrap Phase: 15-30 minutes
+- Installation Complete: 30-45 minutes
+- Total Time: ~60-90 minutes
+
+## Important Notes
+
+1. The first node booted (k81 - 10.0.20.100) becomes the rendezvous host
+2. All other nodes will contact the rendezvous host to join the cluster
+3. The same ISO can be used for all nodes
+4. Nodes must have internet access to pull container images
+5. DNS must be working correctly before starting installation
+6. Once a node is booted with the ISO, don't interrupt it - let it complete
+
+## Troubleshooting Contact Info
+
+- OKD Documentation: https://docs.okd.io/
+- OKD GitHub: https://github.com/okd-project/okd
+- Kubernetes Slack: #openshift-users channel

@@ -493,23 +493,238 @@ server:
 ### 2. Firewall Rules for OKD
 Add specific firewall rules as documented in the "Required OKD Firewall Rules" section above.
 
-### 3. HAProxy for API Load Balancing (Optional)
-If using HAProxy for API load balancing instead of VIP-only:
+### 3. HAProxy for OKD API Load Balancing
+
+#### Backend Configuration - OKD API Servers
+
+**Backend Name**: `okd_api_backend`
+
+**Real Servers**:
+```yaml
+Server 1:
+  Name: k81_api
+  Address: 10.0.20.100
+  Port: 6443
+  Mode: Active
+  SSL: No (TLS termination at API server)
+  Verify SSL Certificate: No
+  Weight: 1
+
+Server 2:
+  Name: k82_api
+  Address: 10.0.20.101
+  Port: 6443
+  Mode: Active
+  SSL: No
+  Verify SSL Certificate: No
+  Weight: 1
+
+Server 3:
+  Name: k83_api
+  Address: 10.0.20.102
+  Port: 6443
+  Mode: Active
+  SSL: No
+  Verify SSL Certificate: No
+  Weight: 1
+```
+
+**Backend Settings**:
+```yaml
+Mode: TCP
+Balance Algorithm: roundrobin
+Health Check Method: Basic
+Health Check Interval: 5000ms (5 seconds)
+Health Check Timeout: 3000ms (3 seconds)
+Health Check Retries: 3
+Check Type: TCP
+Check Port: 6443
+```
+
+#### Frontend Configuration - OKD API VIP
+
+**Frontend Name**: `okd_api_frontend`
 
 ```yaml
-Frontend: okd_api_frontend
-  Bind: 10.0.20.5:6443
-  Mode: TCP
-  Backend: okd_api_backend
-
-Backend: okd_api_backend
-  Mode: TCP
-  Servers:
-    - k81: 10.0.20.100:6443
-    - k82: 10.0.20.101:6443
-    - k83: 10.0.20.102:6443
-  Health Check: TCP connection to port 6443
+Name: okd_api_frontend
+Status: Active
+Description: OKD Kubernetes API Load Balancer
+Listen Address: 10.0.20.5:6443
+Type: TCP (no SSL offloading)
+Default Backend: okd_api_backend
 ```
+
+**Frontend Settings**:
+```yaml
+Mode: TCP
+Max Connections: 2000
+Client Timeout: 30000ms (30 seconds)
+Advanced:
+  # Enable connection logging for troubleshooting
+  option tcplog
+  # Preserve client IP information
+  option tcp-check
+```
+
+#### OPNsense Web UI Configuration Steps
+
+**Step 1: Create Backend (Real Servers)**
+1. Navigate to: `Services → HAProxy → Real Servers`
+2. Click `+ Add` for each server:
+
+   **Server 1 (k81_api)**:
+   - Name: `k81_api`
+   - FQDN or IP: `10.0.20.100`
+   - Port: `6443`
+   - SSL: `☐ Unchecked`
+   - Verify SSL Certificate: `☐ Unchecked`
+   - Weight: `1`
+   - Mode: `active`
+   - Click `Save`
+
+   **Server 2 (k82_api)**:
+   - Name: `k82_api`
+   - FQDN or IP: `10.0.20.101`
+   - Port: `6443`
+   - SSL: `☐ Unchecked`
+   - Verify SSL Certificate: `☐ Unchecked`
+   - Weight: `1`
+   - Mode: `active`
+   - Click `Save`
+
+   **Server 3 (k83_api)**:
+   - Name: `k83_api`
+   - FQDN or IP: `10.0.20.102`
+   - Port: `6443`
+   - SSL: `☐ Unchecked`
+   - Verify SSL Certificate: `☐ Unchecked`
+   - Weight: `1`
+   - Mode: `active`
+   - Click `Save`
+
+**Step 2: Create Backend Pool**
+1. Navigate to: `Services → HAProxy → Virtual Services → Backend Pools`
+2. Click `+ Add`
+3. Configure:
+   - Name: `okd_api_backend`
+   - Description: `OKD Kubernetes API Backend`
+   - Mode: `TCP`
+   - Servers: Select all three: `k81_api`, `k82_api`, `k83_api`
+   - Balance: `Round Robin`
+   - Health Check Method: `Basic`
+   - Check interval: `5000` (milliseconds)
+   - Check timeout: `3000` (milliseconds)
+   - Retries: `3`
+   - Advanced settings (optional):
+     ```
+     option tcp-check
+     ```
+4. Click `Save`
+
+**Step 3: Create Frontend (Public Service)**
+1. Navigate to: `Services → HAProxy → Virtual Services → Public Services`
+2. Click `+ Add`
+3. Configure:
+   - Name: `okd_api_frontend`
+   - Description: `OKD Kubernetes API Load Balancer`
+   - Status: `☑ Active`
+   - Listen Addresses:
+     - Click `+`
+     - Select: `10.0.20.5:6443` (OKD API VIP)
+   - Type: `TCP`
+   - Default Backend Pool: `okd_api_backend`
+   - Max connections: `2000`
+   - Client timeout: `30000`
+   - Advanced settings (optional):
+     ```
+     option tcplog
+     ```
+4. Click `Save`
+
+**Step 4: Apply Configuration**
+1. Click `Apply` at the top of the HAProxy page
+2. Verify HAProxy service restarts successfully
+3. Navigate to: `Services → HAProxy → Diagnostics → Stats`
+4. Confirm all three backend servers show as `UP`
+
+#### Testing the API Load Balancer
+
+**Test 1: Check HAProxy is listening on VIP**
+```bash
+# From OPNsense firewall or another host on VLAN 20
+netstat -an | grep 6443
+# Should show: 10.0.20.5:6443 LISTEN
+
+# Or
+sockstat -4 -l | grep 6443
+```
+
+**Test 2: Test API connectivity through load balancer**
+```bash
+# From a management host
+curl -k https://10.0.20.5:6443/version
+
+# Or using kubectl/oc (if kubeconfig points to api.okd.claffey.cloud → 10.0.20.5)
+kubectl version
+oc version
+```
+
+**Test 3: Verify load balancing across nodes**
+```bash
+# Check HAProxy stats page
+# Navigate to: Services → HAProxy → Diagnostics → Stats
+# Look for okd_api_backend - all servers should show:
+#   - Status: UP (green)
+#   - Active connections distributed
+#   - No errors
+```
+
+**Test 4: Test failover**
+```bash
+# Shutdown one control plane node (e.g., k81)
+# API should remain accessible via VIP
+kubectl get nodes
+
+# All API calls should succeed via remaining nodes
+# HAProxy stats should show k81_api as DOWN
+```
+
+#### Monitoring and Troubleshooting
+
+**Check HAProxy Status**:
+```bash
+# Via OPNsense Web UI
+Services → HAProxy → Diagnostics → Stats
+
+# Via SSH
+sockstat -4 | grep haproxy
+```
+
+**View HAProxy Logs**:
+```bash
+# Via OPNsense Web UI
+System → Log Files → HAProxy
+
+# Via SSH
+tail -f /var/log/haproxy.log
+```
+
+**Common Issues**:
+
+1. **Backend servers show as DOWN**:
+   - Verify control plane nodes are running
+   - Check port 6443 is accessible: `nc -zv 10.0.20.100 6443`
+   - Verify firewall rules allow health checks from 10.0.20.1
+
+2. **Connection refused on VIP**:
+   - Verify VIP 10.0.20.5 is configured: `ifconfig opt4`
+   - Check HAProxy is running: `service haproxy status`
+   - Verify frontend is listening: `sockstat -4 -l | grep 6443`
+
+3. **Intermittent connection failures**:
+   - Check health check settings (timeout may be too aggressive)
+   - Review HAProxy stats for server flapping
+   - Increase health check interval if needed
 
 ## Troubleshooting
 

@@ -1,0 +1,21 @@
+apiVersion: v1
+baseDomain: claffey.cloud
+metadata:
+  name: okd
+compute:
+- name: worker
+  replicas: 0
+controlPlane:
+  name: master
+  replicas: 3
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  serviceNetwork:
+  - 172.30.0.0/16
+  networkType: OVNKubernetes
+platform:
+  none: {}
+pullSecret: '{"auths":{"fake":{"auth":"YOUR_PULL_SECRET_HERE"}}}'
+sshKey: 'YOUR_SSH_PUBLIC_KEY_HERE'
