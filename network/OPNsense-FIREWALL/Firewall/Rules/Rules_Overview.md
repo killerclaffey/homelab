@@ -17,7 +17,7 @@
 
 **Source:**
 - Type: LAN network
-- Address: 10.0.0.0/20
+- Address: 10.0.0.0/24
 
 **Destination:**
 - Type: Any
