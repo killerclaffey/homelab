@@ -13,8 +13,8 @@
 
 ### Key Configuration Files
 - [VLAN Implementation Checklist](network/VLANs/VLAN_IMPLEMENTATION_CHECKLIST.md)
-- [OPNSense VLAN Configuration](network/OPNsense-FIREWALL/OPNSense_VLAN_Configuration_Details.md)
-- [OPNSense KEA DHCP Setup](network/OPNsense-FIREWALL/OPNSense_KEA_DHCP_Configuration.md)
+- [OPNSense VLAN Configuration](network/OPNsense-FIREWALL/Interfaces/vLANs/OPNSense_VLAN_Configuration_Details.md)
+- [OPNSense KEA DHCP Setup](network/OPNsense-FIREWALL/Services/DHCP/OPNSense_KEA_DHCP_Configuration.md)
 - [Switch Configuration Guide](network/TRENDnet-SWITCH/TRENDnet_TEG3102WS_Switch_Configuration.md)
 - [Rack Mounting Plan](physical/rackmount-plan.md)
 
@@ -319,7 +319,7 @@ graph TB
 
 **Note:** VLAN 70 (Helium) will be on a separate physical interface (the 2.5G port directly connected to Helium hotspot)
 
-**Detailed Configuration:** See `OPNSense_VLAN_Configuration_Details.md` for complete field-by-field configuration for each VLAN interface.
+**Detailed Configuration:** See [OPNSense VLAN Configuration](network/OPNsense-FIREWALL/Interfaces/vLANs/OPNSense_VLAN_Configuration_Details.md) for complete field-by-field configuration for each VLAN interface.
 
 ### 1.2 Assign VLAN Interfaces
 - Navigate to: Interfaces → Assignments
@@ -336,7 +336,7 @@ graph TB
      - VLAN 60: 10.0.60.1/24
      - VLAN 99: 10.0.99.1/24
 
-**Detailed Configuration:** See `OPNSense_VLAN_Assignment_Details.md` for complete field-by-field configuration for assigning and configuring each VLAN interface.
+**Detailed Configuration:** See [OPNSense VLAN Assignment](network/OPNsense-FIREWALL/Interfaces/vLANs/OPNSense_VLAN_Assignment_Details.md) for complete field-by-field configuration for assigning and configuring each VLAN interface.
 
 ### 1.3 Configure Helium Hotspot Interface
 - Navigate to: Interfaces → Assignments
@@ -360,9 +360,9 @@ graph TB
   - Domain Name Servers: 10.0.20.2 (TrueNAS), 10.0.1.1 (OPNSense Unbound)
   - Domain Name: lab (optional)
 
-**Detailed Configuration:** 
-- See `OPNSense_KEA_DHCP_Configuration.md` for complete field-by-field configuration for KEA DHCP v4
-- See `OPNSense_KEA_DHCP_By_VLAN_Name.md` for quick reference organized by VLAN names (Management, Guest, etc.)
+**Detailed Configuration:**
+- See [OPNSense KEA DHCP Configuration](network/OPNsense-FIREWALL/Services/DHCP/OPNSense_KEA_DHCP_Configuration.md) for complete field-by-field configuration for KEA DHCP v4
+- See [OPNSense KEA DHCP By VLAN](network/OPNsense-FIREWALL/Services/DHCP/OPNSense_KEA_DHCP_By_VLAN_Name.md) for quick reference organized by VLAN names (Management, Guest, etc.)
 
 ### 1.5 Enable uPNP for Game Consoles VLAN
 - Navigate to: Services → UPnP & NAT-PMP
@@ -407,7 +407,7 @@ graph TB
 - Deny service binding: Unchecked
 - Description: OKD Apps External Access - Published OKD services
 
-**Detailed Configuration:** See `OPNSense_Virtual_IP_Configuration.md` for complete field-by-field configuration for all Virtual IPs.
+**Detailed Configuration:** See [OPNSense Virtual IPs](network/OPNsense-FIREWALL/Interfaces/Virtual_IPs/Virtual_IPs.md) for complete field-by-field configuration for all Virtual IPs.
 
 ### 1.8 Configure HAProxy Backends
 - Navigate to: Services → HAProxy → Settings → Backend
@@ -542,7 +542,7 @@ graph TB
   - IP: 10.0.20.2
   - Description: Forward to TrueNAS Bind9
 
-**Detailed Configuration:** See `OPNSense_Unbound_DNS_Configuration.md` for complete field-by-field configuration for Unbound DNS.
+**Detailed Configuration:** See [OPNSense Unbound DNS Configuration](network/OPNsense-FIREWALL/Services/DNS/Unbound/OPNSense_Unbound_DNS_Configuration.md) for complete field-by-field configuration for Unbound DNS.
 
 ### 1.12 Configure NAT/Outbound
 - Navigate to: Firewall → NAT → Outbound
@@ -604,7 +604,7 @@ If you have a dedicated port for game consoles:
 - Set port to Access mode
 - PVID: 60 (Game Consoles VLAN)
 
-**Detailed Configuration:** See `TRENDnet_TEG3102WS_Switch_Configuration.md` for complete step-by-step configuration with all field details.
+**Detailed Configuration:** See [TRENDnet Switch Configuration](network/TRENDnet-SWITCH/TRENDnet_TEG3102WS_Switch_Configuration.md) for complete step-by-step configuration with all field details.
 
 ---
 
