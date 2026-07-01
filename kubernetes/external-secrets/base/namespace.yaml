@@ -2,13 +2,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   annotations:
+    argocd.argoproj.io/sync-wave: "0"
     openshift.io/description: Inject external secrets in to k8s
     openshift.io/display-name: External Secrets Operator
-    openshift.io/requester: killerclaffey
-    openshift.io/sa.scc.mcs: s0:c28,c27
-    openshift.io/sa.scc.supplemental-groups: 1000810000/10000
-    openshift.io/sa.scc.uid-range: 1000810000/10000
-    security.openshift.io/MinimallySufficientPodSecurityStandard: restricted
   labels:
     kubernetes.io/metadata.name: external-secrets
     pod-security.kubernetes.io/audit: restricted
@@ -18,6 +14,3 @@ metadata:
     pod-security.kubernetes.io/warn: restricted
     pod-security.kubernetes.io/warn-version: latest
   name: external-secrets
-spec:
-  finalizers:
-  - kubernetes
