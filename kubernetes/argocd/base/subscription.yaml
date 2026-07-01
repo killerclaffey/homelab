@@ -11,3 +11,7 @@ spec:
   name: argocd-operator
   source: community-operators
   sourceNamespace: openshift-marketplace
+  config:
+    env:
+      - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+        value: argocd
