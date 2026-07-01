@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bikely
+    deployment: okd
+    environment: production
+  name: bikely-upload-service
+  namespace: bikely
+spec:
+  clusterIP: 172.30.51.175
+  clusterIPs:
+  - 172.30.51.175
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 30456
+    port: 4002
+    protocol: TCP
+    targetPort: 4002
+  selector:
+    app: bikely-upload-service
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bikely
+    deployment: okd
+    environment: production
+  sessionAffinity: None
+  type: NodePort

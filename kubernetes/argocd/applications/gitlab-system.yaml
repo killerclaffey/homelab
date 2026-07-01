@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-system
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: argocd
+spec:
+  destination:
+    namespace: gitlab-system
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: kubernetes/gitlab-system/overlays/okd
+    repoURL: https://github.com/killerclaffey/homelab.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true

@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: bikely-dev-main
+  namespace: bikely-dev
+spec:
+  host: devbikely.claffey.cloud
+  port:
+    targetPort: 3000
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: bikely-frontend-service
+    weight: 100
+  wildcardPolicy: None

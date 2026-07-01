@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    pv.kubernetes.io/bind-completed: 'yes'
+    pv.kubernetes.io/bound-by-controller: 'yes'
+    volume.beta.kubernetes.io/storage-provisioner: csi.truenas.io
+    volume.kubernetes.io/storage-provisioner: csi.truenas.io
+  finalizers:
+  - kubernetes.io/pvc-protection
+  labels:
+    app.kubernetes.io/instance: prometheus-stack-kube-prom-prometheus
+    app.kubernetes.io/managed-by: prometheus-operator
+    app.kubernetes.io/name: prometheus
+    operator.prometheus.io/name: prometheus-stack-kube-prom-prometheus
+    operator.prometheus.io/shard: '0'
+    prometheus: prometheus-stack-kube-prom-prometheus
+  name: prometheus-prometheus-stack-kube-prom-prometheus-db-prometheus-prometheus-stack-kube-prom-prometheus-0
+  namespace: monitoring
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: truenas-nfs-bulk
+  volumeMode: Filesystem
+  volumeName: pvc-6bc9776b-80ec-448e-84c4-85de27cf98e1

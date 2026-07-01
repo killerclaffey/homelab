@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- clusters-postgresql-cnpg-io-immich-database-yaml
+- configmap-cnpg-default-monitoring-yaml
+- deployment-immich-machine-learning-yaml
+- deployment-immich-server-yaml
+- deployment-immich-valkey-yaml
+- namespace.yaml
+- pvc-immich-machine-learning-yaml
+- pvc-immich-photos-library-yaml
+- pvc-immich-valkey-yaml
+- route-immich-server-yaml
+- service-immich-machine-learning-yaml
+- service-immich-server-yaml
+- service-immich-valkey-yaml

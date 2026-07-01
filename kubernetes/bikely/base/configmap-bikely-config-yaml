@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  CLIENT_PORT: '3000'
+  LOG_LEVEL: info
+  MAX_UPLOAD_SIZE: 50MB
+  METRICS_ENABLED: 'true'
+  NODE_ENV: production
+  PORT: '4000'
+  SESSION_TIMEOUT: '3600'
+  STRAVA_REDIRECT_URI: https://bikely.pro/auth/strava/callback
+kind: ConfigMap
+metadata:
+  labels:
+    deployment: okd
+    environment: production
+  name: bikely-config
+  namespace: bikely

@@ -1,0 +1,50 @@
+apiVersion: v1
+data:
+  nginx.conf: "worker_processes auto;\r\nerror_log /var/log/nginx/error.log warn;\r\
+    \npid /var/run/nginx.pid;\r\n\r\nevents {\r\n    worker_connections 1024;\r\n\
+    \    use epoll;\r\n    multi_accept on;\r\n}\r\n\r\nhttp {\r\n    include /etc/nginx/mime.types;\r\
+    \n    default_type application/octet-stream;\r\n\r\n    # Logging\r\n    log_format\
+    \ main '$remote_addr - $remote_user [$time_local] \"$request\" '\r\n         \
+    \           '$status $body_bytes_sent \"$http_referer\" '\r\n                \
+    \    '\"$http_user_agent\" \"$http_x_forwarded_for\"';\r\n    access_log /var/log/nginx/access.log\
+    \ main;\r\n\r\n    # Performance\r\n    sendfile on;\r\n    tcp_nopush on;\r\n\
+    \    tcp_nodelay on;\r\n    keepalive_timeout 65;\r\n    types_hash_max_size 2048;\r\
+    \n\r\n    # Gzip compression\r\n    gzip on;\r\n    gzip_vary on;\r\n    gzip_min_length\
+    \ 1024;\r\n    gzip_proxied any;\r\n    gzip_comp_level 6;\r\n    gzip_types\r\
+    \n        application/atom+xml\r\n        application/javascript\r\n        application/json\r\
+    \n        application/ld+json\r\n        application/manifest+json\r\n       \
+    \ application/rss+xml\r\n        application/vnd.geo+json\r\n        application/vnd.ms-fontobject\r\
+    \n        application/x-font-ttf\r\n        application/x-web-app-manifest+json\r\
+    \n        application/xhtml+xml\r\n        application/xml\r\n        font/opentype\r\
+    \n        image/bmp\r\n        image/svg+xml\r\n        image/x-icon\r\n     \
+    \   text/cache-manifest\r\n        text/css\r\n        text/plain\r\n        text/vcard\r\
+    \n        text/vnd.rim.location.xloc\r\n        text/vtt\r\n        text/x-component\r\
+    \n        text/x-cross-domain-policy;\r\n\r\n    server {\r\n        listen 3000;\r\
+    \n        server_name localhost;\r\n        root /usr/share/nginx/html;\r\n  \
+    \      index index.html index.htm;\r\n\r\n        # Security headers\r\n     \
+    \   add_header X-Frame-Options \"SAMEORIGIN\" always;\r\n        add_header X-Content-Type-Options\
+    \ \"nosniff\" always;\r\n        add_header X-XSS-Protection \"1; mode=block\"\
+    \ always;\r\n\r\n        # API proxy to backend\r\n        location /api {\r\n\
+    \            proxy_pass http://bikely-backend-service:4000;\r\n            proxy_http_version\
+    \ 1.1;\r\n            proxy_set_header Upgrade $http_upgrade;\r\n            proxy_set_header\
+    \ Connection 'upgrade';\r\n            proxy_set_header Host $host;\r\n      \
+    \      proxy_set_header X-Real-IP $remote_addr;\r\n            proxy_set_header\
+    \ X-Forwarded-For $proxy_add_x_forwarded_for;\r\n            proxy_set_header\
+    \ X-Forwarded-Proto $scheme;\r\n            proxy_cache_bypass $http_upgrade;\r\
+    \n        }\r\n\r\n        # Handle client-side routing\r\n        location /\
+    \ {\r\n            try_files $uri $uri/ /index.html;\r\n        }\r\n\r\n    \
+    \    # Cache static assets\r\n        location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg)$\
+    \ {\r\n            expires 1y;\r\n            add_header Cache-Control \"public,\
+    \ immutable\";\r\n        }\r\n\r\n        # Health check endpoint\r\n       \
+    \ location /health {\r\n            access_log off;\r\n            return 200\
+    \ \"healthy\\n\";\r\n            add_header Content-Type text/plain;\r\n     \
+    \   }\r\n    }\r\n}"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bikely
+    deployment: okd
+    environment: production
+  name: nginx-config
+  namespace: bikely

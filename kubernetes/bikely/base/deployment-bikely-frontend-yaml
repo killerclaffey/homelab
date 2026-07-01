@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: '7'
+  labels:
+    app: bikely-frontend
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bikely
+    deployment: okd
+    environment: production
+  name: bikely-frontend
+  namespace: bikely
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: bikely-frontend
+      app.kubernetes.io/managed-by: kustomize
+      app.kubernetes.io/name: bikely
+      deployment: okd
+      environment: production
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: '2026-01-05T16:01:31-05:00'
+      labels:
+        app: bikely-frontend
+        app.kubernetes.io/managed-by: kustomize
+        app.kubernetes.io/name: bikely
+        deployment: okd
+        environment: production
+    spec:
+      containers:
+      - env:
+        - name: VITE_API_URL
+          value: /api
+        image: image-registry.openshift-image-registry.svc:5000/bikely/frontend:v8
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: frontend
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 64Mi
+          requests:
+            cpu: 250m
+            memory: 32Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 101
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          name: nginx-config
+          subPath: nginx.conf
+        - mountPath: /var/cache/nginx
+          name: nginx-cache
+        - mountPath: /var/run
+          name: nginx-run
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: default-dockercfg-k79sz
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: nginx-config
+        name: nginx-config
+      - emptyDir: {}
+        name: nginx-cache
+      - emptyDir: {}
+        name: nginx-run

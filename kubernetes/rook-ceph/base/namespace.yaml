@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/sa.scc.mcs: s0:c28,c12
+    openshift.io/sa.scc.supplemental-groups: 1000780000/10000
+    openshift.io/sa.scc.uid-range: 1000780000/10000
+    security.openshift.io/MinimallySufficientPodSecurityStandard: privileged
+  labels:
+    kubernetes.io/metadata.name: rook-ceph
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+  name: rook-ceph
+spec:
+  finalizers:
+  - kubernetes

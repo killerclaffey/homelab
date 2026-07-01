@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/sa.scc.mcs: s0:c28,c17
+    openshift.io/sa.scc.supplemental-groups: 1000790000/10000
+    openshift.io/sa.scc.uid-range: 1000790000/10000
+    security.openshift.io/MinimallySufficientPodSecurityStandard: restricted
+  labels:
+    app: bikely
+    environment: development
+    kubernetes.io/metadata.name: bikely-dev
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+  name: bikely-dev
+spec:
+  finalizers:
+  - kubernetes
