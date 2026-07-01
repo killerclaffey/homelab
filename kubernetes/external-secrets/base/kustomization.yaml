@@ -4,4 +4,3 @@ resources:
   - namespace.yaml
   - operator-group.yaml
   - subscription.yaml
-  - configmap-external-secrets-operator-yaml
