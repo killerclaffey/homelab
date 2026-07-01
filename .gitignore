@@ -8,3 +8,7 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Ignore unrelated local workspace folders
+network/
+okd-cluster/
