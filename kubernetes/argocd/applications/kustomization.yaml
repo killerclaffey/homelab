@@ -4,6 +4,7 @@ resources:
   - argocd.yaml
   - bikely-dev.yaml
   - bikely.yaml
+  - external-dns.yaml
   - external-secrets.yaml
   - gitlab-system.yaml
   - immich.yaml
@@ -12,3 +13,4 @@ resources:
   - quay.yaml
   - rook-ceph.yaml
   - truenas-csi.yaml
+  - uptime-kuma.yaml

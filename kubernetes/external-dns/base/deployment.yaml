@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns-cloudflare
+  namespace: external-dns
+  labels:
+    app: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+        - name: external-dns
+          image: registry.k8s.io/external-dns/external-dns:v0.19.0
+          args:
+            - --log-level=info
+            - --log-format=text
+            - --interval=1m
+            - --source=openshift-route
+            - --source=service
+            - --source=crd
+            - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+            - --crd-source-kind=DNSEndpoint
+            - --provider=cloudflare
+            - --registry=txt
+            - --txt-owner-id=okd-claffey-homelab
+            - --policy=sync
+          env:
+            - name: CF_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-api-token
+                  key: token
