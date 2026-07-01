@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: ''
+    openshift.io/display-name: ''
+    openshift.io/requester: killerclaffey
+    openshift.io/sa.scc.mcs: s0:c30,c0
+    openshift.io/sa.scc.supplemental-groups: 1000870000/10000
+    openshift.io/sa.scc.uid-range: 1000870000/10000
+    security.openshift.io/MinimallySufficientPodSecurityStandard: restricted
+  labels:
+    kubernetes.io/metadata.name: mealie
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+  name: mealie
+spec:
+  finalizers:
+  - kubernetes
