@@ -20,6 +20,12 @@ spec:
       containers:
         - name: uptime-kuma
           image: quay.io/k3rnel-pan1c/uptime-kuma:1.23.16
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sh /opt/seeder/seed_monitors.sh &
+              exec node server/server.js
           ports:
             - containerPort: 3001
           resources:
@@ -32,6 +38,8 @@ spec:
           volumeMounts:
             - name: uptime-kuma-pvc
               mountPath: /app/data
+            - name: seeder-vol
+              mountPath: /opt/seeder
           livenessProbe:
             httpGet:
               path: /
@@ -48,3 +56,6 @@ spec:
         - name: uptime-kuma-pvc
           persistentVolumeClaim:
             claimName: uptime-kuma
+        - name: seeder-vol
+          configMap:
+            name: uptime-kuma-seeder

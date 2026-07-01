@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uptime-kuma-seeder
+  namespace: uptime-kuma
+data:
+  seed_monitors.sh: |
+    #!/bin/sh
+    DB_PATH="/app/data/kuma.db"
+
+    echo "Starting background monitor seeder..."
+
+    # Wait for the DB file to exist and the monitor table to be created
+    until sqlite3 "$DB_PATH" "SELECT 1 FROM monitor LIMIT 1;" >/dev/null 2>&1; do
+      echo "Waiting for monitor table to be initialized..."
+      sleep 5
+    done
+
+    echo "Monitor table ready. Seeding monitors..."
+
+    seed_monitor() {
+      NAME="$1"
+      URL="$2"
+      
+      # Insert if not exists
+      sqlite3 "$DB_PATH" "INSERT INTO monitor (name, active, interval, url, type, ignore_tls, accepted_statuscodes_json) SELECT '$NAME', 1, 60, '$URL', 'http', 0, '[\"200-299\"]' WHERE NOT EXISTS (SELECT 1 FROM monitor WHERE name='$NAME');"
+      
+      # Update if exists
+      sqlite3 "$DB_PATH" "UPDATE monitor SET url='$URL', interval=60 WHERE name='$NAME';"
+    }
+
+    seed_monitor "ArgoCD" "https://argocd-server-argocd.apps.okd.claffey.cloud"
+    seed_monitor "Mealie" "https://mealie-mealie.apps.okd.claffey.cloud"
+    seed_monitor "Immich" "https://images.apps.okd.claffey.cloud"
+    seed_monitor "GitLab" "https://gitlab.apps.okd.claffey.cloud"
+    seed_monitor "Uptime Kuma" "http://localhost:3001"
+
+    echo "Monitors seeded successfully!"

@@ -7,3 +7,4 @@ resources:
   - service.yaml
   - statefulset.yaml
   - route.yaml
+  - seeder-configmap.yaml
