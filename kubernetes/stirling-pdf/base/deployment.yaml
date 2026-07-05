@@ -36,14 +36,6 @@ spec:
               value: "false"
             - name: UI_APPNAME
               value: "Stirling PDF"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-            seccompProfile:
-              type: RuntimeDefault
           livenessProbe:
             failureThreshold: 3
             periodSeconds: 10
@@ -76,10 +68,6 @@ spec:
               name: pipeline
             - mountPath: /tmp
               name: tmp
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
       volumes:
         - name: configs
           persistentVolumeClaim:
