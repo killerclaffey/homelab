@@ -18,6 +18,8 @@ spec:
       containers:
         - name: vault
           image: docker.io/hashicorp/vault:1.15.6
+          command:
+            - /bin/vault
           args:
             - server
             - -config=/vault/config/vault.hcl
