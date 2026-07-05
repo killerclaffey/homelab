@@ -1,8 +1,6 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  annotations:
-    deprecated.daemonset.template.generation: '8'
   name: truenas-csi-node
   namespace: truenas-csi
 spec:
