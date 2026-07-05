@@ -7,65 +7,65 @@ data:
   services.yaml: |
     - Core Cluster:
         - OpenShift Console:
-            icon: redhatopenshift
+            icon: sh-openshift
             href: https://console-openshift-console.apps.okd.claffey.cloud
             description: OKD Cluster Management Console
         - ArgoCD:
-            icon: argocd
+            icon: sh-argocd
             href: https://argocd.apps.okd.claffey.cloud
             description: GitOps Continuous Delivery
         - Vault:
-            icon: hashicorpvault
+            icon: sh-vault
             href: https://vault.apps.okd.claffey.cloud
             description: Secrets Management Service
     - Developer Tools:
         - GitLab:
-            icon: gitlab
+            icon: sh-gitlab
             href: https://gitlab.apps.okd.claffey.cloud
             description: Self-hosted Git & CI/CD
         - GitLab Registry:
-            icon: docker
+            icon: si-docker
             href: https://registry.apps.okd.claffey.cloud
             description: Container Image Registry
         - MinIO Console:
-            icon: minio
+            icon: sh-minio
             href: https://minio.apps.okd.claffey.cloud
             description: Object Storage Management
     - Observability:
         - Grafana:
-            icon: grafana
+            icon: sh-grafana
             href: https://grafana.apps.okd.claffey.cloud
             description: Dashboards & Visualization
         - Prometheus:
-            icon: prometheus
+            icon: sh-prometheus
             href: https://prometheus.apps.okd.claffey.cloud
             description: Metrics & Monitoring
         - Alertmanager:
-            icon: prometheus
+            icon: sh-prometheus
             href: https://alertmanager.apps.okd.claffey.cloud
             description: Alert Notification Routing
         - Uptime Kuma:
-            icon: uptimekuma
+            icon: sh-uptime-kuma
             href: https://uptime-kuma.apps.okd.claffey.cloud
             description: Service Monitoring & Alerts
         - Status Dashboard:
-            icon: uptimekuma
+            icon: sh-uptime-kuma
             href: https://uptime-kuma.apps.okd.claffey.cloud/status/default
             description: Public Service Status Page
     - Home Applications:
         - Mealie:
-            icon: mealie
+            icon: sh-mealie
             href: https://mealie.apps.okd.claffey.cloud
             description: Recipe Manager & Meal Planner
         - Immich:
-            icon: immich
+            icon: sh-immich
             href: https://images.apps.okd.claffey.cloud
             description: Photos & Videos Backup
         - Bikely Production:
-            icon: chrome
+            icon: si-googlechrome
             href: https://bikely.pro
             description: Bikely Production Website
         - Bikely Dev:
-            icon: chrome
+            icon: si-googlechrome
             href: https://devbikely.claffey.cloud
             description: Bikely Development Environment
