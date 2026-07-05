@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb
+  namespace: uptime-kuma
+spec:
+  serviceName: mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: docker.io/bitnami/mariadb:11.2.3
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              value: rootpassword123
+            - name: MARIADB_USER
+              value: kuma
+            - name: MARIADB_PASSWORD
+              value: kumapassword123
+            - name: MARIADB_DATABASE
+              value: kuma
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mariadb-data
+              mountPath: /bitnami/mariadb
+      volumes:
+        - name: mariadb-data
+          persistentVolumeClaim:
+            claimName: mariadb-data

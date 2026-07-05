@@ -26,6 +26,19 @@ spec:
             - |
               sh /opt/seeder/seed_monitors.sh &
               exec node server/server.js
+          env:
+            - name: UPTIME_KUMA_DB_TYPE
+              value: mariadb
+            - name: UPTIME_KUMA_DB_HOSTNAME
+              value: mariadb
+            - name: UPTIME_KUMA_DB_PORT
+              value: "3306"
+            - name: UPTIME_KUMA_DB_NAME
+              value: kuma
+            - name: UPTIME_KUMA_DB_USERNAME
+              value: kuma
+            - name: UPTIME_KUMA_DB_PASSWORD
+              value: kumapassword123
           ports:
             - containerPort: 3001
           resources:
