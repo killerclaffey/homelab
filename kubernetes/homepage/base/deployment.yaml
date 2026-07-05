@@ -18,6 +18,19 @@ spec:
       containers:
         - name: homepage
           image: ghcr.io/gethomepage/homepage:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Initializing writable config directory..."
+              cp -r /app/src/skeleton/* /app/config/
+              cp /app/config-templates/bookmarks/bookmarks.yaml /app/config/
+              cp /app/config-templates/services/services.yaml /app/config/
+              cp /app/config-templates/widgets/widgets.yaml /app/config/
+              cp /app/config-templates/settings/settings.yaml /app/config/
+              mkdir -p /app/config/logs
+              echo "Starting Homepage server..."
+              exec node server.js
           ports:
             - containerPort: 3000
               name: http
@@ -32,21 +45,19 @@ spec:
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: homepage.apps.okd.claffey.cloud
           volumeMounts:
+            - name: config-dir
+              mountPath: /app/config
             - name: config-bookmarks
-              mountPath: /app/config/bookmarks.yaml
-              subPath: bookmarks.yaml
+              mountPath: /app/config-templates/bookmarks
             - name: config-services
-              mountPath: /app/config/services.yaml
-              subPath: services.yaml
+              mountPath: /app/config-templates/services
             - name: config-widgets
-              mountPath: /app/config/widgets.yaml
-              subPath: widgets.yaml
+              mountPath: /app/config-templates/widgets
             - name: config-settings
-              mountPath: /app/config/settings.yaml
-              subPath: settings.yaml
-            - name: logs
-              mountPath: /app/config/logs
+              mountPath: /app/config-templates/settings
       volumes:
+        - name: config-dir
+          emptyDir: {}
         - name: config-bookmarks
           configMap:
             name: homepage-bookmarks
@@ -59,5 +70,3 @@ spec:
         - name: config-settings
           configMap:
             name: homepage-settings
-        - name: logs
-          emptyDir: {}
