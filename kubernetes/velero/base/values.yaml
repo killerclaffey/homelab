@@ -23,6 +23,3 @@ credentials:
       aws_access_key_id = UUzDvZhpfFkh9kFozmOaa8t3jO2vkmB1pZ8r41SeI9tsFZePmOKmLOPCPpqXQh44
       aws_secret_access_key = REDACTED_MINIO_SECRET_KEY
 deployNodeAgent: false
-securityContext:
-  runAsUser: 1001
-  fsGroup: 1001

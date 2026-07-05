@@ -3802,9 +3802,6 @@ spec:
           emptyDir: {}
         - name: scratch
           emptyDir: {}
-      securityContext:
-        fsGroup: 1001
-        runAsUser: 1001
 ---
 # Source: velero/templates/backupstoragelocation.yaml
 apiVersion: velero.io/v1
@@ -3930,6 +3927,3 @@ spec:
             - --crds-only
             - --apply
       restartPolicy: OnFailure
-      securityContext:
-        fsGroup: 1001
-        runAsUser: 1001
