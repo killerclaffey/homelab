@@ -12,3 +12,6 @@ desktop.ini
 # Ignore unrelated local workspace folders
 network/
 okd-cluster/
+
+# Vault local unseal keys file
+vault_unseal_keys.txt

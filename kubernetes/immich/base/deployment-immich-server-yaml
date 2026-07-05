@@ -32,6 +32,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/restartedAt: '2026-04-11T14:50:16-04:00'
+        backup.velero.io/backup-volumes-excludes: data
       labels:
         app.kubernetes.io/controller: main
         app.kubernetes.io/instance: immich
