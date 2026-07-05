@@ -1,0 +1,23 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-app-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * *" # Daily at 2:00 AM UTC
+  template:
+    ttl: 720h0m0s # 30-day retention
+    includedNamespaces:
+      - argocd
+      - bikely
+      - bikely-dev
+      - cert-manager
+      - cnpg-system
+      - external-dns
+      - external-secrets
+      - gitlab-system
+      - immich
+      - mealie
+      - uptime-kuma
+      - vault
+    includeClusterResources: false
