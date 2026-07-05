@@ -1,6 +1,7 @@
 apiVersion: v1
 data:
-  BASE_URL: https://mealie-mealie.apps.okd.claffey.cloud
+  BASE_URL: https://mealie.apps.okd.claffey.cloud
+  FORWARDED_ALLOW_IPS: '*'
   LOG_LEVEL: debug
   OIDC_AUTH_ENABLED: 'true'
   OIDC_AUTO_REDIRECT: 'false'
