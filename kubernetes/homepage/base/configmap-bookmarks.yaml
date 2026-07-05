@@ -7,12 +7,12 @@ data:
   bookmarks.yaml: |
     - Git:
         - GitHub Homelab:
-            - abbr: GH
-              icon: si-github
-              href: https://github.com/killerclaffey/homelab
-              description: HomeLab GitOps Repository
+            abbr: GH
+            icon: si-github
+            href: https://github.com/killerclaffey/homelab
+            description: HomeLab GitOps Repository
         - GitLab Server:
-            - abbr: GL
-              icon: si-gitlab
-              href: https://gitlab.apps.okd.claffey.cloud
-              description: Self-hosted GitLab Instance
+            abbr: GL
+            icon: si-gitlab
+            href: https://gitlab.apps.okd.claffey.cloud
+            description: Self-hosted GitLab Instance
