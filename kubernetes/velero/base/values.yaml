@@ -4,7 +4,7 @@ configuration:
       provider: aws
       bucket: velero-backups
       config:
-        region: minio
+        region: us-east-1
         s3ForcePathStyle: true
         s3Url: http://gitlab-minio-svc.gitlab-system.svc.cluster.local:9000
   volumeSnapshotLocation: []
