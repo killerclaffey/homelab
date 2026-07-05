@@ -49,6 +49,7 @@ data:
     seed_monitor "Immich" "https://images.apps.okd.claffey.cloud"
     seed_monitor "GitLab" "https://gitlab.apps.okd.claffey.cloud"
     seed_monitor "Uptime Kuma" "http://localhost:3001"
+    seed_monitor "Homepage" "https://homepage.apps.okd.claffey.cloud" 1
     seed_monitor "Bikely Production" "https://bikely.pro" 1
     seed_monitor "Bikely Dev" "https://devbikely.claffey.cloud" 1
     seed_monitor "Grafana" "https://grafana.apps.okd.claffey.cloud"
@@ -87,6 +88,7 @@ data:
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 1 FROM monitor WHERE name='OpenShift Console';"
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 2 FROM monitor WHERE name='ArgoCD';"
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 3 FROM monitor WHERE name='Uptime Kuma';"
+    $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 4 FROM monitor WHERE name='Homepage';"
     
     # Map monitors to Developer Services (Group 2)
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 2, 1 FROM monitor WHERE name='GitLab';"
