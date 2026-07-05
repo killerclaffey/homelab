@@ -6,7 +6,7 @@ metadata:
 data:
   widgets.yaml: |
     - logo:
-        icon: heartbeat
+        icon: mdi-heart-pulse
     - datetime:
         text_size: xl
         format:
