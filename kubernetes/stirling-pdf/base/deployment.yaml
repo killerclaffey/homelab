@@ -34,7 +34,9 @@ spec:
             - name: SYSTEM_DEFAULTLOCALE
               value: "en-US"
             - name: SECURITY_ENABLELOGIN
-              value: "false"
+              value: "true"
+            - name: DOCKER_ENABLE_SECURITY
+              value: "true"
             - name: UI_APPNAME
               value: "Stirling PDF"
           securityContext:
