@@ -68,6 +68,8 @@ spec:
               name: pipeline
             - mountPath: /tmp
               name: tmp
+      securityContext:
+        runAsUser: 0
       volumes:
         - name: configs
           persistentVolumeClaim:
