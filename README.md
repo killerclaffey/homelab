@@ -23,6 +23,8 @@ This repository contains the declarative configuration for your OpenShift/OKD ho
     ├── immich/                 # Photos suite with CloudNativePG database
     ├── mealie/                 # Recipe manager deployment
     ├── quay/                   # Container registry configuration
+    ├── vault/                  # HashiCorp Vault secrets management
+    ├── velero/                 # Velero backup & disaster recovery
     ├── bikely/                 # Production Bikely workload
     └── bikely-dev/             # Development Bikely workload
 ```

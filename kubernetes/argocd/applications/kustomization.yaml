@@ -14,3 +14,5 @@ resources:
   - rook-ceph.yaml
   - truenas-csi.yaml
   - uptime-kuma.yaml
+  - vault.yaml
+  - velero.yaml

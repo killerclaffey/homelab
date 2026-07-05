@@ -1,0 +1,28 @@
+configuration:
+  backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: velero-backups
+      config:
+        region: minio
+        s3ForcePathStyle: true
+        s3Url: http://gitlab-minio-svc.gitlab-system.svc.cluster.local:9000
+  volumeSnapshotLocation: []
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.10.1
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+credentials:
+  useSecret: true
+  name: velero-credentials
+  secretContents:
+    cloud: |
+      [default]
+      aws_access_key_id = UUzDvZhpfFkh9kFozmOaa8t3jO2vkmB1pZ8r41SeI9tsFZePmOKmLOPCPpqXQh44
+      aws_secret_access_key = REDACTED_MINIO_SECRET_KEY
+deployNodeAgent: false
+securityContext:
+  runAsUser: 1001
+  fsGroup: 1001
