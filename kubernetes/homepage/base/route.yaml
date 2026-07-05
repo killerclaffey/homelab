@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  host: homepage.apps.okd.claffey.cloud
+  to:
+    kind: Service
+    name: homepage
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

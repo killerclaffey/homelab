@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-services
+  namespace: homepage
+data:
+  services.yaml: |
+    - Core Cluster:
+        - OpenShift Console:
+            icon: redhatopenshift
+            href: https://console-openshift-console.apps.okd.claffey.cloud
+            description: OKD Cluster Management Console
+        - ArgoCD:
+            icon: argocd
+            href: https://argocd.apps.okd.claffey.cloud
+            description: GitOps Continuous Delivery
+        - Vault:
+            icon: hashicorpvault
+            href: https://vault.apps.okd.claffey.cloud
+            description: Secrets Management Service
+    - Developer Tools:
+        - GitLab:
+            icon: gitlab
+            href: https://gitlab.apps.okd.claffey.cloud
+            description: Self-hosted Git & CI/CD
+        - GitLab Registry:
+            icon: docker
+            href: https://registry.apps.okd.claffey.cloud
+            description: Container Image Registry
+        - MinIO Console:
+            icon: minio
+            href: https://minio.apps.okd.claffey.cloud
+            description: Object Storage Management
+    - Observability:
+        - Grafana:
+            icon: grafana
+            href: https://grafana.apps.okd.claffey.cloud
+            description: Dashboards & Visualization
+        - Prometheus:
+            icon: prometheus
+            href: https://prometheus.apps.okd.claffey.cloud
+            description: Metrics & Monitoring
+        - Alertmanager:
+            icon: prometheus
+            href: https://alertmanager.apps.okd.claffey.cloud
+            description: Alert Notification Routing
+        - Status Dashboard:
+            icon: uptimekuma
+            href: https://uptime-kuma.apps.okd.claffey.cloud/status
+            description: Public Service Status Page
+    - Home Applications:
+        - Mealie:
+            icon: mealie
+            href: https://mealie.apps.okd.claffey.cloud
+            description: Recipe Manager & Meal Planner
+        - Immich:
+            icon: immich
+            href: https://images.apps.okd.claffey.cloud
+            description: Photos & Videos Backup
+        - Bikely Production:
+            icon: chrome
+            href: https://bikely.pro
+            description: Bikely Production Website
+        - Bikely Dev:
+            icon: chrome
+            href: https://devbikely.claffey.cloud
+            description: Bikely Development Environment

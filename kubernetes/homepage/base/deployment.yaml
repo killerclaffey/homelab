@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 50Mi
+            limits:
+              cpu: 200m
+              memory: 150Mi
+          volumeMounts:
+            - name: config-bookmarks
+              mountPath: /app/config/bookmarks.yaml
+              subPath: bookmarks.yaml
+            - name: config-services
+              mountPath: /app/config/services.yaml
+              subPath: services.yaml
+            - name: config-widgets
+              mountPath: /app/config/widgets.yaml
+              subPath: widgets.yaml
+            - name: config-settings
+              mountPath: /app/config/settings.yaml
+              subPath: settings.yaml
+      volumes:
+        - name: config-bookmarks
+          configMap:
+            name: homepage-bookmarks
+        - name: config-services
+          configMap:
+            name: homepage-services
+        - name: config-widgets
+          configMap:
+            name: homepage-widgets
+        - name: config-settings
+          configMap:
+            name: homepage-settings

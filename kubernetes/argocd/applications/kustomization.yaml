@@ -16,3 +16,4 @@ resources:
   - uptime-kuma.yaml
   - vault.yaml
   - velero.yaml
+  - homepage.yaml
