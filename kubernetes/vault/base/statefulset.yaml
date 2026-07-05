@@ -14,8 +14,7 @@ spec:
       labels:
         app: vault
     spec:
-      securityContext:
-        fsGroup: 1000
+
       containers:
         - name: vault
           image: docker.io/hashicorp/vault:1.15.6
@@ -25,9 +24,7 @@ spec:
           ports:
             - containerPort: 8200
               name: http
-          securityContext:
-            runAsUser: 100
-            runAsGroup: 1000
+
           volumeMounts:
             - name: vault-data
               mountPath: /vault/data
