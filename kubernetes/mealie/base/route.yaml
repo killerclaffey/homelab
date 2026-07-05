@@ -10,7 +10,7 @@ metadata:
   name: mealie
   namespace: mealie
 spec:
-  host: mealie-mealie.apps.okd.claffey.cloud
+  host: mealie.apps.okd.claffey.cloud
   port:
     targetPort: api
   tls:

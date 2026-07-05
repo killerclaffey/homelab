@@ -44,8 +44,8 @@ data:
       fi
     }
 
-    seed_monitor "ArgoCD" "https://argocd-server-argocd.apps.okd.claffey.cloud"
-    seed_monitor "Mealie" "https://mealie-mealie.apps.okd.claffey.cloud"
+    seed_monitor "ArgoCD" "https://argocd.apps.okd.claffey.cloud"
+    seed_monitor "Mealie" "https://mealie.apps.okd.claffey.cloud"
     seed_monitor "Immich" "https://images.apps.okd.claffey.cloud"
     seed_monitor "GitLab" "https://gitlab.apps.okd.claffey.cloud"
     seed_monitor "Uptime Kuma" "http://localhost:3001"

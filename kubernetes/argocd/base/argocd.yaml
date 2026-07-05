@@ -7,5 +7,6 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   server:
+    host: argocd.apps.okd.claffey.cloud
     route:
       enabled: true
