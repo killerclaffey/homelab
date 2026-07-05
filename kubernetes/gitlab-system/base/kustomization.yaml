@@ -8,3 +8,4 @@ resources:
 - pvc-repo-data-gitlab-gitaly-0-yaml
 - service-gitlab-controller-manager-metrics-service-yaml
 - service-gitlab-webhook-service-yaml
+- gitlab.yaml

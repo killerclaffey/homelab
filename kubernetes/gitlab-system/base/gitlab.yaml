@@ -1,0 +1,78 @@
+apiVersion: apps.gitlab.com/v1beta1
+kind: GitLab
+metadata:
+  name: gitlab
+  namespace: gitlab-system
+spec:
+  chart:
+    values:
+      certmanager:
+        install: false
+      gitlab:
+        gitaly:
+          git:
+            config:
+            - key: safe.directory
+              value: '*'
+          persistence:
+            size: 50Gi
+            storageClass: truenas-nfs-bulk
+        gitlab-shell:
+          maxReplicas: 1
+          minReplicas: 1
+          service:
+            nodePort: 32022
+            type: NodePort
+        sidekiq:
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1.5G
+            requests:
+              cpu: 100m
+              memory: 600M
+        webservice:
+          maxReplicas: 2
+          minReplicas: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3.5G
+            requests:
+              cpu: 300m
+              memory: 1.5G
+      gitlab-runner:
+        install: false
+      global:
+        hosts:
+          domain: apps.okd.claffey.cloud
+          https: true
+        ingress:
+          annotations: {}
+          class: openshift-default
+          configureCertmanager: false
+          provider: openshift
+        shell:
+          port: 22
+        smtp:
+          enabled: false
+        storageClass: truenas-nfs-bulk
+      minio:
+        persistence:
+          size: 100Gi
+          storageClass: truenas-nfs-bulk
+      nginx-ingress:
+        enabled: false
+      postgresql:
+        primary:
+          persistence:
+            size: 10Gi
+            storageClass: truenas-nfs-bulk
+      prometheus:
+        install: false
+      redis:
+        master:
+          persistence:
+            size: 5Gi
+            storageClass: truenas-nfs-bulk
+    version: 9.9.1
