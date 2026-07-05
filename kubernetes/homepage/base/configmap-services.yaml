@@ -7,15 +7,15 @@ data:
   services.yaml: |
     - Core Cluster:
         - OpenShift Console:
-            icon: sh-openshift
+            icon: si-redhatopenshift
             href: https://console-openshift-console.apps.okd.claffey.cloud
             description: OKD Cluster Management Console
         - ArgoCD:
-            icon: sh-argocd
+            icon: sh-argo-cd
             href: https://argocd.apps.okd.claffey.cloud
             description: GitOps Continuous Delivery
         - Vault:
-            icon: sh-vault
+            icon: sh-hashicorp-vault
             href: https://vault.apps.okd.claffey.cloud
             description: Secrets Management Service
     - Developer Tools:
