@@ -46,4 +46,38 @@ data:
     seed_monitor "OpenShift Console" "https://console-openshift-console.apps.okd.claffey.cloud" 1
     seed_monitor "Vault" "https://vault-vault.apps.okd.claffey.cloud" 1
 
+    # Seed Status Page (slug: default)
+    sqlite3 "$DB_PATH" "INSERT INTO status_page (id, slug, title, description, icon, theme, published) SELECT 1, 'default', 'HomeLab Status', 'Real-time monitoring of HomeLab services and infrastructure.', 'heartbeat', 'dark', 1 WHERE NOT EXISTS (SELECT 1 FROM status_page WHERE slug='default');"
+
+    # Seed Groups
+    sqlite3 "$DB_PATH" "INSERT INTO [group] (id, name, public, active, weight, status_page_id) SELECT 1, 'Core Infrastructure', 1, 1, 1, 1 WHERE NOT EXISTS (SELECT 1 FROM [group] WHERE id=1);"
+    sqlite3 "$DB_PATH" "INSERT INTO [group] (id, name, public, active, weight, status_page_id) SELECT 2, 'Developer Services', 1, 1, 2, 1 WHERE NOT EXISTS (SELECT 1 FROM [group] WHERE id=2);"
+    sqlite3 "$DB_PATH" "INSERT INTO [group] (id, name, public, active, weight, status_page_id) SELECT 3, 'Observability & Storage', 1, 1, 3, 1 WHERE NOT EXISTS (SELECT 1 FROM [group] WHERE id=3);"
+    sqlite3 "$DB_PATH" "INSERT INTO [group] (id, name, public, active, weight, status_page_id) SELECT 4, 'Home Services', 1, 1, 4, 1 WHERE NOT EXISTS (SELECT 1 FROM [group] WHERE id=4);"
+
+    # Clear and rebuild Monitor-Group mapping dynamically using monitor names
+    sqlite3 "$DB_PATH" "DELETE FROM monitor_group;"
+    
+    # Map monitors to Core Infrastructure (Group 1)
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 1 FROM monitor WHERE name='OpenShift Console';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 2 FROM monitor WHERE name='ArgoCD';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 1, 3 FROM monitor WHERE name='Uptime Kuma';"
+    
+    # Map monitors to Developer Services (Group 2)
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 2, 1 FROM monitor WHERE name='GitLab';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 2, 2 FROM monitor WHERE name='GitLab Registry';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 2, 3 FROM monitor WHERE name='MinIO';"
+    
+    # Map monitors to Observability & Storage (Group 3)
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 3, 1 FROM monitor WHERE name='Grafana';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 3, 2 FROM monitor WHERE name='Prometheus';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 3, 3 FROM monitor WHERE name='Alertmanager';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 3, 4 FROM monitor WHERE name='Vault';"
+    
+    # Map monitors to Home Services (Group 4)
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 1 FROM monitor WHERE name='Mealie';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 2 FROM monitor WHERE name='Immich';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 3 FROM monitor WHERE name='Bikely Production';"
+    sqlite3 "$DB_PATH" "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 4 FROM monitor WHERE name='Bikely Dev';"
+
     echo "Monitors seeded successfully!"
