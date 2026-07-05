@@ -21,12 +21,13 @@ data:
     seed_monitor() {
       NAME="$1"
       URL="$2"
+      IGNORE_TLS="${3:-0}"
       
       # Insert if not exists
-      sqlite3 "$DB_PATH" "INSERT INTO monitor (name, active, interval, url, type, ignore_tls, accepted_statuscodes_json) SELECT '$NAME', 1, 60, '$URL', 'http', 0, '[\"200-299\"]' WHERE NOT EXISTS (SELECT 1 FROM monitor WHERE name='$NAME');"
+      sqlite3 "$DB_PATH" "INSERT INTO monitor (name, active, interval, url, type, ignore_tls, accepted_statuscodes_json) SELECT '$NAME', 1, 60, '$URL', 'http', $IGNORE_TLS, '[\"200-299\"]' WHERE NOT EXISTS (SELECT 1 FROM monitor WHERE name='$NAME');"
       
       # Update if exists
-      sqlite3 "$DB_PATH" "UPDATE monitor SET url='$URL', interval=60 WHERE name='$NAME';"
+      sqlite3 "$DB_PATH" "UPDATE monitor SET url='$URL', interval=60, ignore_tls=$IGNORE_TLS WHERE name='$NAME';"
     }
 
     seed_monitor "ArgoCD" "https://argocd-server-argocd.apps.okd.claffey.cloud"
@@ -34,5 +35,13 @@ data:
     seed_monitor "Immich" "https://images.apps.okd.claffey.cloud"
     seed_monitor "GitLab" "https://gitlab.apps.okd.claffey.cloud"
     seed_monitor "Uptime Kuma" "http://localhost:3001"
+    seed_monitor "Bikely Production" "https://bikely.pro"
+    seed_monitor "Bikely Dev" "https://devbikely.claffey.cloud"
+    seed_monitor "Grafana" "https://grafana.apps.okd.claffey.cloud"
+    seed_monitor "Prometheus" "https://prometheus.apps.okd.claffey.cloud" 1
+    seed_monitor "Alertmanager" "https://alertmanager.apps.okd.claffey.cloud" 1
+    seed_monitor "MinIO" "https://minio.apps.okd.claffey.cloud" 1
+    seed_monitor "GitLab Registry" "https://registry.apps.okd.claffey.cloud" 1
+    seed_monitor "OpenShift Console" "https://console-openshift-console.apps.okd.claffey.cloud" 1
 
     echo "Monitors seeded successfully!"
