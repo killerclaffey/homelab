@@ -47,7 +47,7 @@ data:
     seed_monitor "Vault" "https://vault-vault.apps.okd.claffey.cloud" 1
 
     # Seed Status Page (slug: default)
-    sqlite3 "$DB_PATH" "INSERT INTO status_page (id, slug, title, description, icon, theme, published) SELECT 1, 'default', 'HomeLab Status', 'Real-time monitoring of HomeLab services and infrastructure.', 'heartbeat', 'dark', 1 WHERE NOT EXISTS (SELECT 1 FROM status_page WHERE slug='default');"
+    sqlite3 "$DB_PATH" "INSERT INTO status_page (id, slug, title, description, icon, theme, published) SELECT 1, 'default', 'HomeLab Status', 'Real-time monitoring of HomeLab services and infrastructure.', '', 'dark', 1 WHERE NOT EXISTS (SELECT 1 FROM status_page WHERE slug='default');"
 
     # Seed Groups
     sqlite3 "$DB_PATH" "INSERT INTO [group] (id, name, public, active, weight, status_page_id) SELECT 1, 'Core Infrastructure', 1, 1, 1, 1 WHERE NOT EXISTS (SELECT 1 FROM [group] WHERE id=1);"
