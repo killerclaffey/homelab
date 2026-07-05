@@ -4,6 +4,7 @@ metadata:
   name: vault
   namespace: vault
 spec:
+  host: vault.apps.okd.claffey.cloud
   to:
     kind: Service
     name: vault

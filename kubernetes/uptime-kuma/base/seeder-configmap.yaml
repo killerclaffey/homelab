@@ -57,7 +57,7 @@ data:
     seed_monitor "MinIO" "https://minio.apps.okd.claffey.cloud" 1 '["200-299","403"]'
     seed_monitor "GitLab Registry" "https://registry.apps.okd.claffey.cloud" 1
     seed_monitor "OpenShift Console" "https://console-openshift-console.apps.okd.claffey.cloud" 1
-    seed_monitor "Vault" "https://vault-vault.apps.okd.claffey.cloud" 1
+    seed_monitor "Vault" "https://vault.apps.okd.claffey.cloud" 1
 
     # Seed Status Page (slug: default)
     SP_COUNT=$($MYSQL_CMD -N -B -e "SELECT COUNT(*) FROM status_page WHERE slug='default';")
