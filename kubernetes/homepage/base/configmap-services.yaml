@@ -44,9 +44,13 @@ data:
             icon: prometheus
             href: https://alertmanager.apps.okd.claffey.cloud
             description: Alert Notification Routing
+        - Uptime Kuma:
+            icon: uptimekuma
+            href: https://uptime-kuma.apps.okd.claffey.cloud
+            description: Service Monitoring & Alerts
         - Status Dashboard:
             icon: uptimekuma
-            href: https://uptime-kuma.apps.okd.claffey.cloud/status
+            href: https://uptime-kuma.apps.okd.claffey.cloud/status/default
             description: Public Service Status Page
     - Home Applications:
         - Mealie:

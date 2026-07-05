@@ -7,8 +7,8 @@ data:
   bookmarks.yaml: |
     - Git:
         - GitHub Homelab:
-            - icon: github
-              href: https://github.com/killerclaffey/homelab
+            icon: github
+            href: https://github.com/killerclaffey/homelab
         - GitLab Server:
-            - icon: gitlab
-              href: https://gitlab.apps.okd.claffey.cloud
+            icon: gitlab
+            href: https://gitlab.apps.okd.claffey.cloud
