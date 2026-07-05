@@ -9,7 +9,7 @@ data:
     DB_HOST="mariadb"
     DB_PORT="3306"
     DB_USER="kuma"
-    DB_PASS="kumapassword123"
+    DB_PASS="$UPTIME_KUMA_DB_PASSWORD"
     DB_NAME="kuma"
 
     MYSQL_CMD="mysql -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASS $DB_NAME"
