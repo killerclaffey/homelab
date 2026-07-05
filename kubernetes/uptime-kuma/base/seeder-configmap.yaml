@@ -16,13 +16,19 @@ data:
 
     echo "Starting background monitor seeder..."
 
-    # Wait for the DB connection and the monitor table to be created
+    # 1. Wait for the DB connection and the monitor table to be created
     until $MYSQL_CMD -e "SELECT 1 FROM monitor LIMIT 1;" >/dev/null 2>&1; do
       echo "Waiting for Uptime Kuma database tables to be initialized..."
       sleep 5
     done
 
-    echo "Monitor table ready. Seeding monitors..."
+    # 2. Wait for the user to create their first admin account in the Web UI
+    until [ "$($MYSQL_CMD -N -B -e "SELECT COUNT(*) FROM user;" 2>/dev/null)" -gt 0 ] 2>/dev/null; do
+      echo "Waiting for the admin user to be created in the Web UI..."
+      sleep 5
+    done
+
+    echo "User created. Seeding monitors..."
 
     seed_monitor() {
       NAME="$1"
