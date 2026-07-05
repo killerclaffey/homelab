@@ -15,36 +15,26 @@ spec:
       labels:
         app: homepage
     spec:
-      containers:
-        - name: homepage
+      initContainers:
+        - name: init-config
           image: ghcr.io/gethomepage/homepage:latest
           command:
             - /bin/sh
             - -c
             - |
-              echo "Initializing writable config directory..."
-              cp -r /app/src/skeleton/* /app/config/
+              echo "Copying .next build cache to writable volume..."
+              cp -r /app/.next/. /writable-next/
+              echo "Initializing writable config directory from skeleton..."
+              cp -r /app/src/skeleton/. /app/config/
               cp /app/config-templates/bookmarks/bookmarks.yaml /app/config/
               cp /app/config-templates/services/services.yaml /app/config/
               cp /app/config-templates/widgets/widgets.yaml /app/config/
               cp /app/config-templates/settings/settings.yaml /app/config/
               mkdir -p /app/config/logs
-              echo "Starting Homepage server..."
-              exec node server.js
-          ports:
-            - containerPort: 3000
-              name: http
-          resources:
-            requests:
-              cpu: 10m
-              memory: 50Mi
-            limits:
-              cpu: 200m
-              memory: 150Mi
-          env:
-            - name: HOMEPAGE_ALLOWED_HOSTS
-              value: homepage.apps.okd.claffey.cloud
+              echo "Init complete."
           volumeMounts:
+            - name: writable-next
+              mountPath: /writable-next
             - name: config-dir
               mountPath: /app/config
             - name: config-bookmarks
@@ -55,7 +45,30 @@ spec:
               mountPath: /app/config-templates/widgets
             - name: config-settings
               mountPath: /app/config-templates/settings
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.apps.okd.claffey.cloud
+          volumeMounts:
+            - name: writable-next
+              mountPath: /app/.next
+            - name: config-dir
+              mountPath: /app/config
       volumes:
+        - name: writable-next
+          emptyDir: {}
         - name: config-dir
           emptyDir: {}
         - name: config-bookmarks
