@@ -25,10 +25,10 @@ data:
       CODES="${4:-[\"200-299\"]}"
       
       # Insert if not exists
-      sqlite3 "$DB_PATH" "INSERT INTO monitor (name, active, interval, url, type, ignore_tls, accepted_statuscodes_json) SELECT '$NAME', 1, 60, '$URL', 'http', $IGNORE_TLS, '$CODES' WHERE NOT EXISTS (SELECT 1 FROM monitor WHERE name='$NAME');"
+      sqlite3 "$DB_PATH" "INSERT INTO monitor (name, active, interval, url, type, ignore_tls, accepted_statuscodes_json, user_id) SELECT '$NAME', 1, 60, '$URL', 'http', $IGNORE_TLS, '$CODES', 1 WHERE NOT EXISTS (SELECT 1 FROM monitor WHERE name='$NAME');"
       
       # Update if exists
-      sqlite3 "$DB_PATH" "UPDATE monitor SET url='$URL', interval=60, ignore_tls=$IGNORE_TLS, accepted_statuscodes_json='$CODES' WHERE name='$NAME';"
+      sqlite3 "$DB_PATH" "UPDATE monitor SET url='$URL', interval=60, ignore_tls=$IGNORE_TLS, accepted_statuscodes_json='$CODES', user_id=1 WHERE name='$NAME';"
     }
 
     seed_monitor "ArgoCD" "https://argocd-server-argocd.apps.okd.claffey.cloud"
