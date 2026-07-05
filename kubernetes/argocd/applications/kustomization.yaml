@@ -17,3 +17,4 @@ resources:
   - vault.yaml
   - velero.yaml
   - homepage.yaml
+  - stirling-pdf.yaml

@@ -61,6 +61,10 @@ data:
             icon: sh-immich
             href: https://images.apps.okd.claffey.cloud
             description: Photos & Videos Backup
+        - Stirling PDF:
+            icon: sh-stirling-pdf
+            href: https://stirling-pdf.apps.okd.claffey.cloud
+            description: Local PDF Manipulation Suite
         - Bikely Production:
             icon: si-googlechrome
             href: https://bikely.pro
