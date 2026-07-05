@@ -19,11 +19,17 @@ spec:
           image: docker.io/bitnami/mariadb:latest
           env:
             - name: MARIADB_ROOT_PASSWORD
-              value: rootpassword123
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-root-password
             - name: MARIADB_USER
               value: kuma
             - name: MARIADB_PASSWORD
-              value: kumapassword123
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-password
             - name: MARIADB_DATABASE
               value: kuma
           ports:

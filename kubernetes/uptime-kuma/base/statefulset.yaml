@@ -38,7 +38,10 @@ spec:
             - name: UPTIME_KUMA_DB_USERNAME
               value: kuma
             - name: UPTIME_KUMA_DB_PASSWORD
-              value: kumapassword123
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: mariadb-password
           ports:
             - containerPort: 3001
           resources:
