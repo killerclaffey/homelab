@@ -38,7 +38,7 @@ spec:
             name: mealie-config
         - secretRef:
             name: mealie-credentials
-        image: ghcr.io/mealie-recipes/mealie:v3.11.0
+        image: ghcr.io/mealie-recipes/mealie:v3.20.1
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
