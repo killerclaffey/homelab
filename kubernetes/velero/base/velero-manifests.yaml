@@ -221,6 +221,16 @@ spec:
               value: /plugins
             - name: AWS_SHARED_CREDENTIALS_FILE
               value: /credentials/cloud
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: velero-credentials
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: velero-credentials
+                  key: aws_secret_access_key
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /credentials/cloud
             - name: AZURE_CREDENTIALS_FILE
