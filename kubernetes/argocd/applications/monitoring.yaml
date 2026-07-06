@@ -15,7 +15,7 @@ spec:
   project: default
   source:
     path: kubernetes/monitoring/overlays/okd
-    repoURL: https://github.com/killerclaffey/homelab.git
+    repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
     targetRevision: HEAD
   syncPolicy:
     automated:

@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/killerclaffey/homelab.git
+    repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
     targetRevision: HEAD
     path: kubernetes/velero/overlays/okd
   destination:
