@@ -41,7 +41,7 @@ spec:
                 - name: RENOVATE_REPOSITORIES
                   value: '["rclaffey/homelab"]'
                 - name: LOG_LEVEL
-                  value: info
+                  value: debug
                 - name: RENOVATE_GIT_AUTHOR
                   value: "Renovate Bot <renovate@claffey.cloud>"
               resources:
