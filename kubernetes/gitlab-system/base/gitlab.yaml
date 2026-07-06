@@ -27,7 +27,7 @@ spec:
           resources:
             limits:
               cpu: "1"
-              memory: 1.5G
+              memory: 2.0G
             requests:
               cpu: 100m
               memory: 600M
@@ -37,7 +37,7 @@ spec:
           resources:
             limits:
               cpu: "1"
-              memory: 3.5G
+              memory: 4.5G
             requests:
               cpu: 300m
               memory: 1.5G
@@ -75,4 +75,11 @@ spec:
           persistence:
             size: 5Gi
             storageClass: truenas-nfs-bulk
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
     version: 9.9.1
