@@ -89,6 +89,8 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+      nodeSelector:
+        kubernetes.io/hostname: k81
       serviceAccount: default
       serviceAccountName: default
       terminationGracePeriodSeconds: 30
