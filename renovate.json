@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "timezone": "America/New_York",
+  "schedule": ["after 10pm every weekday", "every weekend"],
+  "labels": ["renovate", "dependencies"],
+  "assignees": ["rclaffey"],
+  "reviewers": ["rclaffey"],
+  "kubernetes": {
+    "fileMatch": ["kubernetes/.+\\.yaml$"]
+  },
+  "packageRules": [
+    {
+      "description": "Group all patch updates together",
+      "matchUpdateTypes": ["patch"],
+      "groupName": "all patch updates",
+      "automerge": false
+    },
+    {
+      "description": "Require manual approval for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["renovate", "dependencies", "major-update"]
+    },
+    {
+      "description": "Pin digests for all container images",
+      "matchManagers": ["kubernetes", "docker-compose", "dockerfile"],
+      "pinDigests": false
+    },
+    {
+      "description": "OKD/OpenShift system images - skip",
+      "matchPackagePatterns": ["quay.io/okd/.*", "quay.io/openshift.*"],
+      "enabled": false
+    },
+    {
+      "description": "Rook/Ceph - manual only",
+      "matchPackagePatterns": ["quay.io/ceph/.*", "docker.io/rook/.*"],
+      "enabled": true,
+      "automerge": false,
+      "labels": ["renovate", "dependencies", "ceph", "manual-review"]
+    }
+  ],
+  "hostRules": [],
+  "git-submodules": {
+    "enabled": false
+  }
+}

@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+  namespace: renovate
+  labels:
+    app.kubernetes.io/name: renovate
+    app.kubernetes.io/instance: renovate
+spec:
+  schedule: "0 */6 * * *"   # every 6 hours
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: renovate
+              image: ghcr.io/renovatebot/renovate:39.5.3
+              imagePullPolicy: IfNotPresent
+              env:
+                # GitLab self-hosted (primary)
+                - name: RENOVATE_PLATFORM
+                  value: gitlab
+                - name: RENOVATE_ENDPOINT
+                  value: https://gitlab.apps.okd.claffey.cloud
+                - name: RENOVATE_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: renovate-credentials
+                      key: GITLAB_TOKEN
+                # GitHub token for release lookups / changelog fetching
+                - name: GITHUB_COM_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: renovate-credentials
+                      key: GITHUB_TOKEN
+                # Repos to manage (GitLab project path)
+                - name: RENOVATE_REPOSITORIES
+                  value: '["rclaffey/homelab"]'
+                # Use the renovate.json at repo root
+                - name: RENOVATE_CONFIG_FILE
+                  value: renovate.json
+                - name: LOG_LEVEL
+                  value: info
+                - name: RENOVATE_GIT_AUTHOR
+                  value: "Renovate Bot <renovate@claffey.cloud>"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault

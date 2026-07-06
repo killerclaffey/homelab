@@ -18,3 +18,4 @@ resources:
   - velero.yaml
   - homepage.yaml
   - stirling-pdf.yaml
+  - renovate.yaml
