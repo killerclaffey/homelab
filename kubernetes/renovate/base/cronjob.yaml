@@ -7,7 +7,8 @@ metadata:
     app.kubernetes.io/name: renovate
     app.kubernetes.io/instance: renovate
 spec:
-  schedule: "0 */6 * * *"   # every 6 hours
+  schedule: "30 22 * * *"   # runs daily at 10:30 PM America/New_York
+  timeZone: America/New_York
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -44,6 +45,9 @@ spec:
                   value: info
                 - name: RENOVATE_GIT_AUTHOR
                   value: "Renovate Bot <renovate@claffey.cloud>"
+                # Persist cache directory
+                - name: RENOVATE_CACHE_DIR
+                  value: "/tmp/renovate/cache"
               resources:
                 requests:
                   cpu: 100m
@@ -59,7 +63,14 @@ spec:
                 runAsNonRoot: true
                 seccompProfile:
                   type: RuntimeDefault
+              volumeMounts:
+                - name: cache-volume
+                  mountPath: /tmp/renovate/cache
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
+          volumes:
+            - name: cache-volume
+              persistentVolumeClaim:
+                claimName: renovate-cache
