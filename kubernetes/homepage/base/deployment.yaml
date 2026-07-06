@@ -17,7 +17,7 @@ spec:
     spec:
       initContainers:
         - name: init-config
-          image: ghcr.io/gethomepage/homepage:latest
+          image: ghcr.io/gethomepage/homepage:v1.13.2
           command:
             - /bin/sh
             - -c
@@ -47,7 +47,7 @@ spec:
               mountPath: /app/config-templates/settings
       containers:
         - name: homepage
-          image: ghcr.io/gethomepage/homepage:latest
+          image: ghcr.io/gethomepage/homepage:v1.13.2
           ports:
             - containerPort: 3000
               name: http

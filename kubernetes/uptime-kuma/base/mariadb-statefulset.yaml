@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: docker.io/bitnami/mariadb:latest
+          image: docker.io/library/mariadb:11.8.8
           env:
             - name: MARIADB_ROOT_PASSWORD
               valueFrom:
