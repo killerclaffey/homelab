@@ -25,7 +25,7 @@ spec:
                 - name: RENOVATE_PLATFORM
                   value: gitlab
                 - name: RENOVATE_ENDPOINT
-                  value: https://gitlab.apps.okd.claffey.cloud
+                  value: https://gitlab.apps.okd.claffey.cloud/api/v4/
                 - name: RENOVATE_TOKEN
                   valueFrom:
                     secretKeyRef:
