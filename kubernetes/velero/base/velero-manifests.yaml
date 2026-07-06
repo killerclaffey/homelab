@@ -229,7 +229,7 @@ spec:
               value: /credentials/cloud
       dnsPolicy: ClusterFirst
       initContainers:
-        - image: docker.io/velero/velero-plugin-for-aws:v1.10.1
+        - image: docker.io/velero/velero-plugin-for-aws:v1.14.2
           name: velero-plugin-for-aws
           volumeMounts:
           - mountPath: /target
