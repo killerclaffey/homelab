@@ -17,7 +17,7 @@ spec:
 
       containers:
         - name: vault
-          image: docker.io/hashicorp/vault:1.21.4
+          image: docker.io/hashicorp/vault:2.0.3
           command:
             - /bin/vault
           args:
