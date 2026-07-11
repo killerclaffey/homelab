@@ -12,7 +12,7 @@ desktop.ini
 # Ignore unrelated local workspace folders
 network/
 okd-cluster/
-
+okd-cluster/okd-cluster-1/
 # Vault local unseal keys file
 vault_unseal_keys.txt
 homelab_secrets.env
