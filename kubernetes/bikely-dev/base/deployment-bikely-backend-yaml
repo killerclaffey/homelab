@@ -1,8 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: '10'
   name: bikely-backend
   namespace: bikely-dev
 spec:

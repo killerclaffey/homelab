@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: '17'
     meta.helm.sh/release-name: mealie
     meta.helm.sh/release-namespace: mealie
   labels:

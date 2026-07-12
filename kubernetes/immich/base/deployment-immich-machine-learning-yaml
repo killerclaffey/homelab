@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: '5'
     meta.helm.sh/release-name: immich
     meta.helm.sh/release-namespace: immich
   labels:
