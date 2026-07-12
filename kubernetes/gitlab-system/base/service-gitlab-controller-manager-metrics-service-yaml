@@ -6,9 +6,6 @@ metadata:
   name: gitlab-controller-manager-metrics-service
   namespace: gitlab-system
 spec:
-  clusterIP: 172.30.35.175
-  clusterIPs:
-  - 172.30.35.175
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

@@ -14,9 +14,6 @@ metadata:
   name: immich-server
   namespace: immich
 spec:
-  clusterIP: 172.30.148.72
-  clusterIPs:
-  - 172.30.148.72
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

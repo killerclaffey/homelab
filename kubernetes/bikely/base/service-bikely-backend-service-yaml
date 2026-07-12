@@ -11,9 +11,6 @@ metadata:
   name: bikely-backend-service
   namespace: bikely
 spec:
-  clusterIP: 172.30.174.137
-  clusterIPs:
-  - 172.30.174.137
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ipFamilies:

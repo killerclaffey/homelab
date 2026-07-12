@@ -4,12 +4,6 @@ metadata:
   annotations:
     meta.helm.sh/release-name: immich
     meta.helm.sh/release-namespace: immich
-    pv.kubernetes.io/bind-completed: 'yes'
-    pv.kubernetes.io/bound-by-controller: 'yes'
-    volume.beta.kubernetes.io/storage-provisioner: csi.truenas.io
-    volume.kubernetes.io/storage-provisioner: csi.truenas.io
-  finalizers:
-  - kubernetes.io/pvc-protection
   labels:
     app.kubernetes.io/instance: immich
     app.kubernetes.io/managed-by: Helm
@@ -26,4 +20,3 @@ spec:
       storage: 10Gi
   storageClassName: truenas-nfs-bulk
   volumeMode: Filesystem
-  volumeName: pvc-ec462df3-9007-42b0-853c-cf8850117aae

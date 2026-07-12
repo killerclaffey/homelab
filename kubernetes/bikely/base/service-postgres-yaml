@@ -4,9 +4,6 @@ metadata:
   name: postgres
   namespace: bikely
 spec:
-  clusterIP: 172.30.7.33
-  clusterIPs:
-  - 172.30.7.33
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

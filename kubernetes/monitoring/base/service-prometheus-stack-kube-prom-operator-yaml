@@ -18,9 +18,6 @@ metadata:
   name: prometheus-stack-kube-prom-operator
   namespace: monitoring
 spec:
-  clusterIP: 172.30.232.138
-  clusterIPs:
-  - 172.30.232.138
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

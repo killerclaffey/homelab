@@ -17,9 +17,6 @@ metadata:
   name: prometheus-stack-kube-prom-alertmanager
   namespace: monitoring
 spec:
-  clusterIP: 172.30.97.228
-  clusterIPs:
-  - 172.30.97.228
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

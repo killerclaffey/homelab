@@ -4,12 +4,6 @@ metadata:
   annotations:
     meta.helm.sh/release-name: mealie
     meta.helm.sh/release-namespace: mealie
-    pv.kubernetes.io/bind-completed: 'yes'
-    pv.kubernetes.io/bound-by-controller: 'yes'
-    volume.beta.kubernetes.io/storage-provisioner: csi.truenas.io
-    volume.kubernetes.io/storage-provisioner: csi.truenas.io
-  finalizers:
-  - kubernetes.io/pvc-protection
   labels:
     app.kubernetes.io/instance: mealie
     app.kubernetes.io/managed-by: Helm
@@ -26,4 +20,3 @@ spec:
       storage: 10Gi
   storageClassName: truenas-nfs-bulk
   volumeMode: Filesystem
-  volumeName: pvc-b7b78adf-bca0-4cdb-9479-8acf4409e566

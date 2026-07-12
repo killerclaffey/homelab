@@ -9,9 +9,6 @@ metadata:
   name: bikely-upload-service
   namespace: bikely
 spec:
-  clusterIP: 172.30.51.175
-  clusterIPs:
-  - 172.30.51.175
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ipFamilies:

@@ -4,9 +4,6 @@ metadata:
   name: bikely-upload-service
   namespace: bikely-dev
 spec:
-  clusterIP: 172.30.186.44
-  clusterIPs:
-  - 172.30.186.44
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

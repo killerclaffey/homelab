@@ -4,9 +4,6 @@ metadata:
   name: bikely-backend-service
   namespace: bikely-dev
 spec:
-  clusterIP: 172.30.179.102
-  clusterIPs:
-  - 172.30.179.102
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

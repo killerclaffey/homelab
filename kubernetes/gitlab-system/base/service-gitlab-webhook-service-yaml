@@ -4,9 +4,6 @@ metadata:
   name: gitlab-webhook-service
   namespace: gitlab-system
 spec:
-  clusterIP: 172.30.22.156
-  clusterIPs:
-  - 172.30.22.156
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

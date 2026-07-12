@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   annotations:
-    deprecated.daemonset.template.generation: '4'
     meta.helm.sh/release-name: prometheus-stack
     meta.helm.sh/release-namespace: monitoring
   labels:

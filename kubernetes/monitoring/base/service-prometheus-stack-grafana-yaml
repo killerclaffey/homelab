@@ -13,9 +13,6 @@ metadata:
   name: prometheus-stack-grafana
   namespace: monitoring
 spec:
-  clusterIP: 172.30.17.188
-  clusterIPs:
-  - 172.30.17.188
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

@@ -14,9 +14,6 @@ metadata:
   name: immich-valkey
   namespace: immich
 spec:
-  clusterIP: 172.30.21.145
-  clusterIPs:
-  - 172.30.21.145
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

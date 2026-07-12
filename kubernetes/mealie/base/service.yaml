@@ -13,9 +13,6 @@ metadata:
   name: mealie
   namespace: mealie
 spec:
-  clusterIP: 172.30.186.219
-  clusterIPs:
-  - 172.30.186.219
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

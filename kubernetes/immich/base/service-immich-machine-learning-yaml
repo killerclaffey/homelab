@@ -14,9 +14,6 @@ metadata:
   name: immich-machine-learning
   namespace: immich
 spec:
-  clusterIP: 172.30.55.14
-  clusterIPs:
-  - 172.30.55.14
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4

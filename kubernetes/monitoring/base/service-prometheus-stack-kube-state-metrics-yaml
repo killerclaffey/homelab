@@ -16,9 +16,6 @@ metadata:
   name: prometheus-stack-kube-state-metrics
   namespace: monitoring
 spec:
-  clusterIP: 172.30.210.191
-  clusterIPs:
-  - 172.30.210.191
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
