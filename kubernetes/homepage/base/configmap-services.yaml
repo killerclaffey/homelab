@@ -35,6 +35,10 @@ data:
             icon: sh-minio
             href: https://minio.apps.okd.claffey.cloud
             description: Object Storage Management
+        - MinIO TrueNAS:
+            icon: sh-minio
+            href: https://minio.claffey.cloud:30213
+            description: TrueNAS Object Storage Console
     - Observability:
         - Grafana:
             icon: sh-grafana

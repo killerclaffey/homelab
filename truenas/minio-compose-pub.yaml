@@ -1,0 +1,275 @@
+configs:
+  permissions_actions_data:
+    content: >-
+      [{"read_only": false, "mount_path":
+      "/mnt/permission/mnt_nvme_minio-registry", "is_temporary": false,
+      "identifier": "mnt_nvme_minio-registry", "recursive": false, "mode":
+      "check", "uid": 568, "gid": 568, "chmod": null}]
+  private:
+    content: |
+      -----BEGIN PRIVATE KEY-----
+      REPLACE_ME
+      -----END PRIVATE KEY-----
+  public:
+    content: |
+      -----BEGIN CERTIFICATE-----
+      REPLACE_ME
+      -----END CERTIFICATE-----
+services:
+  minio:
+    image: quay.io/minio/minio:latest
+    command: server --certs-dir /certs /data
+    configs:
+      - source: private
+        target: /certs/private.key
+      - source: public
+        target: /certs/public.crt
+    user: '568:568'
+    group_add:
+      - 568
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4096M
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "REPLACE_ME"
+      MINIO_BROWSER_REDIRECT_URL: "https://minio.claffey.cloud:30213"
+      MINIO_SERVER_URL: "https://minio.claffey.cloud:9000"
+      TZ: America/Detroit
+    ports:
+      - mode: ingress
+        protocol: tcp
+        published: 9000
+        target: 9000
+    privileged: false
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: false
+    tty: false
+    networks:
+      default:
+        aliases:
+          - minio.claffey.cloud
+    volumes:
+      - bind:
+          create_host_path: false
+          propagation: rprivate
+        read_only: false
+        source: /mnt/.ix-apps/app_mounts/minio-console/storage_entry
+        target: /data
+        type: bind
+  console:
+    cap_drop:
+      - ALL
+    command:
+      - console
+      - server
+      - '--port'
+      - '30212'
+      - '--certs-dir'
+      - /certs
+      - '--tls-port'
+      - '30213'
+    configs:
+      - source: private
+        target: /certs/private.key
+      - source: public
+        target: /certs/public.crt
+    depends_on:
+      permissions:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4096M
+    environment:
+      CONSOLE_MINIO_SERVER: https://minio.claffey.cloud:9000
+      CONSOLE_MINIO_SERVER_TLS_SKIP_VERIFICATION: "true"
+      GID: '568'
+      GROUP_ID: '568'
+      NVIDIA_VISIBLE_DEVICES: void
+      PGID: '568'
+      PUID: '568'
+      TZ: America/Detroit
+      UID: '568'
+      UMASK: '002'
+      UMASK_SET: '002'
+      USER_ID: '568'
+    group_add:
+      - 568
+    healthcheck:
+      interval: 30s
+      retries: 5
+      start_interval: 2s
+      start_period: 15s
+      test:
+        - CMD
+        - curl
+        - '-k'
+        - '--request'
+        - GET
+        - '--silent'
+        - '--output'
+        - /dev/null
+        - '--show-error'
+        - '--fail'
+        - https://127.0.0.1:30213/api/v1/login
+      timeout: 5s
+    image: ghcr.io/huncrys/minio-console:v1.8.1
+    platform: linux/amd64
+    ports:
+      - mode: ingress
+        protocol: tcp
+        published: 30212
+        target: 30212
+      - mode: ingress
+        protocol: tcp
+        published: 30213
+        target: 30213
+    privileged: false
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: false
+    tty: false
+    user: '568:568'
+    volumes:
+      - bind:
+          create_host_path: false
+          propagation: rprivate
+        read_only: false
+        source: /mnt/.ix-apps/app_mounts/minio-console/storage_entry
+        target: /mnt/Nvme/minio-registry
+        type: bind
+  permissions:
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+    cap_drop:
+      - ALL
+    configs:
+      - mode: 320
+        source: permissions_actions_data
+        target: /script/actions.json
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+    entrypoint:
+      - python3
+      - /script/permissions.py
+    environment:
+      GID: '568'
+      GROUP_ID: '568'
+      NVIDIA_VISIBLE_DEVICES: void
+      PGID: '568'
+      PUID: '568'
+      TZ: America/Detroit
+      UID: '568'
+      UMASK: '002'
+      UMASK_SET: '002'
+      USER_ID: '568'
+    group_add:
+      - 568
+    healthcheck:
+      disable: true
+    image: ixsystems/container-utils:1.0.2
+    network_mode: none
+    platform: linux/amd64
+    privileged: false
+    restart: on-failure:1
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: false
+    tty: false
+    user: '0:0'
+    volumes:
+      - bind:
+          create_host_path: false
+          propagation: rprivate
+        read_only: false
+        source: /mnt/.ix-apps/app_mounts/minio-console/storage_entry
+        target: /mnt/permission/mnt_nvme_minio-registry
+        type: bind
+volumes: {}
+x-action-required: false
+x-notes: >
+  # MinIO Console
+
+
+  ## Security
+
+
+  **Read the following security precautions to ensure that you wish to continue
+  using this application.**
+
+
+  ---
+
+
+  ### Container: [console]
+
+
+  #### Running user/group(s)
+
+
+  - User: 568
+
+  - Group: 568
+
+  - Supplementary Groups: apps
+
+
+  ---
+
+
+  ### Container: [permissions]
+
+
+  **This container is short-lived.**
+
+
+  #### Running user/group(s)
+
+
+  - User: root
+
+  - Group: root
+
+  - Supplementary Groups: apps
+
+
+  ---
+
+
+  ## Bug Reports and Feature Requests
+
+
+  If you find a bug in this app or have an idea for a new feature, please file
+  an issue at
+
+  https://github.com/truenas/apps
+x-portals:
+  - host: minio.claffey.cloud
+    name: HTTP
+    path: /
+    port: 30212
+    scheme: http
+  - host: minio.claffey.cloud
+    name: HTTPS
+    path: /
+    port: 30213
+    scheme: https
+  - host: minio.claffey.cloud
+    name: S3 API
+    path: /
+    port: 9000
+    scheme: https

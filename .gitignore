@@ -26,3 +26,6 @@ okd-install-dir/auth/kubeconfig
 
 # Never commit secret files with real values (use REPLACE_ME placeholders instead)
 # tns-csi secret is managed manually on cluster
+
+# Local TrueNAS compose file with active secrets
+truenas/minio-compose.yaml
