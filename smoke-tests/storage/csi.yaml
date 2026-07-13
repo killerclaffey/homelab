@@ -1,0 +1,185 @@
+# ==============================================================================
+# CSI STORAGE SMOKE TESTS
+# ==============================================================================
+#
+# This file contains smoke tests to verify the health and functionality of both 
+# the official 'truenas-csi' and the modern 'tns-csi' drivers.
+#
+# HOW TO RUN THE SMOKE TESTS:
+#
+# 1. Apply the manifest:
+#    oc apply -f smoke-tests/storage/csi.yaml
+#
+# 2. Wait for the pods to run successfully and write their test files:
+#    oc get pods -n smoke-test -w
+#
+# 3. Verify the write operations were successful:
+#    oc exec -n smoke-test pod-truenas-nfs -- cat /mnt/data/test.txt
+#    oc exec -n smoke-test pod-truenas-iscsi -- cat /mnt/data/test.txt
+#    oc exec -n smoke-test pod-tns-nfs -- cat /mnt/data/test.txt
+#    oc exec -n smoke-test pod-tns-nvmeof -- cat /mnt/data/test.txt
+#
+# 4. Clean up the smoke test resources:
+#    oc delete -f smoke-tests/storage/csi.yaml
+#
+# ==============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smoke-test
+  labels:
+    security.openshift.io/scc.podSecurityLabelSync: "false"
+    pod-security.kubernetes.io/enforce: privileged
+
+---
+# ------------------------------------------------------------------------------
+# 1. OFFICIAL TRUENAS CSI (csi.truenas.io) TESTS
+# ------------------------------------------------------------------------------
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-truenas-nfs
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: truenas-nfs-bulk
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-truenas-nfs
+  namespace: smoke-test
+spec:
+  containers:
+  - name: test-container
+    image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh", "-c"]
+    args:
+      - echo "Official NFS Write Test - $(date)" > /mnt/data/test.txt && sleep 3600
+    volumeMounts:
+    - name: data-volume
+      mountPath: /mnt/data
+  volumes:
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: pvc-truenas-nfs
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-truenas-iscsi
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: truenas-iscsi-nvme
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-truenas-iscsi
+  namespace: smoke-test
+spec:
+  containers:
+  - name: test-container
+    image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh", "-c"]
+    args:
+      - echo "Official iSCSI Write Test - $(date)" > /mnt/data/test.txt && sleep 3600
+    volumeMounts:
+    - name: data-volume
+      mountPath: /mnt/data
+  volumes:
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: pvc-truenas-iscsi
+
+---
+# ------------------------------------------------------------------------------
+# 2. TNS CSI (tns.csi.io) TESTS
+# ------------------------------------------------------------------------------
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-tns-nfs
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: tns-nfs-nvme
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-tns-nfs
+  namespace: smoke-test
+spec:
+  containers:
+  - name: test-container
+    image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh", "-c"]
+    args:
+      - echo "TNS NFS Write Test - $(date)" > /mnt/data/test.txt && sleep 3600
+    volumeMounts:
+    - name: data-volume
+      mountPath: /mnt/data
+  volumes:
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: pvc-tns-nfs
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-tns-nvmeof
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: tns-nvmeof-nvme
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-tns-nvmeof
+  namespace: smoke-test
+spec:
+  containers:
+  - name: test-container
+    image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh", "-c"]
+    args:
+      - echo "TNS NVMe-oF Write Test - $(date)" > /mnt/data/test.txt && sleep 3600
+    volumeMounts:
+    - name: data-volume
+      mountPath: /mnt/data
+  volumes:
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: pvc-tns-nvmeof
