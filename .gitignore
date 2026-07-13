@@ -16,3 +16,13 @@ okd-cluster/okd-cluster-1/
 # Vault local unseal keys file
 vault_unseal_keys.txt
 homelab_secrets.env
+
+# Never commit kubeconfig files with credentials
+kubeconfig*
+*kubeconfig*
+*.kubeconfig
+auth/kubeconfig
+okd-install-dir/auth/kubeconfig
+
+# Never commit secret files with real values (use REPLACE_ME placeholders instead)
+# tns-csi secret is managed manually on cluster
