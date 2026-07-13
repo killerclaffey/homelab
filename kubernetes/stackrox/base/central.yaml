@@ -12,7 +12,7 @@ spec:
         enabled: true
         host: stackrox.apps.okd.claffey.cloud
     adminPasswordSecret:
-      name: central-htpasswd
+      name: stackrox-admin-password
     db:
       persistence:
         persistentVolumeClaim:
