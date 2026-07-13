@@ -79,7 +79,7 @@ spec:
           failureThreshold: 5
           httpGet:
             path: /healthz
-            port: 9808
+            port: 9809
             scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 10
@@ -142,7 +142,7 @@ spec:
           name: registration-dir
       - args:
         - --csi-address=/csi/csi.sock
-        - --health-port=9808
+        - --health-port=9809
         image: registry.k8s.io/sig-storage/livenessprobe:v2.14.0
         imagePullPolicy: IfNotPresent
         name: liveness-probe
