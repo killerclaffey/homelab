@@ -14,14 +14,17 @@ spec:
     adminPasswordSecret:
       name: stackrox-admin-password
     db:
+      nodeSelector:
+        kubernetes.io/hostname: k81
       persistence:
         persistentVolumeClaim:
           size: 100Gi
           storageClassName: truenas-iscsi-nvme
   scannerV4:
     db:
+      nodeSelector:
+        kubernetes.io/hostname: k81
       persistence:
         persistentVolumeClaim:
           size: 50Gi
           storageClassName: truenas-iscsi-nvme
-
