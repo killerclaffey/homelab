@@ -7,3 +7,4 @@ resources:
   - service.yaml
   - route.yaml
   - statefulset.yaml
+  - auth-delegator-clusterrolebinding.yaml
