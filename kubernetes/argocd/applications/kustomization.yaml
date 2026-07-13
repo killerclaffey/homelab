@@ -19,3 +19,4 @@ resources:
   - homepage.yaml
   - stirling-pdf.yaml
   - renovate.yaml
+  - stackrox.yaml

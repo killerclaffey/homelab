@@ -1,0 +1,17 @@
+---
+# Source: stackrox-operator/templates/rbac/leader-election-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: stackrox-operator
+  name: stackrox-operator-leader-election-rolebinding
+  namespace: stackrox
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: stackrox-operator-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: stackrox-operator-controller-manager
+  namespace: stackrox

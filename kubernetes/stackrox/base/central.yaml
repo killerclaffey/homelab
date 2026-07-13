@@ -1,0 +1,20 @@
+apiVersion: platform.stackrox.io/v1alpha1
+kind: Central
+metadata:
+  name: stackrox-central-services
+  namespace: stackrox
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  central:
+    exposure:
+      route:
+        enabled: true
+        host: stackrox.apps.okd.claffey.cloud
+    adminPasswordSecret:
+      name: central-htpasswd
+  db:
+    persistence:
+      persistentVolumeClaim:
+        size: 100Gi
+        storageClassName: truenas-nfs-bulk

@@ -1,0 +1,19 @@
+---
+# Source: stackrox-operator/templates/metrics/controller-manager-metrics-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: stackrox-operator
+    control-plane: controller-manager
+  name: stackrox-operator-controller-manager-metrics-service
+  namespace: stackrox
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: https
+  selector:
+    app: stackrox-operator
+    control-plane: controller-manager

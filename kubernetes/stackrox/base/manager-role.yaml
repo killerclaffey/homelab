@@ -1,0 +1,44 @@
+---
+# Source: stackrox-operator/templates/rbac/manager-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: stackrox-operator
+  name: stackrox-operator-manager-role
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - platform.stackrox.io
+  resources:
+  - centrals
+  - securedclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - platform.stackrox.io
+  resources:
+  - centrals/finalizers
+  - securedclusters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - platform.stackrox.io
+  resources:
+  - centrals/status
+  - securedclusters/status
+  verbs:
+  - get
+  - patch
+  - update

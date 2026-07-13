@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - operator-group.yaml
   - subscription.yaml
+  - cluster-secret-store.yaml

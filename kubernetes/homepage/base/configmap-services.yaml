@@ -18,6 +18,10 @@ data:
             icon: sh-hashicorp-vault
             href: https://vault.apps.okd.claffey.cloud
             description: Secrets Management Service
+        - StackRox:
+            icon: mdi-shield-check
+            href: https://stackrox.apps.okd.claffey.cloud
+            description: Kubernetes Cluster Security Platform
     - Developer Tools:
         - GitLab:
             icon: sh-gitlab

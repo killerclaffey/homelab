@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - centrals.platform.stackrox.io.yaml
+  - securedclusters.platform.stackrox.io.yaml
+  - securitypolicies.config.stackrox.io.yaml
+  - controller-manager-serviceaccount.yaml
+  - leader-election-role.yaml
+  - leader-election-rolebinding.yaml
+  - manager-role.yaml
+  - manager-rolebinding.yaml
+  - metrics-reader.yaml
+  - proxy-role.yaml
+  - proxy-rolebinding.yaml
+  - operator-deployment.yaml
+  - controller-manager-metrics-service.yaml
+  - external-secret.yaml
+  - central.yaml

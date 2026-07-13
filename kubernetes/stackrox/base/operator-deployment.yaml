@@ -1,0 +1,83 @@
+---
+# Source: stackrox-operator/templates/manager/manager.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app: stackrox-operator
+    control-plane: controller-manager
+  name: stackrox-operator-controller-manager
+  namespace: stackrox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stackrox-operator
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        app: stackrox-operator
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --metrics-bind-address=0.0.0.0:8443
+        - --health-probe-bind-address=:8081
+        - --leader-elect
+        env:
+          - name: RELATED_IMAGE_MAIN
+          - name: RELATED_IMAGE_SCANNER
+          - name: RELATED_IMAGE_SCANNER_SLIM
+          - name: RELATED_IMAGE_SCANNER_DB
+          - name: RELATED_IMAGE_SCANNER_DB_SLIM
+          - name: RELATED_IMAGE_COLLECTOR
+          - name: RELATED_IMAGE_FACT
+          - name: RELATED_IMAGE_ROXCTL
+          - name: RELATED_IMAGE_CENTRAL_DB
+          - name: RELATED_IMAGE_SCANNER_V4_DB
+          - name: RELATED_IMAGE_SCANNER_V4
+          - name: MEMORY_LIMIT_BYTES
+            valueFrom:
+              resourceFieldRef:
+                containerName: manager
+                resource: limits.memory
+        image: "quay.io/stackrox-io/stackrox-operator:4.11.1"
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: stackrox-operator-controller-manager
+      terminationGracePeriodSeconds: 10
