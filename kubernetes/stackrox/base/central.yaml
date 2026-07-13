@@ -18,3 +18,10 @@ spec:
         persistentVolumeClaim:
           size: 100Gi
           storageClassName: truenas-iscsi-nvme
+  scannerV4:
+    db:
+      persistence:
+        persistentVolumeClaim:
+          size: 50Gi
+          storageClassName: truenas-iscsi-nvme
+
