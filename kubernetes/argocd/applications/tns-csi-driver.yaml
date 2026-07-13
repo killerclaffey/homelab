@@ -20,6 +20,9 @@ spec:
     helm:
       values: |
         existingSecret: "tns-csi-secret"
+        truenas:
+          url: "wss://10.0.20.2/api/current"
+          apiKey: "unused-see-existingSecret"
         openshift:
           enabled: true
         storageClasses:
