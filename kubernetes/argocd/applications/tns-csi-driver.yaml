@@ -23,6 +23,7 @@ spec:
         truenas:
           url: "wss://10.0.20.2/api/current"
           apiKey: "unused-see-existingSecret"
+          skipTLSVerify: true
         openshift:
           enabled: true
         storageClasses:
