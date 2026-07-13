@@ -13,8 +13,9 @@ spec:
         host: stackrox.apps.okd.claffey.cloud
     adminPasswordSecret:
       name: central-htpasswd
-  db:
-    persistence:
-      persistentVolumeClaim:
-        size: 100Gi
-        storageClassName: truenas-nfs-bulk
+    db:
+      persistence:
+        persistentVolumeClaim:
+          size: 100Gi
+          storageClassName: truenas-nfs-bulk
+
