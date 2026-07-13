@@ -16,7 +16,7 @@ spec:
   source:
     chart: tns-csi-driver
     repoURL: registry-1.docker.io/bfenski
-    targetRevision: 0.17.5
+    targetRevision: "0.17.5"
     helm:
       values: |
         existingSecret: "tns-csi-secret"
