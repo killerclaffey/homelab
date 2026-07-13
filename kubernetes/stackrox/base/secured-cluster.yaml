@@ -1,0 +1,11 @@
+apiVersion: platform.stackrox.io/v1alpha1
+kind: SecuredCluster
+metadata:
+  name: homelab-cluster
+  namespace: stackrox
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  clusterName: homelab-cluster
+  centralEndpoint: central.stackrox.svc:443
+  collectionMethod: CORE_BPF

@@ -17,3 +17,5 @@ resources:
   - controller-manager-metrics-service.yaml
   - external-secret.yaml
   - central.yaml
+  - secured-cluster.yaml
+
