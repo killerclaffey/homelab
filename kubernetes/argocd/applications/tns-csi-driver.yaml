@@ -33,7 +33,7 @@ spec:
             pool: "Nvme"
             server: "10.0.20.2"
             mountOptions:
-              - nfsvers=4.1
+              - vers=4.1
               - hard
               - timeo=600
               - retrans=2
