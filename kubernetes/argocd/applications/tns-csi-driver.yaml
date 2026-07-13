@@ -43,6 +43,7 @@ spec:
             protocol: nvmeof
             pool: "Nvme"
             server: "10.0.20.2"
+            subsystemNQN: "nqn.2011-06.com.truenas:uuid:6fc676c7-0e1b-4155-981c-47acefc1f825"
   syncPolicy:
     automated:
       prune: true
