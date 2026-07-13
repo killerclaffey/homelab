@@ -17,5 +17,4 @@ spec:
       persistence:
         persistentVolumeClaim:
           size: 100Gi
-          storageClassName: truenas-nfs-bulk
-
+          storageClassName: truenas-iscsi-nvme
