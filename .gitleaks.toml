@@ -1,17 +1,8 @@
-# .gitleaks.toml
+title = "homelab gitleaks config"
+
 [extend]
 useDefault = true
 
-[allowlist]
-description = "Ignore dashboard files and common false positive templates"
-paths = [
-    # Grafana Dashboard ConfigMaps
-    '''kubernetes/monitoring/base/configmap-prometheus-stack-kube-prom-.*''',
-    # Velero base64 references / checksums
-    '''kubernetes/velero/base/velero-manifests\.yaml''',
-    # Temporary / documentation / markdown files
-    '''README\.md''',
-    # Git Town config
-    '''git-town\.toml'''
-]
-
+[[allowlists]]
+description = "Ignore REPLACE_ME placeholders"
+regexes = ['''REPLACE_ME''', '''REDACTED_''']
