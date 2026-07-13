@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tns-csi-driver
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: argocd
+spec:
+  destination:
+    namespace: tns-csi
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: tns-csi-driver
+    repoURL: registry-1.docker.io/bfenski
+    targetRevision: 0.17.5
+    helm:
+      values: |
+        existingSecret: "tns-csi-secret"
+        openshift:
+          enabled: true
+        storageClasses:
+          - name: tns-nfs-nvme
+            enabled: true
+            protocol: nfs
+            pool: "Nvme"
+            server: "10.0.20.2"
+            mountOptions:
+              - nfsvers=4.1
+              - hard
+              - timeo=600
+              - retrans=2
+              - noresvport
+          - name: tns-nvmeof-nvme
+            enabled: true
+            protocol: nvmeof
+            pool: "Nvme"
+            server: "10.0.20.2"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true

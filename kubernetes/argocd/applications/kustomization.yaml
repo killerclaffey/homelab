@@ -13,6 +13,8 @@ resources:
   - quay.yaml
   - rook-ceph.yaml
   - truenas-csi.yaml
+  - tns-csi-configs.yaml
+  - tns-csi-driver.yaml
   - uptime-kuma.yaml
   - vault.yaml
   - velero.yaml
