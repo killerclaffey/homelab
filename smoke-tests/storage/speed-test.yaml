@@ -39,82 +39,127 @@ metadata:
   name: storage-speed-test-script
   namespace: smoke-test
 data:
-  benchmark.py: |
-    import json
-    import subprocess
-    import statistics
-    import sys
-    import time
+  benchmark.sh: |
+    #!/bin/sh
+    backends="truenas-nfs truenas-iscsi tns-nfs tns-nvmeof"
+    iterations=4
 
-    backends = ["truenas-nfs", "truenas-iscsi", "tns-nfs", "tns-nvmeof"]
-    tests = [
-        ("Seq Write (1M)", "write", "1M", "128M", 5),
-        ("Seq Read (1M)", "read", "1M", "128M", 5),
-        ("Rand Write (4k)", "randwrite", "4k", "64M", 5),
-        ("Rand Read (4k)", "randread", "4k", "64M", 5),
-    ]
-    iterations = 4
+    echo "=== Starting Thorough Storage Benchmark (OpenShift-Native) ==="
 
-    results = {}
+    # Initialize reports
+    report_seq_write=""
+    report_seq_read=""
+    report_rand_write=""
+    report_rand_read=""
 
-    print("=== Starting Thorough Storage Benchmark ===")
-    for backend in backends:
-        results[backend] = {}
-        print(f"\n>>> Benchmarking storage: {backend}")
-        for test_name, rw, bs, size, run_time in tests:
-            print(f"    Running {test_name} ({iterations} iterations)...")
-            bw_runs = []
-            iops_runs = []
-            for i in range(iterations):
-                filename = f"/mnt/{backend}/speedtest.bin"
-                cmd = [
-                    "fio",
-                    f"--name={rw}",
-                    f"--rw={rw}",
-                    f"--bs={bs}",
-                    f"--size={size}",
-                    f"--filename={filename}",
-                    f"--runtime={run_time}",
-                    "--time_based",
-                    "--direct=1",
-                    "--ioengine=libaio",
-                    "--output-format=json"
-                ]
-                try:
-                    proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
-                    data = json.loads(proc.stdout)
-                    job = data["jobs"][0]
-                    
-                    if "write" in rw:
-                        bw = job["write"]["bw_bytes"] / 1024.0 / 1024.0 # MB/s
-                        iops = job["write"]["iops"]
-                    else:
-                        bw = job["read"]["bw_bytes"] / 1024.0 / 1024.0 # MB/s
-                        iops = job["read"]["iops"]
-                    
-                    bw_runs.append(bw)
-                    iops_runs.append(iops)
-                except Exception as e:
-                    print(f"      Run {i+1} failed: {e}")
-                subprocess.run(["rm", "-f", filename])
-                time.sleep(0.2)
+    run_test_suite() {
+      test_label=$1
+      rw=$2
+      bs=$3
+      size=$4
+      run_time=$5
+      section=$6
+      
+      echo "" >&2
+      echo "------------------------------------------------------------" >&2
+      echo " Running $test_label ($iterations iterations)..." >&2
+      echo "------------------------------------------------------------" >&2
+      
+      # We will build a table row by row for each backend
+      row_data=""
+      
+      for backend in $backends; do
+        echo "  Testing backend: $backend..." >&2
+        
+        total_bw=0
+        total_iops=0
+        success_runs=0
+        
+        for i in $(seq 1 $iterations); do
+          filename="/mnt/$backend/speedtest.bin"
+          json_file="/tmp/fio_result.json"
+          rm -f "$json_file"
+          
+          # Run FIO with JSON output
+          fio --name=benchmark \
+              --rw="$rw" \
+              --bs="$bs" \
+              --size="$size" \
+              --filename="$filename" \
+              --runtime="$run_time" \
+              --time_based \
+              --direct=1 \
+              --ioengine=libaio \
+              --output-format=json > "$json_file" 2>/dev/null
+              
+          if [ -f "$json_file" ] && grep -q "\"jobs\"" "$json_file"; then
+            # Extract bw_bytes and iops
+            bw_bytes=$(sed -n "/\"$section\" : {/,/}/p" "$json_file" | grep "\"bw_bytes\"" | head -n 1 | awk -F: '{print $2}' | tr -d ' ,')
+            iops=$(sed -n "/\"$section\" : {/,/}/p" "$json_file" | grep "\"iops\"" | head -n 1 | awk -F: '{print $2}' | tr -d ' ,')
             
-            avg_bw = statistics.mean(bw_runs) if bw_runs else 0.0
-            avg_iops = statistics.mean(iops_runs) if iops_runs else 0.0
-            results[backend][test_name] = {"bw": avg_bw, "iops": avg_iops}
+            if [ ! -z "$bw_bytes" ] && [ ! -z "$iops" ]; then
+              # Convert bw_bytes to MB/s (floating point division in awk)
+              bw_mb=$(awk -v bytes="$bw_bytes" 'BEGIN {print bytes / 1024 / 1024}')
+              
+              # Add to totals
+              total_bw=$(awk -v t="$total_bw" -v b="$bw_mb" 'BEGIN {print t + b}')
+              total_iops=$(awk -v t="$total_iops" -v i="$iops" 'BEGIN {print t + i}')
+              success_runs=$((success_runs + 1))
+            fi
+          else
+            echo "    Run $i failed to produce valid FIO JSON output." >&2
+          fi
+          
+          rm -f "$filename" "$json_file"
+          sleep 0.2
+        done
+        
+        if [ "$success_runs" -gt 0 ]; then
+          avg_bw=$(awk -v t="$total_bw" -v r="$success_runs" 'BEGIN {printf "%.2f", t / r}')
+          avg_iops=$(awk -v t="$total_iops" -v r="$success_runs" 'BEGIN {printf "%.1f", t / r}')
+        else
+          avg_bw="0.00"
+          avg_iops="0.0"
+        fi
+        
+        echo "    Average: $avg_bw MB/s ($avg_iops IOPS)" >&2
+        row_data="${row_data}| $backend | $avg_bw MB/s | $avg_iops |\n"
+      done
+      
+      # Return row data
+      printf "$row_data"
+    }
 
-    print("\n" + "="*60)
-    print("      FINAL BENCHMARK AVERAGES REPORT (4 RUNS EACH)")
-    print("="*60 + "\n")
+    seq_write_rows=$(run_test_suite "Seq Write (1M)" "write" "1M" "128M" 5 "write")
+    seq_read_rows=$(run_test_suite "Seq Read (1M)" "read" "1M" "128M" 5 "read")
+    rand_write_rows=$(run_test_suite "Rand Write (4k)" "randwrite" "4k" "64M" 5 "write")
+    rand_read_rows=$(run_test_suite "Rand Read (4k)" "randread" "4k" "64M" 5 "read")
 
-    for test_name, _, _, _, _ in tests:
-        print(f"### {test_name}")
-        print("| Storage Class | Avg Throughput (MB/s) | Avg IOPS |")
-        print("| :--- | :---: | :---: |")
-        for backend in backends:
-            res = results[backend].get(test_name, {"bw": 0, "iops": 0})
-            print(f"| {backend} | {res['bw']:.2f} MB/s | {res['iops']:.1f} |")
-        print("\n")
+    echo ""
+    echo "============================================================"
+    echo "      FINAL BENCHMARK AVERAGES REPORT (4 RUNS EACH)"
+    echo "============================================================"
+    echo ""
+    echo "### Seq Write (1M)"
+    echo "| Storage Class | Avg Throughput (MB/s) | Avg IOPS |"
+    echo "| :--- | :---: | :---: |"
+    printf "$seq_write_rows"
+    echo ""
+    echo "### Seq Read (1M)"
+    echo "| Storage Class | Avg Throughput (MB/s) | Avg IOPS |"
+    echo "| :--- | :---: | :---: |"
+    printf "$seq_read_rows"
+    echo ""
+    echo "### Rand Write (4k)"
+    echo "| Storage Class | Avg Throughput (MB/s) | Avg IOPS |"
+    echo "| :--- | :---: | :---: |"
+    printf "$rand_write_rows"
+    echo ""
+    echo "### Rand Read (4k)"
+    echo "| Storage Class | Avg Throughput (MB/s) | Avg IOPS |"
+    echo "| :--- | :---: | :---: |"
+    printf "$rand_read_rows"
+    echo ""
 
 ---
 apiVersion: v1
@@ -185,22 +230,14 @@ spec:
         app: storage-speed-test
     spec:
       restartPolicy: Never
-      securityContext:
-        runAsUser: 0
-        runAsGroup: 0
-        fsGroup: 0
       containers:
       - name: fio-tester
-        image: docker.io/alpine:latest
+        image: docker.io/ljishen/fio:latest
         imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
-          runAsUser: 0
         command: ["/bin/sh", "-c"]
         args:
           - |
-            apk add --no-cache fio python3
-            python3 /app/benchmark.py
+            sh /app/benchmark.sh
         volumeMounts:
         - name: mount-truenas-nfs
           mountPath: /mnt/truenas-nfs
