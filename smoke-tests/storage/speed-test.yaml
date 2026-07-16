@@ -1,19 +1,22 @@
 # ==============================================================================
-# STORAGE SPEED TEST BENCHMARK
+# STORAGE SPEED TEST BENCHMARK (THOROUGH SUITE)
 # ==============================================================================
 #
-# This file contains a sequential storage benchmark comparing all four TrueNAS 
-# storage classes side-by-side. It runs tests sequentially to avoid IO contention.
+# This file contains a thorough sequential storage benchmark comparing all four 
+# TrueNAS storage classes side-by-side. 
+#
+# It runs 4 iterations of each test (seq/rand read/write across 4k/1M blocksizes)
+# and calculates the exact average throughput (MB/s) and IOPS for each backend.
 #
 # HOW TO RUN THE SPEED TESTS:
 #
 # 1. Apply the manifest:
 #    oc apply -f smoke-tests/storage/speed-test.yaml
 #
-# 2. Watch the Job progress until complete (usually takes ~1-2 minutes):
+# 2. Watch the Job progress until complete (takes ~2-3 minutes):
 #    oc get jobs -n smoke-test -w
 #
-# 3. View the final storage performance comparison report:
+# 3. View the final storage performance average report:
 #    oc logs job/storage-speed-test -n smoke-test
 #
 # 4. Clean up all speed test resources:
@@ -28,6 +31,90 @@ metadata:
   labels:
     security.openshift.io/scc.podSecurityLabelSync: "false"
     pod-security.kubernetes.io/enforce: privileged
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storage-speed-test-script
+  namespace: smoke-test
+data:
+  benchmark.py: |
+    import json
+    import subprocess
+    import statistics
+    import sys
+    import time
+
+    backends = ["truenas-nfs", "truenas-iscsi", "tns-nfs", "tns-nvmeof"]
+    tests = [
+        ("Seq Write (1M)", "write", "1M", "128M", 5),
+        ("Seq Read (1M)", "read", "1M", "128M", 5),
+        ("Rand Write (4k)", "randwrite", "4k", "64M", 5),
+        ("Rand Read (4k)", "randread", "4k", "64M", 5),
+    ]
+    iterations = 4
+
+    results = {}
+
+    print("=== Starting Thorough Storage Benchmark ===")
+    for backend in backends:
+        results[backend] = {}
+        print(f"\n>>> Benchmarking storage: {backend}")
+        for test_name, rw, bs, size, run_time in tests:
+            print(f"    Running {test_name} ({iterations} iterations)...")
+            bw_runs = []
+            iops_runs = []
+            for i in range(iterations):
+                filename = f"/mnt/{backend}/speedtest.bin"
+                cmd = [
+                    "fio",
+                    f"--name={rw}",
+                    f"--rw={rw}",
+                    f"--bs={bs}",
+                    f"--size={size}",
+                    f"--filename={filename}",
+                    f"--runtime={run_time}",
+                    "--time_based",
+                    "--direct=1",
+                    "--ioengine=libaio",
+                    "--output-format=json"
+                ]
+                try:
+                    proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                    data = json.loads(proc.stdout)
+                    job = data["jobs"][0]
+                    
+                    if "write" in rw:
+                        bw = job["write"]["bw_bytes"] / 1024.0 / 1024.0 # MB/s
+                        iops = job["write"]["iops"]
+                    else:
+                        bw = job["read"]["bw_bytes"] / 1024.0 / 1024.0 # MB/s
+                        iops = job["read"]["iops"]
+                    
+                    bw_runs.append(bw)
+                    iops_runs.append(iops)
+                except Exception as e:
+                    print(f"      Run {i+1} failed: {e}")
+                subprocess.run(["rm", "-f", filename])
+                time.sleep(0.2)
+            
+            avg_bw = statistics.mean(bw_runs) if bw_runs else 0.0
+            avg_iops = statistics.mean(iops_runs) if iops_runs else 0.0
+            results[backend][test_name] = {"bw": avg_bw, "iops": avg_iops}
+
+    print("\n" + "="*60)
+    print("      FINAL BENCHMARK AVERAGES REPORT (4 RUNS EACH)")
+    print("="*60 + "\n")
+
+    for test_name, _, _, _, _ in tests:
+        print(f"### {test_name}")
+        print("| Storage Class | Avg Throughput (MB/s) | Avg IOPS |")
+        print("| :--- | :---: | :---: |")
+        for backend in backends:
+            res = results[backend].get(test_name, {"bw": 0, "iops": 0})
+            print(f"| {backend} | {res['bw']:.2f} MB/s | {res['iops']:.1f} |")
+        print("\n")
 
 ---
 apiVersion: v1
@@ -98,39 +185,22 @@ spec:
         app: storage-speed-test
     spec:
       restartPolicy: Never
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
       containers:
       - name: fio-tester
-        image: docker.io/ljishen/fio:latest
+        image: docker.io/alpine:latest
         imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+          runAsUser: 0
         command: ["/bin/sh", "-c"]
         args:
           - |
-            echo "============================================="
-            echo "   HOMELAB STORAGE SPEED COMPARISON REPORT"
-            echo "============================================="
-            
-            for target in truenas-nfs truenas-iscsi tns-nfs tns-nvmeof; do
-              echo ""
-              echo "---------------------------------------------"
-              echo " TESTING STORAGE BACKEND: $target"
-              echo "---------------------------------------------"
-              
-              # Run a simple sequential write test
-              echo "--> Running Sequential Write Test (256MB, blocksize 1MB)..."
-              fio --name=seq-write --rw=write --bs=1M --size=256M --filename=/mnt/$target/speedtest.bin --direct=1 --ioengine=libaio --group_reporting | grep -E "WRITE:|Run status" -A1
-              
-              # Run a simple sequential read test
-              echo "--> Running Sequential Read Test (256MB, blocksize 1MB)..."
-              fio --name=seq-read --rw=read --bs=1M --size=256M --filename=/mnt/$target/speedtest.bin --direct=1 --ioengine=libaio --group_reporting | grep -E "READ:|Run status" -A1
-              
-              # Clean up test file
-              rm -f /mnt/$target/speedtest.bin
-            done
-            
-            echo ""
-            echo "============================================="
-            echo "               TEST COMPLETE"
-            echo "============================================="
+            apk add --no-cache fio python3
+            python3 /app/benchmark.py
         volumeMounts:
         - name: mount-truenas-nfs
           mountPath: /mnt/truenas-nfs
@@ -140,6 +210,8 @@ spec:
           mountPath: /mnt/tns-nfs
         - name: mount-tns-nvmeof
           mountPath: /mnt/tns-nvmeof
+        - name: script-vol
+          mountPath: /app
       volumes:
       - name: mount-truenas-nfs
         persistentVolumeClaim:
@@ -153,3 +225,6 @@ spec:
       - name: mount-tns-nvmeof
         persistentVolumeClaim:
           claimName: pvc-speed-tns-nvmeof
+      - name: script-vol
+        configMap:
+          name: storage-speed-test-script
