@@ -1,0 +1,155 @@
+# ==============================================================================
+# STORAGE SPEED TEST BENCHMARK
+# ==============================================================================
+#
+# This file contains a sequential storage benchmark comparing all four TrueNAS 
+# storage classes side-by-side. It runs tests sequentially to avoid IO contention.
+#
+# HOW TO RUN THE SPEED TESTS:
+#
+# 1. Apply the manifest:
+#    oc apply -f smoke-tests/storage/speed-test.yaml
+#
+# 2. Watch the Job progress until complete (usually takes ~1-2 minutes):
+#    oc get jobs -n smoke-test -w
+#
+# 3. View the final storage performance comparison report:
+#    oc logs job/storage-speed-test -n smoke-test
+#
+# 4. Clean up all speed test resources:
+#    oc delete -f smoke-tests/storage/speed-test.yaml
+#
+# ==============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smoke-test
+  labels:
+    security.openshift.io/scc.podSecurityLabelSync: "false"
+    pod-security.kubernetes.io/enforce: privileged
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-speed-truenas-nfs
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: truenas-nfs-bulk
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-speed-truenas-iscsi
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: truenas-iscsi-nvme
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-speed-tns-nfs
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: tns-nfs-nvme
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-speed-tns-nvmeof
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: tns-nvmeof-nvme
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: storage-speed-test
+  namespace: smoke-test
+spec:
+  template:
+    metadata:
+      labels:
+        app: storage-speed-test
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: fio-tester
+        image: docker.io/ljishen/fio:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "============================================="
+            echo "   HOMELAB STORAGE SPEED COMPARISON REPORT"
+            echo "============================================="
+            
+            for target in truenas-nfs truenas-iscsi tns-nfs tns-nvmeof; do
+              echo ""
+              echo "---------------------------------------------"
+              echo " TESTING STORAGE BACKEND: $target"
+              echo "---------------------------------------------"
+              
+              # Run a simple sequential write test
+              echo "--> Running Sequential Write Test (256MB, blocksize 1MB)..."
+              fio --name=seq-write --rw=write --bs=1M --size=256M --filename=/mnt/$target/speedtest.bin --direct=1 --ioengine=libaio --group_reporting | grep -E "WRITE:|Run status" -A1
+              
+              # Run a simple sequential read test
+              echo "--> Running Sequential Read Test (256MB, blocksize 1MB)..."
+              fio --name=seq-read --rw=read --bs=1M --size=256M --filename=/mnt/$target/speedtest.bin --direct=1 --ioengine=libaio --group_reporting | grep -E "READ:|Run status" -A1
+              
+              # Clean up test file
+              rm -f /mnt/$target/speedtest.bin
+            done
+            
+            echo ""
+            echo "============================================="
+            echo "               TEST COMPLETE"
+            echo "============================================="
+        volumeMounts:
+        - name: mount-truenas-nfs
+          mountPath: /mnt/truenas-nfs
+        - name: mount-truenas-iscsi
+          mountPath: /mnt/truenas-iscsi
+        - name: mount-tns-nfs
+          mountPath: /mnt/tns-nfs
+        - name: mount-tns-nvmeof
+          mountPath: /mnt/tns-nvmeof
+      volumes:
+      - name: mount-truenas-nfs
+        persistentVolumeClaim:
+          claimName: pvc-speed-truenas-nfs
+      - name: mount-truenas-iscsi
+        persistentVolumeClaim:
+          claimName: pvc-speed-truenas-iscsi
+      - name: mount-tns-nfs
+        persistentVolumeClaim:
+          claimName: pvc-speed-tns-nfs
+      - name: mount-tns-nvmeof
+        persistentVolumeClaim:
+          claimName: pvc-speed-tns-nvmeof
