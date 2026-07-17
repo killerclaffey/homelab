@@ -30,3 +30,18 @@ subjects:
   - kind: ServiceAccount
     name: homeassistant-sa
     namespace: homeassistant
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homeassistant-cnpg-scc
+  labels:
+    app.kubernetes.io/instance: homeassistant
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnpg-postgres-scc-use
+subjects:
+  - kind: ServiceAccount
+    name: homeassistant
+    namespace: homeassistant
