@@ -35,6 +35,9 @@ spec:
         - name: homeassistant
           persistentVolumeClaim:
             claimName: homeassistant
+        - name: configuration-yaml
+          configMap:
+            name: homeassistant-config
         - name: certificate
           secret:
             secretName: homeassistant-cert
@@ -98,6 +101,9 @@ spec:
           volumeMounts:
             - name: homeassistant
               mountPath: /config
+            - name: configuration-yaml
+              mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
             - name: certificate
               mountPath: /ssl
             - name: run

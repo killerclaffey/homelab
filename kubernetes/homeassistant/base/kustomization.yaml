@@ -13,3 +13,8 @@ resources:
   - service-monitor.yaml
   - secret.yaml
 
+configMapGenerator:
+  - name: homeassistant-config
+    files:
+      - ./config/configuration.yaml
+
