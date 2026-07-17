@@ -17,4 +17,6 @@ configMapGenerator:
   - name: homeassistant-config
     files:
       - ./config/configuration.yaml
+    options:
+      disableNameSuffixHash: true
 
