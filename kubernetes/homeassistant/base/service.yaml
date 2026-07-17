@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: homeassistant
   namespace: homeassistant
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: homeassistant-cert
   labels:
     app.kubernetes.io/instance: homeassistant
 spec:
