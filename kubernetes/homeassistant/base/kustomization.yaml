@@ -12,5 +12,4 @@ resources:
   - velero.yaml
   - service-monitor.yaml
   - secret.yaml
-  - vpa.yaml
 
