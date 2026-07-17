@@ -12,7 +12,7 @@ resources:
   - statefulset.yaml
   - velero.yaml
   - service-monitor.yaml
-  - secret.yaml
+  # - secret.yaml
 
 configMapGenerator:
   - name: homeassistant-config
