@@ -22,3 +22,5 @@ resources:
   - stirling-pdf.yaml
   - renovate.yaml
   - stackrox.yaml
+  - homeassistant.yaml
+

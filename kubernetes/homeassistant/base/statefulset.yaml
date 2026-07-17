@@ -1,0 +1,146 @@
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+  labels:
+    app: homeassistant
+    app.kubernetes.io/instance: homeassistant
+  annotations:
+    #   checkov.io/skip1: CKV_K8S_40=OpenShift Injects Random UID
+    checkov.io/skip2: CKV_K8S_20=Containers Runs CHOWN and MKDIR
+    checkov.io/skip3: CKV_K8S_25=Containers Runs CHOWN and MKDIR
+spec:
+  replicas: 1
+  serviceName: homeassistant
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: homeassistant
+  template:
+    metadata:
+      labels:
+        app: homeassistant
+      annotations:
+        enable.version-checker.io/homeassistant: "true"
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true
+        fsGroup: 1000990000 # Custom OKD UID
+      volumes:
+        - name: homeassistant
+          persistentVolumeClaim:
+            claimName: homeassistant
+        - name: certificate
+          secret:
+            secretName: homeassistant-cert
+        - name: run
+          emptyDir:
+            sizeLimit: 10Mi
+        - name: config
+          emptyDir:
+            sizeLimit: 10Mi
+        - name: cache
+          emptyDir:
+            sizeLimit: 10Mi
+      serviceAccountName: homeassistant-sa
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      containers:
+        - name: homeassistant
+          # renovate: datasource=docker depName=docker.io/homeassistant/home-assistant
+          image: docker.io/homeassistant/home-assistant:2026.7.1@sha256:f73512ba4fe06bb4d57636fe3578d0820cdec46f81e8f837ab59e451662ff3cb
+          securityContext:
+            allowPrivilegeEscalation: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+                - CHOWN
+                - SETUID
+                - SETGID
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000990000 # Custom OKD UID
+          env:
+            - name: RECORDER_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: homeassistant-app
+                  key: uri
+          ports:
+            # - hostPort: 8123
+            - containerPort: 8123
+              protocol: TCP
+          resizePolicy:
+            - resourceName: cpu
+              restartPolicy: NotRequired
+            - resourceName: memory
+              restartPolicy: NotRequired
+          resources:
+            limits:
+              cpu: 300m
+              memory: 3Gi
+            requests:
+              cpu: 10m
+              memory: 1.5Gi
+          volumeMounts:
+            - name: homeassistant
+              mountPath: /config
+            - name: certificate
+              mountPath: /ssl
+            - name: run
+              mountPath: /run
+            - name: config
+              mountPath: /.config
+            - name: cache
+              mountPath: /.cache
+          livenessProbe:
+            httpGet:
+              path: /manifest.json
+              port: 8123
+              scheme: HTTPS
+            timeoutSeconds: 1
+            periodSeconds: 10
+            initialDelaySeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /manifest.json
+              port: 8123
+              scheme: HTTPS
+            timeoutSeconds: 1
+            periodSeconds: 10
+            initialDelaySeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /manifest.json
+              port: 8123
+              scheme: HTTPS
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            initialDelaySeconds: 3
+            failureThreshold: 30
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      automountServiceAccountToken: false
+      # hostNetwork: true
+      hostname: homeassistant
+      schedulerName: default-scheduler
+      enableServiceLinks: false

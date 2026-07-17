@@ -1,0 +1,122 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: music-assistant-server
+  namespace: homeassistant
+  labels:
+    app: music-assistant-server
+  annotations:
+    #   checkov.io/skip1: CKV_K8S_40=OpenShift Injects Random UID
+    checkov.io/skip2: CKV_K8S_20=Containers Runs CHOWN and MKDIR
+    checkov.io/skip3: CKV_K8S_25=Containers Runs CHOWN and MKDIR
+    checkov.io/skip4: CKV_K8S_16=Can't figure out non priv yet
+    checkov.io/skip5: CKV_K8S_39=Can't figure out non priv yet
+spec:
+  replicas: 1
+  serviceName: music-assistant-server
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: music-assistant-server
+  template:
+    metadata:
+      labels:
+        app: music-assistant-server
+      annotations:
+        enable.version-checker.io/homeassistant: "true"
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true
+        fsGroup: 1000990000 # Custom OKD UID
+      serviceAccountName: homeassistant-sa
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      containers:
+        - name: music-assistant-server
+          image: ghcr.io/music-assistant/server:2.3.4@sha256:301cc44d2405e1f12953a44ddb65454630007755af9ada9d204bc1a3b9a06175
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          securityContext:
+            allowPrivilegeEscalation: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+                - SYS_ADMIN
+                - DAC_READ_SEARCH
+              drop:
+                - ALL
+            privileged: true
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000990000 # Custom OKD UID
+          ports:
+            # - hostPort: 8095
+            - containerPort: 8095
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 4Gi
+            requests:
+              cpu: 10m
+              memory: 2Gi
+          resizePolicy:
+            - resourceName: cpu
+              restartPolicy: NotRequired
+            - resourceName: memory
+              restartPolicy: NotRequired
+              memory: 1Gi
+          env:
+            - name: LOG_LEVEL
+              value: "info"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8095
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            initialDelaySeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8095
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            initialDelaySeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8095
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            initialDelaySeconds: 3
+            failureThreshold: 30
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      automountServiceAccountToken: false
+      # hostNetwork: true
+      hostname: homeassistant
+      schedulerName: default-scheduler
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: music-assistant-server
+      enableServiceLinks: false

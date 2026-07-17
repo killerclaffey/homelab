@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+  labels:
+    app.kubernetes.io/instance: homeassistant
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`home.k3s.arthurvardevanyan.com`)
+      kind: Rule
+      services:
+        - name: homeassistant
+          port: 8123

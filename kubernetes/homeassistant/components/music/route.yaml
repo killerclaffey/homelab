@@ -1,0 +1,20 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: music-assistant-server
+  namespace: homeassistant
+  labels:
+    app: music-assistant-server
+spec:
+  host: music.apps.okd.claffey.cloud
+  port:
+    targetPort: http
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: music-assistant-server
+    weight: 100
+  wildcardPolicy: None

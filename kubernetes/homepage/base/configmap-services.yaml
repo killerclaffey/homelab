@@ -61,6 +61,14 @@ data:
             href: https://uptime-kuma.apps.okd.claffey.cloud/status/default
             description: Public Service Status Page
     - Home Applications:
+        - Home Assistant:
+            icon: sh-home-assistant
+            href: https://home.apps.okd.claffey.cloud
+            description: Home Automation & Integration Platform
+        - Music Assistant:
+            icon: mdi-music
+            href: https://music.apps.okd.claffey.cloud
+            description: Multi-room Music Streaming Hub
         - Mealie:
             icon: sh-mealie
             href: https://mealie.apps.okd.claffey.cloud
