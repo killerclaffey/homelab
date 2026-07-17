@@ -25,7 +25,7 @@ spec:
   minSyncReplicas: 1
   maxSyncReplicas: 1
   postgresUID: 26
-  postgresGID: 26
+  postgresGID: 999
   postgresql:
     parameters:
       shared_buffers: "256MB"
