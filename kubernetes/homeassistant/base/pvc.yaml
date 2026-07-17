@@ -11,6 +11,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 500Mi
+      storage: 5Gi
   storageClassName: tns-nvmeof-nvme
   volumeMode: Filesystem
