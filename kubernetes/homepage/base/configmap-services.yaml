@@ -60,18 +60,6 @@ data:
             icon: sh-uptime-kuma
             href: https://uptime-kuma.apps.okd.claffey.cloud/status/default
             description: Public Service Status Page
-        - Thanos Querier:
-            icon: sh-prometheus
-            href: https://thanos-querier-openshift-monitoring.apps.okd.claffey.cloud
-            description: Global Metrics Query Engine
-        - Prometheus (Platform):
-            icon: sh-prometheus
-            href: https://prometheus-k8s-openshift-monitoring.apps.okd.claffey.cloud
-            description: OKD Platform Monitoring Console
-        - Alertmanager (Platform):
-            icon: sh-prometheus
-            href: https://alertmanager-main-openshift-monitoring.apps.okd.claffey.cloud
-            description: OKD Platform Alert Notifications
     - Home Applications:
         - Home Assistant:
             icon: sh-home-assistant
