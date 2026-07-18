@@ -31,7 +31,7 @@ data:
             icon: si-docker
             href: https://registry.apps.okd.claffey.cloud
             description: Container Image Registry
-        - MinIO Console:
+        - GitLab MinIO Console:
             icon: sh-minio
             href: https://minio.apps.okd.claffey.cloud
             description: Object Storage Management
