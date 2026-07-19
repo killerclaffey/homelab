@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-runner
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '3'
+  labels:
+    app.kubernetes.io/instance: argocd
+spec:
+  destination:
+    namespace: gitlab-runner
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: gitlab-runner
+    repoURL: https://charts.gitlab.io
+    targetRevision: 0.73.1
+    helm:
+      values: |
+        gitlabUrl: https://gitlab.apps.okd.claffey.cloud/
+        rbac:
+          create: true
+        runners:
+          secret: gitlab-runner-secret
+          config: |
+            [[runners]]
+              [runners.kubernetes]
+                namespace = "gitlab-runner"
+                image = "alpine:latest"
+                privileged = false
+        securityContext:
+          runAsUser: null
+          fsGroup: null
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true

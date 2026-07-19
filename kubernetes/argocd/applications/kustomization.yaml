@@ -23,4 +23,5 @@ resources:
   - renovate.yaml
   - stackrox.yaml
   - homeassistant.yaml
+  - gitlab-runner.yaml
 
