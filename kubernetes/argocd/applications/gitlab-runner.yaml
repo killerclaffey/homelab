@@ -31,7 +31,9 @@ spec:
                 privileged = false
         securityContext:
           runAsUser: null
+        podSecurityContext:
           fsGroup: null
+          runAsUser: null
   syncPolicy:
     automated:
       prune: true
