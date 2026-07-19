@@ -9,7 +9,12 @@ gitleaks:
   variables:
     GIT_DEPTH: 0
   script:
-    - gitleaks detect --source . --verbose --redact
+    - |
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        gitleaks detect --source . --verbose --redact --log-opts="$CI_MERGE_REQUEST_DIFF_BASE_SHA..HEAD"
+      else
+        gitleaks detect --source . --verbose --redact --log-opts="HEAD~1..HEAD"
+      fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
