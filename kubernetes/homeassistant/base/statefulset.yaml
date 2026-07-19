@@ -90,6 +90,7 @@ spec:
                 - CHOWN
                 - SETUID
                 - SETGID
+                - FOWNER
               drop:
                 - ALL
             privileged: false
