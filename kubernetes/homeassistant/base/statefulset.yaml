@@ -65,18 +65,18 @@ spec:
             - -c
             - |
               touch /config/groups.yaml /config/automations.yaml /config/scripts.yaml /config/scenes.yaml
+              chown -R 1000990000:1000990000 /run
           volumeMounts:
             - name: homeassistant
               mountPath: /config
+            - name: run
+              mountPath: /run
           securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            runAsUser: 1000990000
+            allowPrivilegeEscalation: true
+            runAsNonRoot: false
+            runAsUser: 0
             seccompProfile:
               type: RuntimeDefault
-            capabilities:
-              drop:
-                - ALL
       containers:
         - name: homeassistant
           # renovate: datasource=docker depName=docker.io/homeassistant/home-assistant
