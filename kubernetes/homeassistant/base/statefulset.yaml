@@ -59,7 +59,7 @@ spec:
             value: "1"
       initContainers:
         - name: init-config
-          image: docker.io/library/busybox:1.36
+          image: docker.io/library/busybox:1.38
           command:
             - sh
             - -c
