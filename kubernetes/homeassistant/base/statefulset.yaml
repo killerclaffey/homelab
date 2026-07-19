@@ -65,18 +65,18 @@ spec:
             - -c
             - |
               touch /config/groups.yaml /config/automations.yaml /config/scripts.yaml /config/scenes.yaml
-              chown -R 1000990000:1000990000 /run
           volumeMounts:
             - name: homeassistant
               mountPath: /config
-            - name: run
-              mountPath: /run
           securityContext:
-            allowPrivilegeEscalation: true
-            runAsNonRoot: false
-            runAsUser: 0
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000990000
             seccompProfile:
               type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
       containers:
         - name: homeassistant
           # renovate: datasource=docker depName=docker.io/homeassistant/home-assistant
@@ -90,7 +90,6 @@ spec:
                 - CHOWN
                 - SETUID
                 - SETGID
-                - FOWNER
               drop:
                 - ALL
             privileged: false
@@ -103,6 +102,10 @@ spec:
                 secretKeyRef:
                   name: homeassistant-app
                   key: uri
+            - name: S6_READ_ONLY_ROOT
+              value: "1"
+            - name: S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES
+              value: "1"
           ports:
             # - hostPort: 8123
             - containerPort: 8123
