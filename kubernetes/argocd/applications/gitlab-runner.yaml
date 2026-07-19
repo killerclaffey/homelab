@@ -32,7 +32,7 @@ spec:
                 namespace = "gitlab-runner"
                 image = "alpine:latest"
                 privileged = false
-                env = ["HOME=/tmp"]
+                environment = ["HOME=/tmp"]
         securityContext:
           runAsUser: null
         podSecurityContext:
