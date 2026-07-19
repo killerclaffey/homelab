@@ -21,7 +21,7 @@ spec:
         gitlabUrl: https://gitlab.apps.okd.claffey.cloud/
         unregisterRunners: false
         preEntrypointScript: |
-          sed -i 's/\[runners.kubernetes\]/\[runners.kubernetes\]\n    environment = \["HOME=\/tmp"\]/' /home/gitlab-runner/.gitlab-runner/config.toml
+          sed -i 's/\[\[runners\]\]/\[\[runners\]\]\n  environment = \["HOME=\/tmp"\]/' /home/gitlab-runner/.gitlab-runner/config.toml
         envVars:
           - name: HOME
             value: /home/gitlab-runner
@@ -31,11 +31,11 @@ spec:
           secret: gitlab-runner-secret
           config: |
             [[runners]]
+              environment = ["HOME=/tmp"]
               [runners.kubernetes]
                 namespace = "gitlab-runner"
                 image = "alpine:latest"
                 privileged = false
-                environment = ["HOME=/tmp"]
         securityContext:
           runAsUser: null
         podSecurityContext:
