@@ -27,6 +27,8 @@ spec:
           create: true
         runners:
           secret: gitlab-runner-secret
+          preEntrypointScript: |
+            sed -i 's/\[runners.kubernetes\]/\[runners.kubernetes\]\n    environment = \["HOME=\/tmp"\]/' /home/gitlab-runner/.gitlab-runner/config.toml
           config: |
             [[runners]]
               [runners.kubernetes]
