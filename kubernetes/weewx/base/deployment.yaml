@@ -32,6 +32,8 @@ spec:
           env:
             - name: TIMEZONE
               value: "America/Detroit"
+            - name: TZ
+              value: "America/Detroit"
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -44,6 +46,9 @@ spec:
         - name: web
           image: nginxinc/nginx-unprivileged:1.27-alpine
           imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: "America/Detroit"
           ports:
             - containerPort: 8080
               name: http
