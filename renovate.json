@@ -46,6 +46,12 @@
       "enabled": true,
       "automerge": false,
       "labels": ["renovate", "dependencies", "ceph", "manual-review"]
+    },
+    {
+      "description": "Use GitHub Releases for Immich to bypass GHCR tag pagination limits",
+      "matchPackagePatterns": ["^ghcr\\.io/immich-app/"],
+      "datasource": "github-releases",
+      "lookupName": "immich-app/immich"
     }
   ],
   "hostRules": [],

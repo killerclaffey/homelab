@@ -66,6 +66,7 @@ spec:
           value: all
         - name: REDIS_HOSTNAME
           value: immich-valkey
+        # renovate: datasource=github-releases depName=immich-app/immich
         image: ghcr.io/immich-app/immich-server:v3.0.3
         imagePullPolicy: IfNotPresent
         livenessProbe:

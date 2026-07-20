@@ -49,6 +49,7 @@ spec:
           value: immich-valkey
         - name: TRANSFORMERS_CACHE
           value: /cache
+        # renovate: datasource=github-releases depName=immich-app/immich
         image: ghcr.io/immich-app/immich-machine-learning:v3.0.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
