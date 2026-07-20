@@ -81,9 +81,9 @@ data:
             icon: sh-stirling-pdf
             href: https://stirling-pdf.apps.okd.claffey.cloud
             description: Local PDF Manipulation Suite
-        - WeeWX:
+        - Weather:
             icon: mdi-weather-partly-cloudy
-            href: https://weewx.apps.okd.claffey.cloud
+            href: https://weather.apps.okd.claffey.cloud
             description: Weather Station Software & Data
         - Bikely Production:
             icon: si-googlechrome
