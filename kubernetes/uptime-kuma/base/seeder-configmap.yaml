@@ -48,6 +48,7 @@ data:
     seed_monitor "Mealie" "https://mealie.apps.okd.claffey.cloud"
     seed_monitor "Immich" "https://images.apps.okd.claffey.cloud"
     seed_monitor "Stirling PDF" "https://stirling-pdf.apps.okd.claffey.cloud"
+    seed_monitor "WeeWX" "https://weewx.apps.okd.claffey.cloud"
     seed_monitor "GitLab" "https://gitlab.apps.okd.claffey.cloud"
     seed_monitor "Uptime Kuma" "http://localhost:3001"
     seed_monitor "Homepage" "https://homepage.apps.okd.claffey.cloud" 1
@@ -107,6 +108,7 @@ data:
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 2 FROM monitor WHERE name='Immich';"
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 3 FROM monitor WHERE name='Bikely Dev';"
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 4 FROM monitor WHERE name='Stirling PDF';"
+    $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 4, 5 FROM monitor WHERE name='WeeWX';"
     
     # Map monitors to External Services (Group 5)
     $MYSQL_CMD -e "INSERT INTO monitor_group (monitor_id, group_id, weight) SELECT id, 5, 1 FROM monitor WHERE name='Bikely Production';"
