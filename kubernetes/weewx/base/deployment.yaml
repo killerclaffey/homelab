@@ -78,7 +78,7 @@ spec:
           volumeMounts:
             - mountPath: /usr/share/nginx/html
               name: weewx-data
-              subPath: html
+              subPath: public_html
       volumes:
         - name: weewx-data
           persistentVolumeClaim:
