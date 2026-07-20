@@ -46,5 +46,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
+    - SkipDryRunOnMissingResource=true
+    - RespectIgnoreDifferences=true
     - ServerSideApply=true
     - CreateNamespace=true

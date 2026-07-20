@@ -14,7 +14,6 @@ spec:
       labels:
         app: vault
     spec:
-
       containers:
         - name: vault
           image: docker.io/hashicorp/vault:2.0.3
@@ -26,12 +25,29 @@ spec:
           ports:
             - containerPort: 8200
               name: http
-
           volumeMounts:
             - name: vault-data
               mountPath: /vault/data
             - name: vault-config
               mountPath: /vault/config
+        - name: auto-unseal
+          image: docker.io/hashicorp/vault:2.0.3
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting Vault Auto-Unseal daemon..."
+              while true; do
+                SEALED=$(vault status -address=http://127.0.0.1:8200 2>&1 | grep -i "Sealed" | awk '{print $2}')
+                if [ "$SEALED" = "true" ] && [ -n "$UNSEAL_KEY" ]; then
+                  echo "Vault is sealed! Attempting auto-unseal..."
+                  vault operator unseal -address=http://127.0.0.1:8200 "$UNSEAL_KEY"
+                fi
+                sleep 15
+              done
+          envFrom:
+            - secretRef:
+                name: vault-unseal-keys
       volumes:
         - name: vault-config
           configMap:
