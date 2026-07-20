@@ -728,7 +728,7 @@ function Start-CopierPod {
             containers = @(
                 @{
                     name = "skopeo-copier"
-                    image = "quay.io/containers/skopeo:latest"
+                    image = "quay.io/containers/skopeo:v1.22.2"
                     command = @("/bin/sh", "-c", $CommandString)
                     env = @(
                         @{
@@ -769,7 +769,7 @@ function Start-CopierPod {
     
     # 4. Create Pod
     Write-Host "Creating skopeo-copier pod in namespace $Namespace..." -ForegroundColor Cyan
-    & $script:cli run skopeo-copier -n $Namespace --image=quay.io/containers/skopeo:latest --restart=Never --overrides=$overridesJson | Out-Null
+    & $script:cli run skopeo-copier -n $Namespace --image=quay.io/containers/skopeo:v1.22.2 --restart=Never --overrides=$overridesJson | Out-Null
     if ($LASTEXITCODE -ne 0) {
         # Cleanup secret if pod creation failed
         $null = & $script:cli delete secret $secretName -n $Namespace --wait=false 2>$null

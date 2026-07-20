@@ -131,7 +131,7 @@ Identified by standard registry names (Docker Hub, GHCR, Quay, etc.).
 
 * **Templated Manifests (Helm/Go):** The Python parsing logic is designed to parse strict, valid YAML. Any manifest file containing Helm/Go template expressions (e.g. `{{ .Values.image.tag }}` or other occurrences of `{{` and `}}`) is **silently skipped** to prevent YAML load failures. Run your templates through Helm template rendering or Kustomize before scanning them with this script.
 * **Auto-retrieval Namespace:** The automatic retrieval of the initial root password (step 3 of credential resolution) is hardcoded to look in the `gitlab-system` namespace for the `gitlab-gitlab-initial-root-password` secret, regardless of the value passed to the `--copier-namespace` parameter.
-* **No local Skopeo requirement:** All skopeo commands are run inside the target Kubernetes/OpenShift cluster inside a transient `skopeo-copier` Pod using the `quay.io/containers/skopeo:latest` container image.
+* **No local Skopeo requirement:** All skopeo commands are run inside the target Kubernetes/OpenShift cluster inside a transient `skopeo-copier` Pod using the `quay.io/containers/skopeo:v1.22.2` container image.
 
 ---
 

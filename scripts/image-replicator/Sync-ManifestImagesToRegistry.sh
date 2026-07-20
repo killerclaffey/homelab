@@ -644,7 +644,7 @@ obj = {
         'containers': [
             {
                 'name': 'skopeo-copier',
-                'image': 'quay.io/containers/skopeo:latest',
+                'image': 'quay.io/containers/skopeo:v1.22.2',
                 'command': ['/bin/sh', '-c', \"\"\"$command_string\"\"\"],
                 'env': [
                     {
@@ -675,7 +675,7 @@ print(json.dumps(obj))
 
   # E. Create Pod
   echo "Creating skopeo-copier pod in namespace $namespace..."
-  if ! $CLI run skopeo-copier -n "$namespace" --image=quay.io/containers/skopeo:latest --restart=Never --overrides="$overrides_json" &>/dev/null; then
+  if ! $CLI run skopeo-copier -n "$namespace" --image=quay.io/containers/skopeo:v1.22.2 --restart=Never --overrides="$overrides_json" &>/dev/null; then
     echo "WARNING: Failed to initiate pod/skopeo-copier creation in namespace $namespace." >&2
     $CLI delete secret "$secret_name" -n "$namespace" --wait=false &>/dev/null
     return

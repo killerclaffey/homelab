@@ -12,7 +12,10 @@
   "assignees": ["rclaffey"],
   "reviewers": ["rclaffey"],
   "kubernetes": {
-    "fileMatch": ["kubernetes/.+\\.yaml$"]
+    "fileMatch": ["kubernetes/.+(\\.yaml|\\.yml|-yaml|-yml)$"]
+  },
+  "docker-compose": {
+    "fileMatch": ["(^|/)[^/]*compose[^/]*\\.yaml$", "(^|/)[^/]*compose[^/]*\\.yml$"]
   },
   "packageRules": [
     {
