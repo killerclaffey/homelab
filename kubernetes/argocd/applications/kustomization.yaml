@@ -25,4 +25,3 @@ resources:
   - homeassistant.yaml
   - gitlab-runner.yaml
   - weewx.yaml
-  - csi-auto-healer.yaml
