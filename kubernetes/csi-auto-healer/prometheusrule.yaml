@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: csi-stuck-attachments
+  namespace: csi-auto-healer
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+  - name: csi-auto-healer.rules
+    rules:
+    - alert: CSIStuckVolumeAttachment
+      expr: sum by (volumeattachment, node) (kube_volumeattachment_status_attached == 0) > 0
+      for: 2m
+      labels:
+        severity: warning
+        volumeattachment: "{{ $labels.volumeattachment }}"
+        node: "{{ $labels.node }}"
+      annotations:
+        summary: "VolumeAttachment {{ $labels.volumeattachment }} has been stuck on node {{ $labels.node }} for more than 2 minutes."
+        description: "The volume attachment {{ $labels.volumeattachment }} is stuck in detaching or attaching state on node {{ $labels.node }}. The auto-healer webhook will attempt force-detachment and node out-of-service tainting."

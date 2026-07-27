@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: csi-auto-healer-sa
+  namespace: csi-auto-healer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: csi-auto-healer-role
+rules:
+- apiGroups: ["storage.k8s.io"]
+  resources: ["volumeattachments"]
+  verbs: ["get", "list", "watch", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: csi-auto-healer-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: csi-auto-healer-sa
+  namespace: csi-auto-healer
+roleRef:
+  kind: ClusterRole
+  name: csi-auto-healer-role
+  apiGroup: rbac.authorization.k8s.io
