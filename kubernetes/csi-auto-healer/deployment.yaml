@@ -32,7 +32,7 @@ spec:
           mv kubectl /usr/local/bin/
           
           echo "Running auto-healer..."
-          python3 /app/healer.py
+          python3 -u /app/healer.py
         ports:
         - containerPort: 8080
           name: http
