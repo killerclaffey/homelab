@@ -50,8 +50,8 @@
     {
       "description": "Use GitHub Releases for Immich to bypass GHCR tag pagination limits",
       "matchPackagePatterns": ["^ghcr\\.io/immich-app/"],
-      "datasource": "github-releases",
-      "lookupName": "immich-app/immich"
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "immich-app/immich"
     }
   ],
   "hostRules": [],
