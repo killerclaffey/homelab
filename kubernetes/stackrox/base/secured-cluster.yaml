@@ -8,4 +8,3 @@ metadata:
 spec:
   clusterName: homelab-cluster
   centralEndpoint: central.stackrox.svc:443
-  collectionMethod: CORE_BPF
