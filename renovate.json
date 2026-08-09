@@ -41,6 +41,11 @@
       "enabled": false
     },
     {
+      "description": "Internal OpenShift registry - CI-built images with no upstream to track; lookups fail on the service-CA cert",
+      "matchPackagePatterns": ["^image-registry\\.openshift-image-registry\\.svc:5000/"],
+      "enabled": false
+    },
+    {
       "description": "Rook/Ceph - manual only",
       "matchPackagePatterns": ["quay.io/ceph/.*", "docker.io/rook/.*"],
       "enabled": true,
