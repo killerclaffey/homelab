@@ -11,11 +11,18 @@ metadata:
   name: stackrox-operator-controller-manager
   namespace: stackrox
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: stackrox-operator
       control-plane: controller-manager
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       annotations:
@@ -45,6 +52,7 @@ spec:
             valueFrom:
               resourceFieldRef:
                 containerName: manager
+                divisor: "0"
                 resource: limits.memory
         image: "quay.io/stackrox-io/stackrox-operator:4.11.1"
         imagePullPolicy: IfNotPresent
