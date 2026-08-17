@@ -25,7 +25,6 @@ resources:
   - homeassistant.yaml
   - gitlab-runner.yaml
   - weewx.yaml
-  - thunderbolt-network.yaml
   - paperless-ngx.yaml
 
 
