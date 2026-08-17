@@ -1,0 +1,33 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: paperless-db
+  namespace: paperless-ngx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: paperless-ngx
+spec:
+  instances: 1
+  imagePullPolicy: IfNotPresent
+  imageName: "ghcr.io/cloudnative-pg/postgresql:16.8"
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  enableSuperuserAccess: false
+  postgresUID: 26
+  postgresGID: 999
+  bootstrap:
+    initdb:
+      database: paperless
+      owner: paperless
+  storage:
+    storageClass: truenas-iscsi-nvme
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi

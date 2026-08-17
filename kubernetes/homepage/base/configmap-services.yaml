@@ -81,6 +81,11 @@ data:
             icon: sh-stirling-pdf
             href: https://stirling-pdf.apps.okd.claffey.cloud
             description: Local PDF Manipulation Suite
+        - Paperless-ngx:
+            icon: sh-paperless-ngx
+            href: https://paperless.apps.okd.claffey.cloud
+            description: Document Management System & Archival
+
         - Weather:
             icon: mdi-weather-partly-cloudy
             href: https://weather.apps.okd.claffey.cloud

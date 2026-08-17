@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-ngx
+  namespace: paperless-ngx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: paperless-ngx
+    app.kubernetes.io/instance: paperless-ngx
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: paperless-ngx
+      app.kubernetes.io/instance: paperless-ngx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        backup.velero.io/backup-volumes: data,media
+      labels:
+        app.kubernetes.io/name: paperless-ngx
+        app.kubernetes.io/instance: paperless-ngx
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: paperless-ngx
+        # renovate: datasource=github-releases depName=paperless-ngx/paperless-ngx
+        image: ghcr.io/paperless-ngx/paperless-ngx:2.17.1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PAPERLESS_DBHOST
+          valueFrom:
+            secretKeyRef:
+              key: host
+              name: paperless-db-app
+        - name: PAPERLESS_DBNAME
+          valueFrom:
+            secretKeyRef:
+              key: dbname
+              name: paperless-db-app
+        - name: PAPERLESS_DBUSER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: paperless-db-app
+        - name: PAPERLESS_DBPASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: paperless-db-app
+        envFrom:
+        - configMapRef:
+            name: paperless-ngx-config
+        - secretRef:
+            name: paperless-ngx-credentials
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        livenessProbe:
+          failureThreshold: 5
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        readinessProbe:
+          failureThreshold: 3
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        startupProbe:
+          failureThreshold: 30
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /usr/src/paperless/data
+          name: data
+        - mountPath: /usr/src/paperless/media
+          name: media
+        - mountPath: /usr/src/paperless/consume
+          name: consume
+        - mountPath: /usr/src/paperless/export
+          name: export
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: paperless-ngx-data
+      - name: media
+        persistentVolumeClaim:
+          claimName: paperless-ngx-media
+      - name: consume
+        persistentVolumeClaim:
+          claimName: paperless-ngx-consume
+      - name: export
+        persistentVolumeClaim:
+          claimName: paperless-ngx-export
