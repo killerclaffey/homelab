@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/sa.scc.supplemental-groups: 1000980000/10000
+    openshift.io/sa.scc.uid-range: 1000980000/10000
+    security.openshift.io/MinimallySufficientPodSecurityStandard: restricted
+  labels:
+    kubernetes.io/metadata.name: paperless-ngx
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+  name: paperless-ngx
+spec:
+  finalizers:
+  - kubernetes
