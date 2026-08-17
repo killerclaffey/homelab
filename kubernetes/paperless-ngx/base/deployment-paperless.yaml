@@ -109,6 +109,10 @@ spec:
           name: consume
         - mountPath: /usr/src/paperless/export
           name: export
+        - mountPath: /run
+          name: run
+        - mountPath: /tmp
+          name: tmp
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext:
@@ -129,3 +133,7 @@ spec:
       - name: export
         persistentVolumeClaim:
           claimName: paperless-ngx-export
+      - name: run
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}

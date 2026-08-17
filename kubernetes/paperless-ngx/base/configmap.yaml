@@ -19,3 +19,5 @@ data:
   PAPERLESS_MEDIA_ROOT: "/usr/src/paperless/media"
   PAPERLESS_CONSUMPTION_DIR: "/usr/src/paperless/consume"
   PAPERLESS_EXPORT_DIR: "/usr/src/paperless/export"
+  # Explicitly allow world-writable /run for non-root execution under Kubernetes / OpenShift
+  S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES: "1"
