@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: paperless-ngx-valkey
   namespace: paperless-ngx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
   labels:
     app.kubernetes.io/name: valkey
     app.kubernetes.io/instance: paperless-ngx
