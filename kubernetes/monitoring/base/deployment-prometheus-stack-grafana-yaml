@@ -151,7 +151,7 @@ spec:
           value: /etc/grafana/provisioning
         - name: GF_UNIFIED_STORAGE_INDEX_PATH
           value: /var/lib/grafana-search/bleve
-        image: docker.io/grafana/grafana:12.3.1
+        image: docker.io/grafana/grafana:12.4.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 10
