@@ -52,7 +52,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-        image: docker.io/rook/ceph:v1.15.5
+        image: docker.io/rook/ceph:v1.20.6
         imagePullPolicy: IfNotPresent
         name: rook-ceph-operator
         resources: {}
