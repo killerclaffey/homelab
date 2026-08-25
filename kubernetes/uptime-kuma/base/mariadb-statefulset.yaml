@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: docker.io/library/mariadb:12.3.2
+          image: docker.io/library/mariadb:12.3.3
           env:
             - name: MARIADB_ROOT_PASSWORD
               valueFrom:
