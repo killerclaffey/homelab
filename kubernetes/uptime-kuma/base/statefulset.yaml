@@ -18,6 +18,7 @@ spec:
     spec:
       securityContext:
         fsGroupChangePolicy: "OnRootMismatch"
+      enableServiceLinks: false
       serviceAccountName: uptime-kuma-sa
       containers:
         - name: uptime-kuma
@@ -29,6 +30,8 @@ spec:
               sh /opt/seeder/seed_monitors.sh &
               exec node server/server.js
           env:
+            - name: UPTIME_KUMA_PORT
+              value: "3001"
             - name: UPTIME_KUMA_DB_TYPE
               value: mariadb
             - name: UPTIME_KUMA_DB_HOSTNAME
