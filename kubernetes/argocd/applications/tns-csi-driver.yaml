@@ -33,11 +33,10 @@ spec:
             pool: "Nvme"
             server: "10.0.20.2"
             mountOptions:
-              - vers=4.1
+              - vers=4.0
               - hard
               - timeo=150
               - retrans=3
-              - nconnect=4
               - noresvport
           - name: tns-nvmeof-nvme
             enabled: true

@@ -6,7 +6,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "true"
 allowVolumeExpansion: true
 mountOptions:
-- nfsvers=4.1
+- nfsvers=4.0
 - hard
 - timeo=600
 - retrans=2
