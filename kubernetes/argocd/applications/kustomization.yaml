@@ -26,5 +26,6 @@ resources:
   - gitlab-runner.yaml
   - weewx.yaml
   - paperless-ngx.yaml
+  - platform-hardening.yaml
 
 

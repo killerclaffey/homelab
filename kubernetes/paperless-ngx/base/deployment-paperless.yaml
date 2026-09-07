@@ -117,6 +117,7 @@ spec:
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       terminationGracePeriodSeconds: 60

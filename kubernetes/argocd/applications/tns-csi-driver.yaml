@@ -4,7 +4,7 @@ metadata:
   name: tns-csi-driver
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '2'
+    argocd.argoproj.io/sync-wave: "-2"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     app.kubernetes.io/instance: argocd
@@ -35,8 +35,9 @@ spec:
             mountOptions:
               - vers=4.1
               - hard
-              - timeo=600
-              - retrans=2
+              - timeo=150
+              - retrans=3
+              - nconnect=4
               - noresvport
           - name: tns-nvmeof-nvme
             enabled: true
@@ -44,11 +45,21 @@ spec:
             pool: "Nvme"
             server: "10.0.20.2"
             subsystemNQN: "nqn.2011-06.com.truenas:uuid:6fc676c7-0e1b-4155-981c-47acefc1f825"
+  ignoreDifferences:
+    - group: storage.k8s.io
+      kind: StorageClass
+      jsonPointers:
+        - /metadata/annotations
+    - group: apps
+      kind: DaemonSet
+      jsonPointers:
+        - /spec/template/metadata/annotations
+        - /spec/template/spec/containers/0/securityContext
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-    - RespectIgnoreDifferences=true
-    - ServerSideApply=true
-    - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+      - CreateNamespace=true

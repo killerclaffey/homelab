@@ -8,4 +8,7 @@ components:
   - ../../components/cnpg
   - ../../components/music
 
+patches:
+  - path: statefulset-patch.yaml
+
 

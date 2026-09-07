@@ -5,7 +5,7 @@ metadata:
   name: homeassistant
   namespace: homeassistant
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     app.kubernetes.io/instance: homeassistant
@@ -17,12 +17,12 @@ spec:
   logLevel: info
   primaryUpdateMethod: restart
   primaryUpdateStrategy: unsupervised
-  startDelay: 3600
-  stopDelay: 1800
-  smartShutdownTimeout: 180
-  switchoverDelay: 3600
+  startDelay: 300
+  stopDelay: 120
+  smartShutdownTimeout: 60
+  switchoverDelay: 60
   failoverDelay: 0
-  minSyncReplicas: 1
+  minSyncReplicas: 0
   maxSyncReplicas: 1
   postgresUID: 26
   postgresGID: 999

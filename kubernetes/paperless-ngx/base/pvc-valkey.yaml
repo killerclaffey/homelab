@@ -9,5 +9,5 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: truenas-nfs-bulk
+  storageClassName: tns-nvmeof-nvme
   volumeMode: Filesystem

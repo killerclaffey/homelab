@@ -23,6 +23,7 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       containers:

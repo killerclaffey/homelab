@@ -16,6 +16,8 @@ spec:
       labels:
         app: uptime-kuma
     spec:
+      securityContext:
+        fsGroupChangePolicy: "OnRootMismatch"
       serviceAccountName: uptime-kuma-sa
       containers:
         - name: uptime-kuma

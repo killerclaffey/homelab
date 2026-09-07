@@ -4,7 +4,7 @@ metadata:
   name: paperless-ngx-valkey
   namespace: paperless-ngx
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     app.kubernetes.io/name: valkey
     app.kubernetes.io/instance: paperless-ngx
@@ -77,6 +77,7 @@ spec:
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       terminationGracePeriodSeconds: 30

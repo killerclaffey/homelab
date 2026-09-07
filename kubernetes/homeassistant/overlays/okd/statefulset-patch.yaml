@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: init-run-mounts
+          image: docker.io/library/busybox:1.38
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /run/s6 /tmp
+              chmod 0777 /run /tmp
+              chown -R 1001080000:1001080000 /run /tmp /.config /.cache
+          volumeMounts:
+            - name: run
+              mountPath: /run
+            - name: tmp
+              mountPath: /tmp
+            - name: config
+              mountPath: /.config
+            - name: cache
+              mountPath: /.cache
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            capabilities:
+              drop:
+                - ALL
+      containers:
+        - name: homeassistant
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: run
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi

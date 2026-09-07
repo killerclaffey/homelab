@@ -91,7 +91,7 @@ okd-cluster/         OKD cluster install docs (NO kubeconfig files here)
 | Area | Gotcha |
 |------|--------|
 | `truenas-csi` | Must use `--mode=controller` / `--mode=node` explicit flags or nodes deadlock on upgrade |
-| Image Registry | Must use NFS PVC storage, not `emptyDir` — images are lost on pod restart otherwise |
+| Image Registry | Uses MinIO S3 backend (`minio.claffey.cloud:9000`) with trusted CA bundle |
 | ArgoCD OCI Helm | Register OCI repo via a `Secret` with `enableOCI: "true"` in the `argocd` namespace |
 | TrueNAS API | REST API is being removed in TrueNAS 26 — prefer WebSocket-based drivers (`tns-csi`) |
 | OKD upgrades | CVO stalls if Image Registry is `Degraded` — always check registry health post-upgrade |
