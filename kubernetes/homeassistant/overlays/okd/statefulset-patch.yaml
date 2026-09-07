@@ -13,9 +13,10 @@ spec:
             - sh
             - -c
             - |
-              mkdir -p /run/s6 /tmp
+              mkdir -p /tmp
               chmod 0777 /run /tmp
-              chown -R 1001080000:1001080000 /run /tmp /.config /.cache
+              chown 1001080000:1001080000 /run /tmp
+              chown -R 1001080000:1001080000 /.config /.cache 2>/dev/null || true
           volumeMounts:
             - name: run
               mountPath: /run
@@ -29,6 +30,9 @@ spec:
             runAsUser: 0
             runAsNonRoot: false
             capabilities:
+              add:
+                - CHOWN
+                - FOWNER
               drop:
                 - ALL
       containers:
