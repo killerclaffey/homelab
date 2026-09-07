@@ -101,6 +101,7 @@ spec:
       schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
       serviceAccount: default
       serviceAccountName: default
       terminationGracePeriodSeconds: 30
