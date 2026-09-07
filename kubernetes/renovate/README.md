@@ -11,7 +11,7 @@ updating Vault — External Secrets re-syncs within 1h (`refreshInterval: 1h`).
 Never put token values in git.
 
 | Vault property | Env var | Platform | Scope |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `gitlab-token` | `RENOVATE_TOKEN` | self-hosted GitLab | `api`, Developer |
 | `github-token` | `GITHUB_COM_TOKEN` | github.com | **no scopes** |
 
@@ -25,7 +25,7 @@ branches, and open merge requests.
 **Create:** GitLab → `rclaffey/homelab` → Settings → Access tokens → Add new token
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | Type | Project access token (scoped to this one project) |
 | Role | **Developer** |
 | Scope | **`api`** |
@@ -62,7 +62,7 @@ Renovate uses github.com as a *data source*:
 Tokens (classic) → Generate new token
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | Type | Classic PAT |
 | Scopes | **none — leave every checkbox unticked** |
 | Expiry | your choice; record it |
