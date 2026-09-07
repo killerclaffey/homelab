@@ -21,8 +21,8 @@ spec:
     syncOptions:
     - SkipDryRunOnMissingResource=true
     - RespectIgnoreDifferences=true
-      - CreateNamespace=true
-      - ServerSideApply=true
+    - CreateNamespace=true
+    - ServerSideApply=true
   ignoreDifferences:
     - group: ""
       kind: Secret

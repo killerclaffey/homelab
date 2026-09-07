@@ -1,0 +1,65 @@
+---
+- name: Apply Declarative GRUB Boot Configuration to OKD Masters
+  hosts: masters
+  become: yes
+  gather_facts: no
+  vars:
+    local_base_dir: "./base"
+    local_overlays_dir: "./overlays"
+    temp_mount_path: "/tmp/efi_mount"
+
+  tasks:
+    - name: Create temporary mount point directory
+      ansible.builtin.file:
+        path: "{{ temp_mount_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Mount EFI partition (/dev/nvme0n1p2)
+      ansible.posix.mount:
+        path: "{{ temp_mount_path }}"
+        src: "/dev/nvme0n1p2"
+        fstype: vfat
+        state: mounted
+
+    - name: Ensure target centos bootloader directory exists
+      ansible.builtin.file:
+        path: "{{ temp_mount_path }}/EFI/centos"
+        state: directory
+        mode: '0755'
+
+    - name: Copy base grub.cfg configuration (shared code)
+      ansible.builtin.copy:
+        src: "{{ local_base_dir }}/grub.cfg"
+        dest: "{{ temp_mount_path }}/EFI/centos/grub.cfg"
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Copy node-specific bootuuid.cfg overlay (host variable)
+      ansible.builtin.copy:
+        src: "{{ local_overlays_dir }}/{{ inventory_hostname }}/bootuuid.cfg"
+        dest: "{{ temp_mount_path }}/EFI/centos/bootuuid.cfg"
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Verify installed configurations
+      ansible.builtin.command:
+        cmd: "ls -la {{ temp_mount_path }}/EFI/centos/grub.cfg {{ temp_mount_path }}/EFI/centos/bootuuid.cfg"
+      register: ls_output
+      changed_when: false
+
+    - name: Print verification results
+      ansible.builtin.debug:
+        var: ls_output.stdout_lines
+
+    - name: Unmount EFI partition
+      ansible.posix.mount:
+        path: "{{ temp_mount_path }}"
+        state: unmounted
+
+    - name: Remove temporary mount point directory
+      ansible.builtin.file:
+        path: "{{ temp_mount_path }}"
+        state: absent

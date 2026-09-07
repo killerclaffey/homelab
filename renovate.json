@@ -12,7 +12,10 @@
   "assignees": ["rclaffey"],
   "reviewers": ["rclaffey"],
   "kubernetes": {
-    "fileMatch": ["kubernetes/.+\\.yaml$"]
+    "fileMatch": ["kubernetes/.+(\\.yaml|\\.yml|-yaml|-yml)$"]
+  },
+  "docker-compose": {
+    "fileMatch": ["(^|/)[^/]*compose[^/]*\\.yaml$", "(^|/)[^/]*compose[^/]*\\.yml$"]
   },
   "packageRules": [
     {
@@ -38,11 +41,22 @@
       "enabled": false
     },
     {
+      "description": "Internal OpenShift registry - CI-built images with no upstream to track; lookups fail on the service-CA cert",
+      "matchPackagePatterns": ["^image-registry\\.openshift-image-registry\\.svc:5000/"],
+      "enabled": false
+    },
+    {
       "description": "Rook/Ceph - manual only",
       "matchPackagePatterns": ["quay.io/ceph/.*", "docker.io/rook/.*"],
       "enabled": true,
       "automerge": false,
       "labels": ["renovate", "dependencies", "ceph", "manual-review"]
+    },
+    {
+      "description": "Use GitHub Releases for Immich to bypass GHCR tag pagination limits",
+      "matchPackagePatterns": ["^ghcr\\.io/immich-app/"],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "immich-app/immich"
     }
   ],
   "hostRules": [],

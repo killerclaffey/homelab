@@ -8,6 +8,7 @@ resources:
 - deployment-bikely-upload-service-yaml
 - deployment-postgres-yaml
 - namespace.yaml
+- cronjob-postgres-backup-yaml
 - pvc-postgres-backup-pvc-yaml
 - pvc-postgres-pvc-yaml
 - route-bikely-dev-api-yaml

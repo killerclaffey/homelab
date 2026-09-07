@@ -232,7 +232,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: fio-tester
-        image: docker.io/ljishen/fio:latest
+        image: docker.io/ljishen/fio:3.6
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh", "-c"]
         args:

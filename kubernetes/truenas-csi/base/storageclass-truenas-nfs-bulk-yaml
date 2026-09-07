@@ -1,0 +1,25 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: truenas-nfs-bulk
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+allowVolumeExpansion: true
+mountOptions:
+- nfsvers=4.0
+- hard
+- timeo=600
+- retrans=2
+- noresvport
+parameters:
+  compression: LZ4
+  # Only the 10.0.20.0/24 storage network is served reliably. The thunderbolt-net
+  # range (10.0.30.0/24) is excluded: volumes provisioned against 10.0.30.2 mount
+  # but never answer NFS RPC, and because these are `hard` mounts every I/O then
+  # blocks in uninterruptible D state, wedging kubelet and the CSI node plugin.
+  nfs.networks: 10.0.20.0/24
+  pool: Nvme
+  protocol: nfs
+provisioner: csi.truenas.io
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

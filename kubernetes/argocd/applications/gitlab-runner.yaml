@@ -34,7 +34,7 @@ spec:
               environment = ["HOME=/tmp"]
               [runners.kubernetes]
                 namespace = "gitlab-runner"
-                image = "alpine:latest"
+                image = "alpine:3.23.5"
                 privileged = false
         securityContext:
           runAsUser: null

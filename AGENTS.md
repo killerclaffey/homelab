@@ -37,9 +37,11 @@ history are a permanent leak risk. Follow these rules without exception.**
    Never add a `-f` ignore flag to force-add one.
 
 6. **Run gitleaks before committing** if you have added any credential-shaped strings:
+
    ```bash
    gitleaks protect --staged --config .gitleaks.toml
    ```
+
    The pre-commit hook does this automatically, but if you're applying commits in bulk,
    run it manually first.
 
@@ -53,7 +55,7 @@ history are a permanent leak risk. Follow these rules without exception.**
 
 ## 📁 Repo Layout
 
-```
+```text
 kubernetes/          GitOps manifests — Kustomize bases + overlays
   argocd/            ArgoCD Application CRs and app-of-apps kustomizations
   truenas-csi/       Official TrueNAS CSI driver (democratic-csi fork)
@@ -74,6 +76,7 @@ okd-cluster/         OKD cluster install docs (NO kubeconfig files here)
 
 - **OCI Helm charts in ArgoCD** require `targetRevision` to be an exact semver string
   (e.g., `"0.17.6"`), not `HEAD`. Verify the version exists before committing:
+
   ```bash
   oc run helm-check --rm --restart=Never -it --image=alpine/helm:3 \
     -- pull oci://registry-1.docker.io/<org>/<chart> --destination /tmp
@@ -89,9 +92,9 @@ okd-cluster/         OKD cluster install docs (NO kubeconfig files here)
 ## ⚠️ Known Gotchas
 
 | Area | Gotcha |
-|------|--------|
+| ------ | -------- |
 | `truenas-csi` | Must use `--mode=controller` / `--mode=node` explicit flags or nodes deadlock on upgrade |
-| Image Registry | Must use NFS PVC storage, not `emptyDir` — images are lost on pod restart otherwise |
+| Image Registry | Uses MinIO S3 backend (`minio.claffey.cloud:9000`) with trusted CA bundle |
 | ArgoCD OCI Helm | Register OCI repo via a `Secret` with `enableOCI: "true"` in the `argocd` namespace |
 | TrueNAS API | REST API is being removed in TrueNAS 26 — prefer WebSocket-based drivers (`tns-csi`) |
 | OKD upgrades | CVO stalls if Image Registry is `Degraded` — always check registry health post-upgrade |

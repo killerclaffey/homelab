@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - cluster-postgres.yaml
+  - configmap.yaml
+  - external-secret.yaml
+  - pvc-data.yaml
+  - pvc-media.yaml
+  - pvc-consume.yaml
+  - pvc-export.yaml
+  - pvc-valkey.yaml
+  - service-paperless.yaml
+  - service-valkey.yaml
+  - deployment-valkey.yaml
+  - deployment-paperless.yaml
+  - route.yaml

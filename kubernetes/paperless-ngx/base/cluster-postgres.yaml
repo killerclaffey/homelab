@@ -1,0 +1,87 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: paperless-db
+  namespace: paperless-ngx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: paperless-ngx
+spec:
+  enablePDB: true
+  imageName: "ghcr.io/cloudnative-pg/postgresql:18.3-system-trixie@sha256:006b7801eacd9706d6fb557520a414a7d938e4e71333da98695f6f03b20e4cee"
+  instances: 1
+  imagePullPolicy: IfNotPresent
+  logLevel: info
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  postgresUID: 26
+  postgresGID: 999
+  podTemplate:
+    spec:
+      securityContext:
+        fsGroup: 999
+  bootstrap:
+    initdb:
+      database: paperless
+      owner: paperless
+  enableSuperuserAccess: false
+  monitoring:
+    enablePodMonitor: false
+  storage:
+    storageClass: tns-nvmeof-nvme
+    size: 10Gi
+  walStorage:
+    storageClass: tns-nvmeof-nvme
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 25m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  seccompProfile:
+    type: RuntimeDefault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: paperless-db-cluster-reader
+rules:
+- apiGroups:
+  - postgresql.cnpg.io
+  resources:
+  - clusters
+  - clusters/status
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: paperless-db-cluster-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: paperless-db-cluster-reader
+subjects:
+- kind: ServiceAccount
+  name: paperless-db
+  namespace: paperless-ngx
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: paperless-db-cnpg-scc
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnpg-postgres-scc-use
+subjects:
+- kind: ServiceAccount
+  name: paperless-db
+  namespace: paperless-ngx

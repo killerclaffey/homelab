@@ -49,7 +49,8 @@ spec:
           value: immich-valkey
         - name: TRANSFORMERS_CACHE
           value: /cache
-        image: ghcr.io/immich-app/immich-machine-learning:v2.7.4
+        # renovate: datasource=github-releases depName=immich-app/immich
+        image: ghcr.io/immich-app/immich-machine-learning:v3.0.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -100,6 +101,7 @@ spec:
       schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
       serviceAccount: default
       serviceAccountName: default
       terminationGracePeriodSeconds: 30

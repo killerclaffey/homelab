@@ -1,0 +1,24 @@
+---
+# Scrapes cert-manager controller metrics (:9402) from the okd-cert-manager
+# namespace. The Prometheus CR's serviceMonitorSelector/-NamespaceSelector are
+# both empty, so no extra labels are required for discovery.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cert-manager
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - okd-cert-manager
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cert-manager
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: cert-manager
+  endpoints:
+    - port: tcp-prometheus-servicemonitor
+      interval: 60s
+      honorLabels: true

@@ -10,10 +10,13 @@ spec:
   schedule: "30 22 * * *"   # runs daily at 10:30 PM America/New_York
   timeZone: America/New_York
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  startingDeadlineSeconds: 300
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 1800
+      backoffLimit: 2
       template:
         spec:
           restartPolicy: Never

@@ -1,0 +1,79 @@
+---
+# Alerts on cert-manager renewal failures and approaching expiry.
+# Context: on 2026-08-08 the *.apps wildcard cert renewal was silently stuck
+# for 18 days (DNS-01 self-check SERVFAIL) with no alerting to catch it.
+# cert-manager starts renewing ~30d before expiry, so the 21d threshold means
+# renewal has already been failing for ~9 days when it fires.
+#
+# The `release: prometheus-stack` label is REQUIRED — the Prometheus CR's
+# ruleSelector only matches rules carrying it.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+    - name: cert-manager
+      rules:
+        - alert: CertManagerCertificateNotReady
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: >-
+              Certificate {{ $labels.namespace }}/{{ $labels.name }} is not Ready
+            description: >-
+              cert-manager reports Certificate {{ $labels.namespace }}/{{ $labels.name }}
+              (issuer {{ $labels.issuer_kind }}/{{ $labels.issuer_name }}) as not Ready
+              for over 1 hour. Check: oc describe certificate {{ $labels.name }}
+              -n {{ $labels.namespace }} and the challenges/orders it owns.
+
+        - alert: CertManagerCertificateExpiringSoon
+          expr: >-
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < (21 * 86400)
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: >-
+              Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in under 21 days
+            description: >-
+              Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in
+              {{ $value | humanizeDuration }}. Renewal starts ~30d before expiry,
+              so it has likely been failing for days. If DNS-01 challenges are stuck
+              (SERVFAIL / propagation errors) after a cert-manager operator upgrade,
+              re-apply the recursive-nameserver args to the CSV — see memory note
+              cert-manager-dns01-split-horizon.
+
+        - alert: CertManagerCertificateExpiryCritical
+          expr: >-
+            (certmanager_certificate_expiration_timestamp_seconds - time()) < (10 * 86400)
+          for: 30m
+          labels:
+            severity: critical
+          annotations:
+            summary: >-
+              Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in under 10 days
+            description: >-
+              Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in
+              {{ $value | humanizeDuration }} and renewal is NOT succeeding.
+              *.apps outage territory — fix now. Check challenges:
+              oc get challenges -A; oc logs -n okd-cert-manager -l app=cert-manager.
+
+        - alert: CertManagerMetricsAbsent
+          expr: absent(certmanager_clock_time_seconds_gauge)
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: cert-manager metrics have disappeared from Prometheus
+            description: >-
+              No cert-manager metrics scraped for 30m. Either cert-manager is down
+              or the scrape broke (e.g. an OLM operator upgrade changed service
+              labels/ports). While this fires, certificate renewal failures are
+              invisible — restore the scrape first, then re-check the CSV still
+              carries the --dns01-recursive-nameservers args.

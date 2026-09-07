@@ -37,6 +37,7 @@ resources:
 - deployment-prometheus-stack-kube-prom-operator-yaml
 - deployment-prometheus-stack-kube-state-metrics-yaml
 - namespace.yaml
+- prometheusrule-cert-manager.yaml
 - pvc-alertmanager-prometheus-stack-kube-prom-alertmanager-db-alertmanager-prometheus-stack-kube-prom-alertmanager-0-yaml
 - pvc-prometheus-prometheus-stack-kube-prom-prometheus-db-prometheus-prometheus-stack-kube-prom-prometheus-0-yaml
 - route-prometheus-stack-grafana-yaml
@@ -48,3 +49,4 @@ resources:
 - service-prometheus-stack-kube-prom-prometheus-yaml
 - service-prometheus-stack-kube-state-metrics-yaml
 - service-prometheus-stack-prometheus-node-exporter-yaml
+- servicemonitor-cert-manager.yaml

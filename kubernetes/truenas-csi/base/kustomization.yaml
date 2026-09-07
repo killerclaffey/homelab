@@ -6,3 +6,5 @@ resources:
 - deployment-truenas-csi-controller-yaml
 - namespace.yaml
 - pvc-test-yaml
+- storageclass-truenas-nfs-bulk-yaml
+- storageclass-truenas-nfs-hdd-yaml

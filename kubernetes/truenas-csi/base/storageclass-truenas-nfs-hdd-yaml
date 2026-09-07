@@ -1,0 +1,21 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: truenas-nfs-hdd
+allowVolumeExpansion: true
+mountOptions:
+- nfsvers=4.0
+- hard
+- timeo=600
+- retrans=2
+- noresvport
+parameters:
+  compression: LZ4
+  # See storageclass-truenas-nfs-bulk-yaml: 10.0.30.0/24 (thunderbolt-net) is
+  # deliberately excluded because it does not serve NFS reliably.
+  nfs.networks: 10.0.20.0/24
+  pool: Hddwithcache
+  protocol: nfs
+provisioner: csi.truenas.io
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

@@ -83,6 +83,7 @@ spec:
               name: init-script
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       volumes:

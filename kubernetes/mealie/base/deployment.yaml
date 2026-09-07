@@ -86,6 +86,7 @@ spec:
       schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       nodeSelector:
