@@ -50,8 +50,6 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      - name: default-dockercfg-t9mlg
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}

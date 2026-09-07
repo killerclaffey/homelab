@@ -24,8 +24,6 @@ spec:
     spec:
       containers:
       - env:
-        - name: DATABASE_URL
-          value: postgresql://fitness_user:fitness_pass@postgres.bikely-dev.svc.cluster.local:5432/fitness_app
         - name: PORT
           value: '4002'
         envFrom:
@@ -49,8 +47,6 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      - name: default-dockercfg-t9mlg
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}

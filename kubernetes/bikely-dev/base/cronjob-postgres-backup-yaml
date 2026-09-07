@@ -58,7 +58,10 @@ spec:
                 - name: POSTGRES_DB
                   value: fitness_app
                 - name: POSTGRES_PASSWORD
-                  value: "REPLACE_ME"  # Apply with: oc set env cronjob/postgres-backup POSTGRES_PASSWORD=... -n bikely-dev
+                  valueFrom:
+                    secretKeyRef:
+                      name: bikely-secrets
+                      key: POSTGRES_PASSWORD
               resources:
                 requests:
                   cpu: 100m

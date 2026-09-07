@@ -31,7 +31,10 @@ spec:
         - name: POSTGRES_USER
           value: fitness_user
         - name: POSTGRES_PASSWORD
-          value: dev_password_change_me
+          valueFrom:
+            secretKeyRef:
+              name: bikely-secrets
+              key: POSTGRES_PASSWORD
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
         image: docker.io/library/postgres:15-alpine

@@ -53,8 +53,6 @@ spec:
         - mountPath: /var/run
           name: nginx-run
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      - name: default-dockercfg-t9mlg
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
