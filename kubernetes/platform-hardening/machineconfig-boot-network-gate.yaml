@@ -21,7 +21,7 @@ spec:
 
             [Service]
             Type=oneshot
-            TimeoutStartSec=180
+            TimeoutStartSec=240
             RemainAfterExit=yes
             ExecStart=/usr/local/bin/kubelet-prestart-gate.sh
 

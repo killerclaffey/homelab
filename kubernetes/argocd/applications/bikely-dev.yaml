@@ -17,12 +17,6 @@ spec:
     path: kubernetes/bikely-dev/overlays/okd
     repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
     targetRevision: HEAD
-  ignoreDifferences:
-    - group: batch
-      kind: CronJob
-      name: postgres-backup
-      jsonPointers:
-        - /spec/jobTemplate/spec/template/spec/containers/0/env
   syncPolicy:
     automated:
       prune: true

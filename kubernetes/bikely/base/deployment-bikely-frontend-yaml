@@ -88,8 +88,6 @@ spec:
         - mountPath: /var/run
           name: nginx-run
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      - name: default-dockercfg-k79sz
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
