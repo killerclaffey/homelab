@@ -31,8 +31,6 @@ spec:
         app.kubernetes.io/name: mealie
     spec:
       automountServiceAccountToken: true
-      securityContext:
-        fsGroupChangePolicy: "OnRootMismatch"
       containers:
       - envFrom:
         - configMapRef:
@@ -88,6 +86,7 @@ spec:
       schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       nodeSelector:

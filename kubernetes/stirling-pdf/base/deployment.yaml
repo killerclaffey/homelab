@@ -21,8 +21,6 @@ spec:
         app.kubernetes.io/instance: stirling-pdf
         app.kubernetes.io/name: stirling-pdf
     spec:
-      securityContext:
-        fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - name: stirling-pdf
           image: docker.io/stirlingtools/stirling-pdf:2.14.2
@@ -85,6 +83,7 @@ spec:
               name: init-script
       securityContext:
         runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       volumes:
