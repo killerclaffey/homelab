@@ -44,6 +44,12 @@ spec:
               value: "production"
             - name: NEXT_TELEMETRY_DISABLED
               value: "1"
+            - name: INITIAL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: 9router-secret
+                  key: initial-password
+                  optional: true
           ports:
             - name: http
               containerPort: 20128
