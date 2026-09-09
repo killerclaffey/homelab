@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 9router
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: argocd
+spec:
+  destination:
+    namespace: 9router
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: kubernetes/9router/overlays/okd
+    repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+      - CreateNamespace=true

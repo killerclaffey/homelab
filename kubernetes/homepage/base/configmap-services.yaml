@@ -39,6 +39,10 @@ data:
             icon: sh-minio
             href: https://minio.claffey.cloud:30213
             description: TrueNAS Object Storage Console
+        - 9router-ai:
+            icon: mdi-router
+            href: https://9router.apps.okd.claffey.cloud
+            description: AI Routing Proxy & Token Saver Gateway
     - Observability:
         - Grafana:
             icon: sh-grafana

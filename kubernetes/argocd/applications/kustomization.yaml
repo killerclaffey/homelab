@@ -27,5 +27,6 @@ resources:
   - weewx.yaml
   - paperless-ngx.yaml
   - platform-hardening.yaml
+  - 9router.yaml
 
 
