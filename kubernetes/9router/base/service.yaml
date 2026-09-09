@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: 9router
     app.kubernetes.io/name: 9router
-  name: 9router
+  name: nine-router
   namespace: 9router
 spec:
   type: ClusterIP

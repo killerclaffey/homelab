@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: 9router
     app.kubernetes.io/name: 9router
-  name: 9router
+  name: nine-router
   namespace: 9router
 spec:
   host: 9router.apps.okd.claffey.cloud
@@ -15,6 +15,6 @@ spec:
     termination: edge
   to:
     kind: Service
-    name: 9router
+    name: nine-router
     weight: 100
   wildcardPolicy: None
