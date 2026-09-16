@@ -39,7 +39,7 @@ spec:
             value: "1"
       containers:
         - name: music-assistant-server
-          image: ghcr.io/music-assistant/server:2.3.4@sha256:301cc44d2405e1f12953a44ddb65454630007755af9ada9d204bc1a3b9a06175
+          image: ghcr.io/music-assistant/server:2.9.13@sha256:5ded610a2804fb7a973d2cbe390df09ceb67f0d7f603bcacd21ebaaa5a8a9b62
           volumeMounts:
             - name: data
               mountPath: /data
