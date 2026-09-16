@@ -1,0 +1,42 @@
+---
+name: GitOps CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  gitops-ci:
+    name: GitOps CI
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/killerclaffey/k8s-gitops-ci:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure safe git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Run GitOps CI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            k8s-gitops-ci pipeline --assume-openshift --comment
+          else
+            k8s-gitops-ci test --dirs kubernetes/ --assume-openshift
+          fi
