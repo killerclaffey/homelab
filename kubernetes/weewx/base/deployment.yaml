@@ -45,7 +45,7 @@ spec:
             - mountPath: /data
               name: weewx-data
         - name: web
-          image: nginxinc/nginx-unprivileged:1.27-alpine
+          image: nginxinc/nginx-unprivileged:1.31-alpine
           imagePullPolicy: Always
           env:
             - name: TZ
