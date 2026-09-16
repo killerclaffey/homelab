@@ -18,3 +18,17 @@ gitleaks:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+gitops-ci:
+  stage: test
+  image:
+    name: registry.apps.okd.claffey.cloud/rclaffey/homelab/k8s-gitops-ci:latest
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: 0
+    GITLAB_HOST: "${CI_SERVER_HOST}"
+  script:
+    - k8s-gitops-ci pipeline --assume-openshift --comment
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
