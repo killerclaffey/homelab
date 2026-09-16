@@ -26,7 +26,6 @@ gitops-ci:
     entrypoint: [""]
   variables:
     GIT_DEPTH: 0
-    GITLAB_TOKEN: "${CI_JOB_TOKEN}"
     GITLAB_HOST: "${CI_SERVER_HOST}"
   script:
     - k8s-gitops-ci pipeline --assume-openshift --comment
