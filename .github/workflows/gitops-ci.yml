@@ -7,6 +7,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      pr:
+        description: 'PR number to validate (optional)'
+        required: false
+        type: string
 
 jobs:
   gitops-ci:
@@ -35,8 +40,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            k8s-gitops-ci pipeline --assume-openshift --comment
-          else
-            k8s-gitops-ci test --dirs kubernetes/ --assume-openshift
+          EXTRA_ARGS=""
+          if [ -n "${{ inputs.pr }}" ]; then
+            EXTRA_ARGS="--pr=${{ inputs.pr }}"
           fi
+          k8s-gitops-ci pipeline --assume-openshift --comment $EXTRA_ARGS
