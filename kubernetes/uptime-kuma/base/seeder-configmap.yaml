@@ -49,6 +49,7 @@ data:
     seed_monitor "Immich" "https://images.apps.okd.claffey.cloud"
     seed_monitor "Stirling PDF" "https://stirling-pdf.apps.okd.claffey.cloud"
     seed_monitor "Paperless-ngx" "https://paperless.apps.okd.claffey.cloud"
+    seed_monitor "Nextcloud" "https://nextcloud.apps.okd.claffey.cloud"
     seed_monitor "Weather" "https://weather.apps.okd.claffey.cloud"
     seed_monitor "GitLab" "https://gitlab.apps.okd.claffey.cloud"
     seed_monitor "Uptime Kuma" "http://localhost:3001"

@@ -18,6 +18,7 @@ spec:
       - gitlab-system
       - immich
       - mealie
+      - nextcloud-fpm
       - uptime-kuma
       - vault
     includeClusterResources: false
