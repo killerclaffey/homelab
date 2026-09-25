@@ -5,13 +5,13 @@ resources:
   - velero-manifests.yaml
   - schedule-daily.yaml
 patches:
-  - target:
-      kind: BackupStorageLocation
-      name: default
-    patch: |-
+  - patch: |-
       apiVersion: velero.io/v1
       kind: BackupStorageLocation
       metadata:
         name: default
         annotations:
           argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    target:
+      kind: BackupStorageLocation
+      name: default
