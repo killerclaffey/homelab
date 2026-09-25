@@ -89,6 +89,10 @@ data:
             icon: sh-paperless-ngx
             href: https://paperless.apps.okd.claffey.cloud
             description: Document Management System & Archival
+        - Nextcloud:
+            icon: sh-nextcloud
+            href: https://nextcloud.apps.okd.claffey.cloud
+            description: Private Cloud Storage & Collaboration
 
         - Weather:
             icon: mdi-weather-partly-cloudy

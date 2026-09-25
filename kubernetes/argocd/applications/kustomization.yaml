@@ -28,5 +28,4 @@ resources:
   - paperless-ngx.yaml
   - platform-hardening.yaml
   - 9router.yaml
-
-
+  - nextcloud-fpm.yaml

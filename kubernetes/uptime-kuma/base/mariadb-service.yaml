@@ -5,7 +5,8 @@ metadata:
   namespace: uptime-kuma
 spec:
   ports:
-    - port: 3306
-      targetPort: 3306
+    - name: mysql
+      port: 3306
+      targetPort: mysql
   selector:
     app: mariadb
