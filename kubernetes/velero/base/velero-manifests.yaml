@@ -79,12 +79,12 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: velero-12.1.0
 rules:
-  - apiGroups:
-      - "*"
-    resources:
-      - "*"
-    verbs:
-      - "*"
+- apiGroups:
+    - "*"
+  resources:
+    - "*"
+  verbs:
+    - "*"
 ---
 # Source: velero/templates/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -245,8 +245,8 @@ spec:
         - image: docker.io/velero/velero-plugin-for-aws:v1.14.2
           name: velero-plugin-for-aws
           volumeMounts:
-            - mountPath: /target
-              name: plugins
+          - mountPath: /target
+            name: plugins
       volumes:
         - name: cloud-credentials
           secret:
@@ -262,8 +262,6 @@ kind: BackupStorageLocation
 metadata:
   name: default
   namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     app.kubernetes.io/name: velero
     app.kubernetes.io/instance: velero
@@ -313,16 +311,16 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: velero-12.1.0
 rules:
-  - apiGroups:
-      - "apiextensions.k8s.io"
-    resources:
-      - "customresourcedefinitions"
-    verbs:
-      - create
-      - patch
-      - update
-      - get
-      - list
+- apiGroups: 
+    - "apiextensions.k8s.io"
+  resources: 
+    - "customresourcedefinitions"
+  verbs: 
+    - create
+    - patch
+    - update
+    - get
+    - list
 ---
 # Source: velero/templates/upgrade-crds/clusterrolebinding-upgrade.yaml
 apiVersion: rbac.authorization.k8s.io/v1
