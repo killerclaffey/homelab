@@ -1,0 +1,68 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-nextcloud-app
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: nextcloud
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: nextcloud-fpm
+          podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values: ["nextcloud", "nextcloud-cron", "nextcloud-preview"]
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-nextcloud-cluster
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: nextcloud
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: nextcloud-fpm
+          podSelector:
+            matchLabels:
+              cnpg.io/cluster: nextcloud
+      ports:
+        - protocol: TCP
+          port: 5432
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: nextcloud-fpm
+          podSelector:
+            matchLabels:
+              cnpg.io/cluster: nextcloud
+      ports:
+        - protocol: TCP
+          port: 5432

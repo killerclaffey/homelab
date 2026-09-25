@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    app: nginx
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/instance: nextcloud-fpm
+    spec:
+      serviceAccountName: nginx
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        fsGroupChangePolicy: OnRootMismatch
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: nginx
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: nginx
+          # renovate: datasource=docker depName=docker.io/nginxinc/nginx-unprivileged
+          image: docker.io/nginxinc/nginx-unprivileged:1.31-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: nextcloud
+              mountPath: /var/www/html
+            - name: nextcloud-custom-apps
+              mountPath: /var/www/html/custom_apps
+            - name: nextcloud-config
+              mountPath: /var/www/html/config
+            - name: nextcloud-data
+              mountPath: /var/www/html/data
+            - name: nextcloud-themes
+              mountPath: /var/www/html/themes
+            - name: tmp
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: var-run
+              mountPath: /var/run
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          livenessProbe:
+            httpGet:
+              path: /status.php
+              port: http
+              scheme: HTTP
+              httpHeaders:
+                - name: Host
+                  value: nextcloud.apps.okd.claffey.cloud
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /status.php
+              port: http
+              scheme: HTTP
+              httpHeaders:
+                - name: Host
+                  value: nextcloud.apps.okd.claffey.cloud
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: nextcloud
+          persistentVolumeClaim:
+            claimName: nextcloud
+        - name: nextcloud-custom-apps
+          persistentVolumeClaim:
+            claimName: nextcloud-custom-apps
+        - name: nextcloud-config
+          persistentVolumeClaim:
+            claimName: nextcloud-config
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: nextcloud-data
+        - name: nextcloud-themes
+          persistentVolumeClaim:
+            claimName: nextcloud-themes
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx-cache
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: var-run
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx-conf
+          configMap:
+            name: nginx
+            defaultMode: 0444
+            items:
+              - key: nginx.conf
+                path: nginx.conf

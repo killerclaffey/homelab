@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app: nextcloud
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  ports:
+    - name: fastcgi
+      port: 9000
+      protocol: TCP
+      targetPort: fastcgi
+  selector:
+    app: nextcloud
+  type: ClusterIP

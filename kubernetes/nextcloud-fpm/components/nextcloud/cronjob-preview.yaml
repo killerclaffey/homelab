@@ -1,0 +1,94 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nextcloud-preview
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    app: nextcloud-preview
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  schedule: "0 */3 * * *"
+  concurrencyPolicy: Forbid
+  suspend: false
+  startingDeadlineSeconds: 120
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: nextcloud-preview
+            app.kubernetes.io/name: nextcloud
+            app.kubernetes.io/instance: nextcloud-fpm
+        spec:
+          serviceAccountName: nextcloud
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            fsGroupChangePolicy: OnRootMismatch
+          containers:
+            - name: nextcloud-preview
+              # renovate: datasource=docker depName=docker.io/nextcloud
+              image: docker.io/nextcloud:35.0.1-fpm
+              env:
+                - name: PHP_MEMORY_LIMIT
+                  value: 2G
+              command:
+                - /bin/sh
+                - "-c"
+                - "/var/www/html/occ preview:pre-generate -vvv"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 512Mi
+                limits:
+                  cpu: "1"
+                  memory: 1.5Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - name: nextcloud
+                  mountPath: /var/www/html
+                - name: nextcloud-custom-apps
+                  mountPath: /var/www/html/custom_apps
+                - name: nextcloud-config
+                  mountPath: /var/www/html/config
+                - name: nextcloud-data
+                  mountPath: /var/www/html/data
+                - name: nextcloud-themes
+                  mountPath: /var/www/html/themes
+                - name: tmp
+                  mountPath: /tmp
+          restartPolicy: Never
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - name: nextcloud
+              persistentVolumeClaim:
+                claimName: nextcloud
+            - name: nextcloud-custom-apps
+              persistentVolumeClaim:
+                claimName: nextcloud-custom-apps
+            - name: nextcloud-config
+              persistentVolumeClaim:
+                claimName: nextcloud-config
+            - name: nextcloud-data
+              persistentVolumeClaim:
+                claimName: nextcloud-data
+            - name: nextcloud-themes
+              persistentVolumeClaim:
+                claimName: nextcloud-themes
+            - name: tmp
+              emptyDir:
+                sizeLimit: 5Gi
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
