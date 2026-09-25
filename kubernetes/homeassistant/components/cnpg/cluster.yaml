@@ -45,7 +45,7 @@ spec:
     size: 35Gi
   walStorage:
     storageClass: tns-nvmeof-nvme
-    size: 10Gi
+    size: 20Gi
   resources: # TODO Update Post Metrics
     requests:
       cpu: 25m
@@ -70,4 +70,3 @@ spec:
   replicationSlots:
     highAvailability:
       enabled: true
-
