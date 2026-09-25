@@ -50,7 +50,7 @@ spec:
         - name: TRANSFORMERS_CACHE
           value: /cache
         # renovate: datasource=github-releases depName=immich-app/immich
-        image: ghcr.io/immich-app/immich-machine-learning:v3.1.0
+        image: ghcr.io/immich-app/immich-machine-learning:v3.1.0@sha256:5a0839dc5303cd7215bcd2180a26aed3af41675aefb3e75e5157e9f10ad16e6e
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -75,12 +75,23 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 1
-        resources: {}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: "2"
+            memory: 4Gi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-            - NET_RAW
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
         startupProbe:
           failureThreshold: 60
           httpGet:
