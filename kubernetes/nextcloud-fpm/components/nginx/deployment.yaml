@@ -23,6 +23,10 @@ spec:
     spec:
       serviceAccountName: nginx
       automountServiceAccountToken: false
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      restartPolicy: Always
+      schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
         fsGroupChangePolicy: OnRootMismatch
@@ -38,7 +42,7 @@ spec:
       containers:
         - name: nginx
           # renovate: datasource=docker depName=docker.io/nginxinc/nginx-unprivileged
-          image: docker.io/nginxinc/nginx-unprivileged:1.31-alpine
+          image: docker.io/nginxinc/nginx-unprivileged:1.31-alpine@sha256:6a23acdfca2b9cfbcec61419e3f1426bcbedb91362f2f19306a8567423bb4612
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -56,6 +60,7 @@ spec:
             capabilities:
               drop:
                 - ALL
+            privileged: false
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             seccompProfile:
