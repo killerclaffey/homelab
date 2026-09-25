@@ -3,8 +3,6 @@ kind: Schedule
 metadata:
   name: daily-app-backup
   namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   schedule: "0 2 * * *" # Daily at 2:00 AM UTC
   template:
@@ -20,7 +18,6 @@ spec:
       - gitlab-system
       - immich
       - mealie
-      - nextcloud-fpm
       - uptime-kuma
       - vault
     includeClusterResources: false
