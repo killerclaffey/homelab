@@ -1,0 +1,64 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: nextcloud
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  enablePDB: false
+  imageName: "ghcr.io/cloudnative-pg/postgresql:18.3-system-trixie@sha256:006b7801eacd9706d6fb557520a414a7d938e4e71333da98695f6f03b20e4cee"
+  instances: 2
+  imagePullPolicy: IfNotPresent
+  logLevel: info
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  startDelay: 300
+  stopDelay: 120
+  smartShutdownTimeout: 60
+  switchoverDelay: 60
+  failoverDelay: 0
+  minSyncReplicas: 0
+  maxSyncReplicas: 1
+  postgresUID: 26
+  postgresGID: 999
+  postgresql:
+    parameters:
+      shared_buffers: "256MB"
+      max_connections: "200"
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+  bootstrap:
+    initdb:
+      database: nextcloud
+      owner: nextcloud
+      postInitSQL:
+        - GRANT CREATE ON SCHEMA public TO nextcloud;
+  enableSuperuserAccess: false
+  monitoring:
+    enablePodMonitor: false
+  storage:
+    storageClass: tns-nvmeof-nvme
+    size: 20Gi
+  walStorage:
+    storageClass: tns-nvmeof-nvme
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: preferred
+    topologyKey: kubernetes.io/hostname
+  seccompProfile:
+    type: RuntimeDefault
+  replicationSlots:
+    highAvailability:
+      enabled: true

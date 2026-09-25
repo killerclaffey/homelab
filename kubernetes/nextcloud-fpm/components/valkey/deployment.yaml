@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-valkey
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app: nextcloud-valkey
+    app.kubernetes.io/name: valkey
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: nextcloud-valkey
+      app.kubernetes.io/name: valkey
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nextcloud-valkey
+        app.kubernetes.io/name: valkey
+        app.kubernetes.io/instance: nextcloud-fpm
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: valkey
+          image: quay.io/sclorg/valkey-8-c10s:c10s@sha256:ac1e8f168eecd2dec3c7f88280b62ba537bf4b6d0c4f231c5f8c4a6eef3ca4a8
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+              name: redis
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /var/lib/valkey/data
+              name: data
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "valkey-cli ping | grep PONG"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "valkey-cli ping | grep PONG"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: nextcloud-valkey

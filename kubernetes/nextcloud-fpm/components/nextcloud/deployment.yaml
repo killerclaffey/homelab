@@ -1,0 +1,221 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app: nextcloud
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: nextcloud
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+        app.kubernetes.io/name: nextcloud
+        app.kubernetes.io/instance: nextcloud-fpm
+    spec:
+      serviceAccountName: nextcloud
+      automountServiceAccountToken: false
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        fsGroupChangePolicy: OnRootMismatch
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: nextcloud
+                topologyKey: kubernetes.io/hostname
+      initContainers:
+        - name: init-redis-session-ini
+          # renovate: datasource=docker depName=docker.io/nextcloud
+          image: docker.io/nextcloud:35.0.1-fpm@sha256:99758608767ddd6f6679786daa10f2ba1e234e8329e2ea265da69cf36beadd2b
+          command: ["touch", "/usr/local/etc/php/conf.d/redis-session.ini"]
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: php-conf
+              mountPath: "/usr/local/etc/php/conf.d"
+        - name: init-max-children
+          # renovate: datasource=docker depName=docker.io/nextcloud
+          image: docker.io/nextcloud:35.0.1-fpm@sha256:99758608767ddd6f6679786daa10f2ba1e234e8329e2ea265da69cf36beadd2b
+          command:
+            - "sh"
+            - "-c"
+            - "echo 'pm = dynamic\npm.max_children = 25\npm.start_servers = 5\npm.min_spare_servers = 5\npm.max_spare_servers = 10' > /usr/local/etc/php-fpm.d/www.conf"
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: www-conf
+              mountPath: "/usr/local/etc/php-fpm.d"
+      containers:
+        - name: nextcloud
+          # renovate: datasource=docker depName=docker.io/nextcloud
+          image: docker.io/nextcloud:35.0.1-fpm@sha256:99758608767ddd6f6679786daa10f2ba1e234e8329e2ea265da69cf36beadd2b
+          env:
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              value: nextcloud.apps.okd.claffey.cloud
+            - name: FORWARDED_FOR_HEADERS
+              value: X-Forwarded-For,HTTP_X_FORWARDED_FOR
+            - name: TRUSTED_PROXIES
+              value: 10.128.0.0/14 172.30.0.0/16 10.0.0.0/8
+            - name: OVERWRITEPROTOCOL
+              value: https
+            - name: OVERWRITECLIURL
+              value: https://nextcloud.apps.okd.claffey.cloud
+            - name: REDIS_HOST
+              value: nextcloud-valkey
+            - name: REDIS_PORT
+              value: "6379"
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-app
+                  key: dbname
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-app
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-app
+                  key: password
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-app
+                  key: host
+            - name: PHP_MEMORY_LIMIT
+              value: 2G
+            - name: PHP_UPLOAD_LIMIT
+              value: 10G
+          ports:
+            - containerPort: 9000
+              name: fastcgi
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1500m
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: nextcloud
+              mountPath: /var/www/html
+            - name: nextcloud-custom-apps
+              mountPath: /var/www/html/custom_apps
+            - name: nextcloud-config
+              mountPath: /var/www/html/config
+            - name: nextcloud-data
+              mountPath: /var/www/html/data
+            - name: nextcloud-themes
+              mountPath: /var/www/html/themes
+            - name: tmp
+              mountPath: /tmp
+            - name: php-conf
+              mountPath: /usr/local/etc/php/conf.d/redis-session.ini
+              subPath: redis-session.ini
+            - name: www-conf
+              mountPath: /usr/local/etc/php-fpm.d/www.conf
+              subPath: www.conf
+          livenessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - 'count=$(/usr/local/bin/php /var/www/html/occ status 2>/dev/null | grep -E "installed: true" | grep -E "maintenance: false" | grep -E "needsDbUpgrade: false" | wc -l); if [ "$count" -eq 0 ] || [ "$count" -eq 3 ]; then exit 0; else exit 1; fi'
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 10
+          readinessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "/usr/local/bin/php /var/www/html/occ check"
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: nextcloud
+          persistentVolumeClaim:
+            claimName: nextcloud
+        - name: nextcloud-custom-apps
+          persistentVolumeClaim:
+            claimName: nextcloud-custom-apps
+        - name: nextcloud-config
+          persistentVolumeClaim:
+            claimName: nextcloud-config
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: nextcloud-data
+        - name: nextcloud-themes
+          persistentVolumeClaim:
+            claimName: nextcloud-themes
+        - name: tmp
+          emptyDir:
+            sizeLimit: 10Gi
+        - name: php-conf
+          emptyDir:
+            sizeLimit: 64Mi
+        - name: www-conf
+          emptyDir:
+            sizeLimit: 64Mi

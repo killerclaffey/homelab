@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-valkey
+  namespace: nextcloud-fpm
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app: nextcloud-valkey
+    app.kubernetes.io/name: valkey
+    app.kubernetes.io/instance: nextcloud-fpm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: tns-nvmeof-nvme
+  volumeMode: Filesystem
