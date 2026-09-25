@@ -38,7 +38,7 @@ spec:
           value: http://immich-machine-learning:3003
         - name: REDIS_HOSTNAME
           value: immich-valkey
-        image: docker.io/valkey/valkey:9.1-alpine@sha256:de31910896150d5e754a07d57d227cfdde4e258ddd0d1aa4607f2d2f95843715
+        image: quay.io/sclorg/valkey-8-c10s:c10s
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -86,7 +86,7 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
-        - mountPath: /data
+        - mountPath: /var/lib/valkey/data
           name: data
       dnsPolicy: ClusterFirst
       enableServiceLinks: false

@@ -26,8 +26,7 @@ spec:
       automountServiceAccountToken: false
       containers:
       - name: valkey
-        # renovate: datasource=docker depName=docker.io/valkey/valkey
-        image: docker.io/valkey/valkey:9.1-alpine
+        image: quay.io/sclorg/valkey-8-c10s:c10s
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -71,7 +70,7 @@ spec:
           seccompProfile:
             type: RuntimeDefault
         volumeMounts:
-        - mountPath: /data
+        - mountPath: /var/lib/valkey/data
           name: data
       dnsPolicy: ClusterFirst
       restartPolicy: Always
