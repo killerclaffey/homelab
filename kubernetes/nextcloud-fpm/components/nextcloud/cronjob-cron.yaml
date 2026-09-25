@@ -26,13 +26,16 @@ spec:
         spec:
           serviceAccountName: nextcloud
           automountServiceAccountToken: false
+          dnsPolicy: ClusterFirst
+          enableServiceLinks: false
+          schedulerName: default-scheduler
           securityContext:
             runAsNonRoot: true
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: nextcloud-cron
               # renovate: datasource=docker depName=docker.io/nextcloud
-              image: docker.io/nextcloud:35.0.1-fpm
+              image: docker.io/nextcloud:35.0.1-fpm@sha256:99758608767ddd6f6679786daa10f2ba1e234e8329e2ea265da69cf36beadd2b
               env:
                 - name: PHP_MEMORY_LIMIT
                   value: 2G
@@ -52,6 +55,7 @@ spec:
                 capabilities:
                   drop:
                     - ALL
+                privileged: false
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 seccompProfile:
