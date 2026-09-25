@@ -18,10 +18,6 @@ spec:
   primaryUpdateStrategy: unsupervised
   postgresUID: 26
   postgresGID: 999
-  podTemplate:
-    spec:
-      securityContext:
-        fsGroup: 999
   bootstrap:
     initdb:
       database: paperless
@@ -50,15 +46,15 @@ kind: ClusterRole
 metadata:
   name: paperless-db-cluster-reader
 rules:
-- apiGroups:
-  - postgresql.cnpg.io
-  resources:
-  - clusters
-  - clusters/status
-  verbs:
-  - get
-  - list
-  - watch
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+      - clusters/status
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -69,9 +65,9 @@ roleRef:
   kind: ClusterRole
   name: paperless-db-cluster-reader
 subjects:
-- kind: ServiceAccount
-  name: paperless-db
-  namespace: paperless-ngx
+  - kind: ServiceAccount
+    name: paperless-db
+    namespace: paperless-ngx
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -82,6 +78,6 @@ roleRef:
   kind: ClusterRole
   name: cnpg-postgres-scc-use
 subjects:
-- kind: ServiceAccount
-  name: paperless-db
-  namespace: paperless-ngx
+  - kind: ServiceAccount
+    name: paperless-db
+    namespace: paperless-ngx

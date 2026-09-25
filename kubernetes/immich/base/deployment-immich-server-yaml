@@ -67,7 +67,7 @@ spec:
         - name: REDIS_HOSTNAME
           value: immich-valkey
         # renovate: datasource=github-releases depName=immich-app/immich
-        image: ghcr.io/immich-app/immich-server:v3.1.0
+        image: ghcr.io/immich-app/immich-server:v3.1.0@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -98,12 +98,23 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 1
-        resources: {}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: "2"
+            memory: 2Gi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-            - NET_RAW
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
         startupProbe:
           failureThreshold: 30
           httpGet:
