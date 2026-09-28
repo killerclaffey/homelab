@@ -24,6 +24,7 @@ spec:
             - |
               echo "Copying .next build cache to writable volume..."
               cp -r /app/.next/. /writable-next/
+              rm -f /writable-next/server/pages/en.html /writable-next/server/pages/en.json /writable-next/server/pages/index.html /writable-next/server/pages/index.json
               echo "Initializing writable config directory from skeleton..."
               cp -r /app/src/skeleton/. /app/config/
               cp /app/config-templates/bookmarks/bookmarks.yaml /app/config/
@@ -60,7 +61,7 @@ spec:
               memory: 256Mi
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: jampage.apps.okd.claffey.cloud
+              value: jampage.apps.okd.claffey.cloud,jampage.apps.okd.claffey.cloud:443
           volumeMounts:
             - name: writable-next
               mountPath: /app/.next
