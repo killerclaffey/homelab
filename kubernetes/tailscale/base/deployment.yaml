@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale
+  namespace: tailscale
+  labels:
+    app.kubernetes.io/name: tailscale
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tailscale
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tailscale
+    spec:
+      serviceAccountName: tailscale
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: tailscale
+          image: docker.io/tailscale/tailscale:stable
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HOME
+              value: /tmp
+            - name: TS_USERSPACE
+              value: "true"
+            - name: TS_SOCKET_DIR
+              value: /tmp
+            - name: TS_KUBE_SECRET
+              value: tailscale-state
+            - name: TS_HOSTNAME
+              value: okd-gateway
+            - name: TS_ROUTES
+              value: "10.0.20.0/24,172.30.0.0/16"
+            - name: TS_EXTRA_ARGS
+              value: "--accept-routes=false"
+            - name: TS_SOCKS5_SERVER
+              value: ":1055"
+            - name: TS_OUTBOUND_HTTP_PROXY_LISTEN
+              value: ":1080"
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-auth
+                  key: TS_AUTHKEY
+                  optional: true
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          readinessProbe:
+            exec:
+              command:
+                - /usr/local/bin/tailscale
+                - --socket=/tmp/tailscaled.sock
+                - status
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            exec:
+              command:
+                - /usr/local/bin/tailscale
+                - --socket=/tmp/tailscaled.sock
+                - status
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+      volumes:
+        - name: tmp
+          emptyDir: {}

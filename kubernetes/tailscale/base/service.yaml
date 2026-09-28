@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tailscale
+  namespace: tailscale
+  labels:
+    app.kubernetes.io/name: tailscale
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: tailscale
+  ports:
+    - name: socks5
+      port: 1055
+      targetPort: 1055
+      protocol: TCP
+    - name: http-proxy
+      port: 1080
+      targetPort: 1080
+      protocol: TCP

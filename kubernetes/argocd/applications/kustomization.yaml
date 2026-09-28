@@ -30,3 +30,4 @@ resources:
   - platform-hardening.yaml
   - 9router.yaml
   - nextcloud-fpm.yaml
+  - tailscale.yaml
