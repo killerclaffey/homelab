@@ -7,7 +7,7 @@
   "schedule": ["after 10pm every weekday", "every weekend"],
   "semanticCommits": "enabled",
   "prConcurrentLimit": 10,
-  "prHourlyLimit": 2,
+  "prHourlyLimit": 0,
   "labels": ["renovate", "dependencies"],
   "assignees": ["rclaffey"],
   "reviewers": ["rclaffey"],
@@ -56,8 +56,7 @@
       "description": "Use GitHub Releases for Immich to bypass GHCR tag pagination limits",
       "matchPackagePatterns": ["^ghcr\\.io/immich-app/"],
       "overrideDatasource": "github-releases",
-      "overridePackageName": "immich-app/immich",
-      "registryUrls": ["https://ghcr.io"]
+      "overridePackageName": "immich-app/immich"
     }
   ],
   "hostRules": [],
