@@ -70,7 +70,7 @@ spec:
           value: POST
         - name: REQ_SKIP_INIT
           value: 'true'
-        image: quay.io/kiwigrid/k8s-sidecar:2.2.1
+        image: quay.io/kiwigrid/k8s-sidecar:2.11.2
         imagePullPolicy: IfNotPresent
         name: grafana-sc-dashboard
         resources: {}
@@ -111,7 +111,7 @@ spec:
           value: POST
         - name: REQ_SKIP_INIT
           value: 'true'
-        image: quay.io/kiwigrid/k8s-sidecar:2.2.1
+        image: quay.io/kiwigrid/k8s-sidecar:2.11.2
         imagePullPolicy: IfNotPresent
         name: grafana-sc-datasources
         resources: {}
