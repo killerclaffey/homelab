@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/name: renovate
     app.kubernetes.io/instance: renovate
 spec:
+  suspend: false            # explicit so ArgoCD (SSA) owns this field and reverts manual patches
   schedule: "30 22 * * *"   # runs daily at 10:30 PM America/New_York
   timeZone: America/New_York
   concurrencyPolicy: Forbid
