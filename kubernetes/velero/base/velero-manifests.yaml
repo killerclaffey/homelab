@@ -172,7 +172,7 @@ spec:
       terminationGracePeriodSeconds: 3600
       containers:
         - name: velero
-          image: "docker.io/velero/velero:v1.18.2"
+          image: "docker.io/velero/velero:v1.18.3"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http-monitoring
@@ -242,7 +242,7 @@ spec:
               value: /credentials/cloud
       dnsPolicy: ClusterFirst
       initContainers:
-        - image: docker.io/velero/velero-plugin-for-aws:v1.14.2
+        - image: docker.io/velero/velero-plugin-for-aws:v1.14.3
           name: velero-plugin-for-aws
           volumeMounts:
           - mountPath: /target
@@ -371,7 +371,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: velero
-          image: "docker.io/velero/velero:v1.18.2"
+          image: "docker.io/velero/velero:v1.18.3"
           imagePullPolicy: IfNotPresent
           command:
             - /velero
