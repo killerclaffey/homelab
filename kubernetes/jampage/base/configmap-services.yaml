@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jampage-services
+  namespace: jampage
+data:
+  services.yaml: |
+    - Apps:
+        - Mealie:
+            icon: sh-mealie
+            href: https://mealie.apps.okd.claffey.cloud
+            description: Recipe Manager & Meal Planner
+        - Immich:
+            icon: sh-immich
+            href: https://images.apps.okd.claffey.cloud
+            description: Photos & Videos Backup
+        - Paperless-ngx:
+            icon: sh-paperless-ngx
+            href: https://paperless.apps.okd.claffey.cloud
+            description: Document Management System & Archival
+        - Nextcloud:
+            icon: sh-nextcloud
+            href: https://nextcloud.apps.okd.claffey.cloud
+            description: Private Cloud Storage & Collaboration
+        - Weather:
+            icon: mdi-weather-partly-cloudy
+            href: https://weather.apps.okd.claffey.cloud
+            description: Weather Station Software & Data

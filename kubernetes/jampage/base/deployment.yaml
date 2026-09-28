@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jampage
+  namespace: jampage
+  labels:
+    app: jampage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jampage
+  template:
+    metadata:
+      labels:
+        app: jampage
+    spec:
+      initContainers:
+        - name: init-config
+          image: ghcr.io/gethomepage/homepage:v2.4.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Copying .next build cache to writable volume..."
+              cp -r /app/.next/. /writable-next/
+              echo "Initializing writable config directory from skeleton..."
+              cp -r /app/src/skeleton/. /app/config/
+              cp /app/config-templates/bookmarks/bookmarks.yaml /app/config/
+              cp /app/config-templates/services/services.yaml /app/config/
+              cp /app/config-templates/widgets/widgets.yaml /app/config/
+              cp /app/config-templates/settings/settings.yaml /app/config/
+              mkdir -p /app/config/logs
+              echo "Init complete."
+          volumeMounts:
+            - name: writable-next
+              mountPath: /writable-next
+            - name: config-dir
+              mountPath: /app/config
+            - name: config-bookmarks
+              mountPath: /app/config-templates/bookmarks
+            - name: config-services
+              mountPath: /app/config-templates/services
+            - name: config-widgets
+              mountPath: /app/config-templates/widgets
+            - name: config-settings
+              mountPath: /app/config-templates/settings
+      containers:
+        - name: jampage
+          image: ghcr.io/gethomepage/homepage:v2.4.0
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: jampage.apps.okd.claffey.cloud
+          volumeMounts:
+            - name: writable-next
+              mountPath: /app/.next
+            - name: config-dir
+              mountPath: /app/config
+      volumes:
+        - name: writable-next
+          emptyDir: {}
+        - name: config-dir
+          emptyDir: {}
+        - name: config-bookmarks
+          configMap:
+            name: jampage-bookmarks
+        - name: config-services
+          configMap:
+            name: jampage-services
+        - name: config-widgets
+          configMap:
+            name: jampage-widgets
+        - name: config-settings
+          configMap:
+            name: jampage-settings

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jampage-settings
+  namespace: jampage
+data:
+  settings.yaml: |
+    title: Jampage
+    theme: dark
+    layout:
+      Apps:
+        columns: 5

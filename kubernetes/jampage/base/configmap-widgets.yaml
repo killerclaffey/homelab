@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jampage-widgets
+  namespace: jampage
+data:
+  widgets.yaml: |
+    - logo:
+        icon: mdi-heart
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: long
+          timeStyle: short
+          hour12: true
+    - search:
+        provider: google
+        target: _blank

@@ -19,6 +19,7 @@ resources:
   - vault.yaml
   - velero.yaml
   - homepage.yaml
+  - jampage.yaml
   - stirling-pdf.yaml
   - renovate.yaml
   - stackrox.yaml

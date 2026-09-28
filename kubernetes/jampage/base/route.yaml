@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: jampage
+  namespace: jampage
+spec:
+  host: jampage.apps.okd.claffey.cloud
+  to:
+    kind: Service
+    name: jampage
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
