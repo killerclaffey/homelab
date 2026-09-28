@@ -63,7 +63,7 @@ spec:
         env:
         - name: HOST_IP
           value: 0.0.0.0
-        image: quay.io/prometheus/node-exporter:v1.10.2
+        image: quay.io/prometheus/node-exporter:v1.12.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
