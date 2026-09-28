@@ -43,7 +43,10 @@ spec:
         - name: init-redis-session-ini
           # renovate: datasource=docker depName=docker.io/nextcloud
           image: docker.io/nextcloud:35.0.1-fpm@sha256:99758608767ddd6f6679786daa10f2ba1e234e8329e2ea265da69cf36beadd2b
-          command: ["touch", "/usr/local/etc/php/conf.d/redis-session.ini"]
+          command:
+            - "sh"
+            - "-c"
+            - "touch /usr/local/etc/php/conf.d/redis-session.ini && echo 'redis.session.locking_enabled = 0' > /usr/local/etc/php/conf.d/zz-redis-session.ini"
           resources:
             limits:
               cpu: 50m
@@ -99,7 +102,7 @@ spec:
             - name: NEXTCLOUD_TRUSTED_DOMAINS
               value: nextcloud.apps.okd.claffey.cloud
             - name: FORWARDED_FOR_HEADERS
-              value: X-Forwarded-For,HTTP_X_FORWARDED_FOR
+              value: HTTP_X_FORWARDED_FOR
             - name: TRUSTED_PROXIES
               value: 10.128.0.0/14 172.30.0.0/16 10.0.0.0/8
             - name: OVERWRITEPROTOCOL
@@ -171,6 +174,9 @@ spec:
             - name: php-conf
               mountPath: /usr/local/etc/php/conf.d/redis-session.ini
               subPath: redis-session.ini
+            - name: php-conf
+              mountPath: /usr/local/etc/php/conf.d/zz-redis-session.ini
+              subPath: zz-redis-session.ini
             - name: www-conf
               mountPath: /usr/local/etc/php-fpm.d/www.conf
               subPath: www.conf
