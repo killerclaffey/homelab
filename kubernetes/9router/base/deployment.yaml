@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: 9router
-          image: docker.io/decolua/9router:0.5.69
+          image: docker.io/decolua/9router:0.5.91
           imagePullPolicy: IfNotPresent
           command: ["node", "custom-server.js"]
           env:
