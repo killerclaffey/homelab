@@ -22,7 +22,7 @@ spec:
   switchoverDelay: 60
   failoverDelay: 0
   minSyncReplicas: 0
-  maxSyncReplicas: 1
+  maxSyncReplicas: 0
   postgresUID: 26
   postgresGID: 999
   postgresql:
