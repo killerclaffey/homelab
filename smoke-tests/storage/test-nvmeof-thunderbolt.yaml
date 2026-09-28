@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-test-nvmeof-thunderbolt
+  namespace: smoke-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: tns-nvmeof-thunderbolt
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-nvmeof-thunderbolt-job
+  namespace: smoke-test
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: fio-tester
+        image: docker.io/ljishen/fio:3.6
+        command: ["fio"]
+        args:
+          - "--name=nvmeof_thunderbolt_test"
+          - "--rw=write"
+          - "--bs=1M"
+          - "--size=256M"
+          - "--filename=/mnt/nvmeof/test.bin"
+          - "--direct=1"
+          - "--ioengine=libaio"
+        volumeMounts:
+        - name: mount-nvmeof
+          mountPath: /mnt/nvmeof
+      volumes:
+      - name: mount-nvmeof
+        persistentVolumeClaim:
+          claimName: pvc-test-nvmeof-thunderbolt

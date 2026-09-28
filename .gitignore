@@ -3,6 +3,7 @@
 *.key
 *.token
 *.env
+*.info
 
 # Local OS metadata
 .DS_Store
