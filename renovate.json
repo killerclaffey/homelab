@@ -6,7 +6,7 @@
   "timezone": "America/New_York",
   "schedule": ["after 10pm every weekday", "every weekend"],
   "semanticCommits": "enabled",
-  "prConcurrentLimit": 10,
+  "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "labels": ["renovate", "dependencies"],
   "assignees": ["rclaffey"],
