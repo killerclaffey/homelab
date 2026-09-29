@@ -48,9 +48,7 @@
     {
       "description": "Rook/Ceph - manual only",
       "matchPackagePatterns": ["quay.io/ceph/.*", "docker.io/rook/.*"],
-      "enabled": true,
-      "automerge": false,
-      "labels": ["renovate", "dependencies", "ceph", "manual-review"]
+      "enabled": false
     }
   ],
   "hostRules": [],

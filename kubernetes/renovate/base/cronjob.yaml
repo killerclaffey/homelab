@@ -49,16 +49,18 @@ spec:
                   value: info
                 - name: RENOVATE_GIT_AUTHOR
                   value: "Renovate Bot <renovate@claffey.cloud>"
+                - name: NODE_OPTIONS
+                  value: "--max-old-space-size=1536"
                 # Persist cache directory
                 - name: RENOVATE_CACHE_DIR
                   value: "/tmp/renovate/cache"
               resources:
                 requests:
-                  cpu: 100m
-                  memory: 256Mi
+                  cpu: 250m
+                  memory: 1Gi
                 limits:
-                  cpu: 500m
-                  memory: 512Mi
+                  cpu: "2"
+                  memory: 2Gi
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:

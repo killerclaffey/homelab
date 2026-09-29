@@ -270,6 +270,9 @@ metadata:
     helm.sh/chart: velero-12.1.0
 spec:
   provider: aws
+  credential:
+    name: velero-credentials
+    key: cloud
   accessMode: ReadWrite
   objectStorage:
     bucket: "velero-backups"
