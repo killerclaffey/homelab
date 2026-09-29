@@ -25,3 +25,8 @@ spec:
     - RespectIgnoreDifferences=true
     - ServerSideApply=true
     - CreateNamespace=true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
