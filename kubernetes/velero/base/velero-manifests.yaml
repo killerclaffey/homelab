@@ -12,23 +12,6 @@ metadata:
     helm.sh/chart: velero-12.1.0
 automountServiceAccountToken: true
 ---
-# Source: velero/templates/secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: velero-credentials
-  namespace: velero
-  labels:
-    app.kubernetes.io/name: velero
-    app.kubernetes.io/instance: velero
-    app.kubernetes.io/managed-by: Helm
-    helm.sh/chart: velero-12.1.0
-type: Opaque
-stringData:
-  aws_access_key_id: "REPLACE_ME"
-  aws_secret_access_key: "REPLACE_ME"
-  cloud: "REPLACE_ME"
----
 # Source: velero/templates/repo-maintenance-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
