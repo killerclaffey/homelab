@@ -9,5 +9,5 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: hostpath-provisioner
+  storageClassName: tns-nvmeof-nvme
   volumeMode: Filesystem
