@@ -40,7 +40,7 @@ spec:
       - env:
         - name: VITE_API_URL
           value: /api
-        image: image-registry.openshift-image-registry.svc:5000/bikely/frontend:v8
+        image: image-registry.openshift-image-registry.svc:5000/bikely/frontend:v9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
