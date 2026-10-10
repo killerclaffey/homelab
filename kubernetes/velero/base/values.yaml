@@ -13,7 +13,7 @@ configuration:
   volumeSnapshotLocation: []
 initContainers:
   - name: velero-plugin-for-aws
-    image: docker.io/velero/velero-plugin-for-aws:v1.14.3
+    image: docker.io/velero/velero-plugin-for-aws:v1.14.4
     volumeMounts:
       - mountPath: /target
         name: plugins
