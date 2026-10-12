@@ -31,6 +31,7 @@ spec:
       max_connections: "200"
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
+      max_slot_wal_keep_size: "10GB"
   bootstrap:
     initdb:
       database: nextcloud
@@ -43,9 +44,11 @@ spec:
   storage:
     storageClass: tns-nvmeof-nvme
     size: 20Gi
+    resizeInUseVolumes: true
   walStorage:
     storageClass: tns-nvmeof-nvme
-    size: 10Gi
+    size: 20Gi
+    resizeInUseVolumes: true
   resources:
     requests:
       cpu: 50m
