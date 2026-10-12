@@ -18,7 +18,7 @@ jobs:
     name: GitOps CI
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/killerclaffey/k8s-gitops-ci:latest
+      image: ghcr.io/killerclaffey/arty-k8s-gitops-ci:latest
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
