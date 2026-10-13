@@ -36,17 +36,6 @@ spec:
         deployment: okd
         environment: production
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - k81
-                - k82
-                - k83
       containers:
       - env:
         - name: NODE_ENV
