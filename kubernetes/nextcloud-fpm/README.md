@@ -4,7 +4,7 @@ Nextcloud deployed with a split PHP-FPM and Nginx architecture on OKD.
 
 ## Architecture
 
-- **Web Server (`components/nginx`)**: Unprivileged Nginx (`nginxinc/nginx-unprivileged:1.31-alpine`) running on port `8080`, handling client connections, SSL termination headers, static asset caching, and FastCGI proxying to PHP-FPM.
+- **Web Server (`components/nginx`)**: Unprivileged Nginx (`registry.access.redhat.com/ubi9/nginx-124`) running on port `8080`, handling client connections, SSL termination headers, static asset caching, and FastCGI proxying to PHP-FPM.
 - **Backend Application (`components/nextcloud`)**: Nextcloud PHP-FPM (`docker.io/nextcloud:35.0.1-fpm`) on port `9000`.
 - **Database (`components/cnpg`)**: CloudNativePG PostgreSQL cluster (`nextcloud`) backed by NVMe-oF block storage (`tns-nvmeof-nvme`).
 - **Cache & Locking (`components/valkey`)**: In-memory Redis-compatible Valkey service (`nextcloud-valkey`) on port `6379`.

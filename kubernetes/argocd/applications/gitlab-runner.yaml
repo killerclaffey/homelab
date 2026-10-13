@@ -4,7 +4,7 @@ metadata:
   name: gitlab-runner
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '3'
+    argocd.argoproj.io/sync-wave: "3"
   labels:
     app.kubernetes.io/instance: argocd
 spec:
@@ -34,7 +34,7 @@ spec:
               environment = ["HOME=/tmp"]
               [runners.kubernetes]
                 namespace = "gitlab-runner"
-                image = "alpine:3.23.5"
+                image = "registry.access.redhat.com/ubi9/ubi-minimal:latest"
                 privileged = false
         securityContext:
           runAsUser: null
@@ -46,7 +46,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - SkipDryRunOnMissingResource=true
-    - RespectIgnoreDifferences=true
-    - ServerSideApply=true
-    - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+      - CreateNamespace=true

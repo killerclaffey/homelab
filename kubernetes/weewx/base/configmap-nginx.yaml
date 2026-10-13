@@ -8,17 +8,12 @@ metadata:
   namespace: weewx
 data:
   default.conf: |
-    server {
-        listen       8080;
-        server_name  _;
+    location / {
+        root   /data/public_html;
+        index  index.html index.htm;
+    }
 
-        location / {
-            root   /data/public_html;
-            index  index.html index.htm;
-        }
-
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   /data/public_html;
-        }
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /data/public_html;
     }

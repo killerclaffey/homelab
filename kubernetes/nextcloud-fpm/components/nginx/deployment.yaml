@@ -41,8 +41,8 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: nginx
-          # renovate: datasource=docker depName=docker.io/nginxinc/nginx-unprivileged
-          image: docker.io/nginxinc/nginx-unprivileged:1.31-alpine@sha256:884e0b7f42f303641b0f4e78755aea647521dca0b89ca3be7992ad78b5c07434
+          # renovate: datasource=docker depName=registry.access.redhat.com/ubi9/nginx-124
+          image: registry.access.redhat.com/ubi9/nginx-124:latest@sha256:c3b28453a1b3d2fb5ee19ce6e7b832fd2c6138e3eb2239ca31d9773c31cc009e
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -80,6 +80,8 @@ spec:
               mountPath: /tmp
             - name: nginx-cache
               mountPath: /var/cache/nginx
+            - name: nginx-logs
+              mountPath: /var/log/nginx
             - name: var-run
               mountPath: /var/run
             - name: nginx-conf
@@ -126,6 +128,9 @@ spec:
           emptyDir:
             sizeLimit: 1Gi
         - name: nginx-cache
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx-logs
           emptyDir:
             sizeLimit: 1Gi
         - name: var-run
