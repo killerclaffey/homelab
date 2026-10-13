@@ -46,6 +46,8 @@ spec:
               name: weewx-data
         - name: web
           image: registry.access.redhat.com/ubi9/nginx-124:latest
+          command:
+            - /usr/libexec/s2i/run
           imagePullPolicy: Always
           env:
             - name: TZ
