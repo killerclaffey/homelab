@@ -13,6 +13,7 @@ spec:
     protocol: TCP
     targetPort: 5432
   selector:
-    app: postgres
+    cnpg.io/cluster: bikely-db
+    role: primary
   sessionAffinity: None
   type: ClusterIP

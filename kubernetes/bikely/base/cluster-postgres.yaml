@@ -1,0 +1,63 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: bikely-db
+  namespace: bikely
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: bikely
+    app.kubernetes.io/name: bikely-db
+spec:
+  enablePDB: false
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: "ghcr.io/cloudnative-pg/postgresql:18.3-system-trixie@sha256:006b7801eacd9706d6fb557520a414a7d938e4e71333da98695f6f03b20e4cee"
+  instances: 1
+  imagePullPolicy: IfNotPresent
+  logLevel: info
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  postgresUID: 26
+  postgresGID: 999
+  bootstrap:
+    initdb:
+      database: fitness_app
+      owner: fitness_user
+      secret:
+        name: bikely-db-owner
+      postInitSQL:
+        - GRANT ALL ON SCHEMA public TO fitness_user;
+  enableSuperuserAccess: false
+  monitoring:
+    enablePodMonitor: false
+  storage:
+    storageClass: tns-nvmeof-nvme
+    size: 20Gi
+  walStorage:
+    storageClass: tns-nvmeof-nvme
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  seccompProfile:
+    type: RuntimeDefault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bikely-cnpg-scc
+  labels:
+    app.kubernetes.io/instance: bikely
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnpg-postgres-scc-use
+subjects:
+  - kind: ServiceAccount
+    name: bikely-db
+    namespace: bikely

@@ -7,7 +7,6 @@ resources:
   - deployment-bikely-frontend-yaml
   - deployment-bikely-upload-service-yaml
   - cluster-postgres.yaml
-  - secret-bikely-db-owner-yaml
   - namespace.yaml
   - cronjob-postgres-backup-yaml
   - pvc-postgres-backup-pvc-yaml
