@@ -42,13 +42,19 @@ spec:
                     secretKeyRef:
                       name: renovate-credentials
                       key: GITHUB_TOKEN
+                # GPG private key for signed commits
+                - name: RENOVATE_GIT_PRIVATE_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: renovate-credentials
+                      key: GIT_PRIVATE_KEY
                 # Repos to manage (GitLab project path)
                 - name: RENOVATE_REPOSITORIES
                   value: '["rclaffey/homelab"]'
                 - name: LOG_LEVEL
                   value: info
                 - name: RENOVATE_GIT_AUTHOR
-                  value: "Renovate Bot <renovate@claffey.cloud>"
+                  value: "Renovate Bot <project_11_bot_4abbd1f2c9ae224f4b72294b882553c2@noreply.gitlab.apps.okd.claffey.cloud>"
                 - name: NODE_OPTIONS
                   value: "--max-old-space-size=1536"
                 # Persist cache directory
