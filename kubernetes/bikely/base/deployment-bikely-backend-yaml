@@ -79,7 +79,7 @@ spec:
               key: STRAVA_REDIRECT_URI
               name: bikely-config
         image: image-registry.openshift-image-registry.svc:5000/bikely/backend:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
           httpGet:
