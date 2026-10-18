@@ -26,7 +26,7 @@ spec:
       - env:
         - name: VITE_API_URL
           value: https://devbikely.claffey.cloud/api
-        image: image-registry.openshift-image-registry.svc:5000/bikely-dev/fitness-app-frontend:v9
+        image: image-registry.openshift-image-registry.svc:5000/bikely-dev/fitness-app-frontend:v10
         imagePullPolicy: IfNotPresent
         name: frontend
         ports:
