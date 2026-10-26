@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: bikely-tileserver
+  name: bikely-tileserver
+  namespace: bikely-dev
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: bikely-tileserver
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: bikely-tileserver
+    spec:
+      containers:
+        - name: tileserver
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: tileserver-config
+              subPath: nginx.conf
+            - mountPath: /var/cache/nginx
+              name: tiles-data
+            - mountPath: /var/run
+              name: nginx-run
+            - mountPath: /var/log/nginx
+              name: nginx-logs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: tileserver-config
+          name: tileserver-config
+        - name: tiles-data
+          persistentVolumeClaim:
+            claimName: bikely-tiles-pvc
+        - emptyDir: {}
+          name: nginx-run
+        - emptyDir: {}
+          name: nginx-logs
