@@ -181,7 +181,7 @@ services:
       - 568
     healthcheck:
       disable: true
-    image: ixsystems/container-utils:1.0.2
+    image: ixsystems/container-utils:1.1.2
     network_mode: none
     platform: linux/amd64
     privileged: false
