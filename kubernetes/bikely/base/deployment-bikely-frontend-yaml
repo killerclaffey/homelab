@@ -28,7 +28,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: '2026-01-05T16:01:31-05:00'
+        kubectl.kubernetes.io/restartedAt: '2026-10-26T22:28:00-04:00'
       labels:
         app: bikely-frontend
         app.kubernetes.io/managed-by: kustomize
@@ -40,7 +40,7 @@ spec:
       - env:
         - name: VITE_API_URL
           value: /api
-        image: image-registry.openshift-image-registry.svc:5000/bikely/frontend:v15
+        image: image-registry.openshift-image-registry.svc:5000/bikely/frontend:v16
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
