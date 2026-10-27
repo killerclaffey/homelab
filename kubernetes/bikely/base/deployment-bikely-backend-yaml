@@ -28,7 +28,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: '2026-10-26T20:47:00-04:00'
+        kubectl.kubernetes.io/restartedAt: '2026-10-26T21:34:00-04:00'
       labels:
         app: bikely-backend
         app.kubernetes.io/managed-by: kustomize
