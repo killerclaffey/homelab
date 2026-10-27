@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: bikely-tileserver
+  name: tileserver-config
+  namespace: bikely
+data:
+  nginx.conf: |
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+
+        # Persistent NVMe-backed tile cache on bikely-tiles-pvc
+        proxy_cache_path /var/cache/nginx/tiles levels=1:2 keys_zone=bikely_tiles:32m max_size=8g inactive=30d use_temp_path=off;
+
+        upstream cyclosm_upstream {
+            server a.tile-cyclosm.openstreetmap.fr:443;
+            server b.tile-cyclosm.openstreetmap.fr:443;
+            server c.tile-cyclosm.openstreetmap.fr:443;
+            keepalive 16;
+        }
+
+        server {
+            listen 8080;
+            server_name _;
+
+            location = /health {
+                access_log off;
+                default_type application/json;
+                return 200 '{"status":"ok","mode":"cached-cyclosm"}\n';
+            }
+
+            location ~ ^/styles/(?:dark-matter|osm-bright|positron|cyclosm)/([0-9]+/[0-9]+/[0-9]+\.png)$ {
+                proxy_pass https://cyclosm_upstream/cyclosm/$1;
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_ssl_server_name on;
+                proxy_ssl_name a.tile-cyclosm.openstreetmap.fr;
+                proxy_set_header Host a.tile-cyclosm.openstreetmap.fr;
+                proxy_set_header User-Agent "BikelyTileServer/1.0 (+https://bikely.pro)";
+
+                proxy_cache bikely_tiles;
+                proxy_cache_key "cyclosm:$1";
+                proxy_cache_valid 200 30d;
+                proxy_cache_valid 404 5m;
+                proxy_cache_lock on;
+                proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+
+                expires 7d;
+                add_header Cache-Control "public, max-age=604800" always;
+                add_header X-Tile-Cache $upstream_cache_status always;
+            }
+        }
+    }

@@ -1,44 +1,4 @@
 apiVersion: v1
-data:
-  nginx.conf: "worker_processes auto;\r\nerror_log /var/log/nginx/error.log warn;\r\
-    \npid /var/run/nginx.pid;\r\n\r\nevents {\r\n    worker_connections 1024;\r\n\
-    \    use epoll;\r\n    multi_accept on;\r\n}\r\n\r\nhttp {\r\n    include /etc/nginx/mime.types;\r\
-    \n    default_type application/octet-stream;\r\n\r\n    # Logging\r\n    log_format\
-    \ main '$remote_addr - $remote_user [$time_local] \"$request\" '\r\n         \
-    \           '$status $body_bytes_sent \"$http_referer\" '\r\n                \
-    \    '\"$http_user_agent\" \"$http_x_forwarded_for\"';\r\n    access_log /var/log/nginx/access.log\
-    \ main;\r\n\r\n    # Performance\r\n    sendfile on;\r\n    tcp_nopush on;\r\n\
-    \    tcp_nodelay on;\r\n    keepalive_timeout 65;\r\n    types_hash_max_size 2048;\r\
-    \n\r\n    # Gzip compression\r\n    gzip on;\r\n    gzip_vary on;\r\n    gzip_min_length\
-    \ 1024;\r\n    gzip_proxied any;\r\n    gzip_comp_level 6;\r\n    gzip_types\r\
-    \n        application/atom+xml\r\n        application/javascript\r\n        application/json\r\
-    \n        application/ld+json\r\n        application/manifest+json\r\n       \
-    \ application/rss+xml\r\n        application/vnd.geo+json\r\n        application/vnd.ms-fontobject\r\
-    \n        application/x-font-ttf\r\n        application/x-web-app-manifest+json\r\
-    \n        application/xhtml+xml\r\n        application/xml\r\n        font/opentype\r\
-    \n        image/bmp\r\n        image/svg+xml\r\n        image/x-icon\r\n     \
-    \   text/cache-manifest\r\n        text/css\r\n        text/plain\r\n        text/vcard\r\
-    \n        text/vnd.rim.location.xloc\r\n        text/vtt\r\n        text/x-component\r\
-    \n        text/x-cross-domain-policy;\r\n\r\n    server {\r\n        listen 3000;\r\
-    \n        server_name localhost;\r\n        root /usr/share/nginx/html;\r\n  \
-    \      index index.html index.htm;\r\n\r\n        # Security headers\r\n     \
-    \   add_header X-Frame-Options \"SAMEORIGIN\" always;\r\n        add_header X-Content-Type-Options\
-    \ \"nosniff\" always;\r\n        add_header X-XSS-Protection \"1; mode=block\"\
-    \ always;\r\n\r\n        # API proxy to backend\r\n        location /api {\r\n\
-    \            proxy_pass http://bikely-backend-service:4000;\r\n            proxy_http_version\
-    \ 1.1;\r\n            proxy_set_header Upgrade $http_upgrade;\r\n            proxy_set_header\
-    \ Connection 'upgrade';\r\n            proxy_set_header Host $host;\r\n      \
-    \      proxy_set_header X-Real-IP $remote_addr;\r\n            proxy_set_header\
-    \ X-Forwarded-For $proxy_add_x_forwarded_for;\r\n            proxy_set_header\
-    \ X-Forwarded-Proto $scheme;\r\n            proxy_cache_bypass $http_upgrade;\r\
-    \n        }\r\n\r\n        # Handle client-side routing\r\n        location /\
-    \ {\r\n            try_files $uri $uri/ /index.html;\r\n        }\r\n\r\n    \
-    \    # Cache static assets\r\n        location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg)$\
-    \ {\r\n            expires 1y;\r\n            add_header Cache-Control \"public,\
-    \ immutable\";\r\n        }\r\n\r\n        # Health check endpoint\r\n       \
-    \ location /health {\r\n            access_log off;\r\n            return 200\
-    \ \"healthy\\n\";\r\n            add_header Content-Type text/plain;\r\n     \
-    \   }\r\n    }\r\n}"
 kind: ConfigMap
 metadata:
   labels:
@@ -48,3 +8,119 @@ metadata:
     environment: production
   name: nginx-config
   namespace: bikely
+data:
+  nginx.conf: |
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+
+    events {
+        worker_connections 1024;
+        use epoll;
+        multi_accept on;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        # Logging
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+        access_log /var/log/nginx/access.log main;
+
+        # Performance
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_types
+            application/atom+xml
+            application/javascript
+            application/json
+            application/ld+json
+            application/manifest+json
+            application/rss+xml
+            application/vnd.geo+json
+            application/vnd.ms-fontobject
+            application/x-font-ttf
+            application/x-web-app-manifest+json
+            application/xhtml+xml
+            application/xml
+            font/opentype
+            image/bmp
+            image/svg+xml
+            image/x-icon
+            text/cache-manifest
+            text/css
+            text/plain
+            text/vcard
+            text/vnd.rim.location.xloc
+            text/vtt
+            text/x-component
+            text/x-cross-domain-policy;
+
+        server {
+            listen 3000;
+            server_name localhost;
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+
+            # Security headers
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+
+            # API proxy to backend
+            location /api {
+                proxy_pass http://bikely-backend-service.bikely:4000;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_cache_bypass $http_upgrade;
+            }
+
+            # Self-hosted tile server proxy
+            location ^~ /tiles/ {
+                proxy_pass http://bikely-tileserver-service.bikely:8080/;
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                expires 7d;
+                add_header Cache-Control "public, max-age=604800";
+            }
+
+            # Handle client-side routing
+            location / {
+                try_files $uri $uri/ /index.html;
+            }
+
+            # Cache static assets
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+
+            # Health check endpoint
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+        }
+    }
