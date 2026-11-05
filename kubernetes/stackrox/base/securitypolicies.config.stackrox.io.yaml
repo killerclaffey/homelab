@@ -81,6 +81,22 @@ spec:
                   - FAIL_DEPLOYMENT_UPDATE_ENFORCEMENT
                   type: string
                 type: array
+              evaluationFilter:
+                description: EvaluationFilter pre-filters which entities the policy
+                  evaluates.
+                properties:
+                  skipContainerTypes:
+                    description: SkipContainerTypes lists container kinds to skip
+                      during evaluation.
+                    items:
+                      description: ContainerType lists container kinds a policy may
+                        skip during evaluation.
+                      enum:
+                      - REGULAR
+                      - INIT
+                      type: string
+                    type: array
+                type: object
               eventSource:
                 description: EventSource describes which events should trigger execution
                   of this policy
@@ -88,6 +104,7 @@ spec:
                 - NOT_APPLICABLE
                 - DEPLOYMENT_EVENT
                 - AUDIT_LOG_EVENT
+                - NODE_EVENT
                 type: string
               exclusions:
                 description: Exclusions define deployments or images that should be
