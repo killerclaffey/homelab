@@ -1,6 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+- clusterrole-gitlab-manager-role.yaml
 - deployment-gitlab-controller-manager-yaml
 - namespace.yaml
 - pvc-data-gitlab-postgresql-0-yaml

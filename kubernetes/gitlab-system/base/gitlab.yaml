@@ -1,6 +1,8 @@
 apiVersion: apps.gitlab.com/v1beta1
 kind: GitLab
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
   name: gitlab
   namespace: gitlab-system
 spec:
@@ -82,4 +84,4 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
-    version: 9.9.1
+    version: 9.11.4
