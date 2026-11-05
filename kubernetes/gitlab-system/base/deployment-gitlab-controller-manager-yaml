@@ -1,6 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   labels:
     control-plane: controller-manager
   name: gitlab-controller-manager
@@ -47,7 +49,7 @@ spec:
           value: gitlab-nginx-ingress
         - name: PROMETHEUS_SERVICE_ACCOUNT
           value: gitlab-prometheus-server
-        image: registry.gitlab.com/gitlab-org/cloud-native/gitlab-operator:2.9.1
+        image: registry.gitlab.com/gitlab-org/cloud-native/gitlab-operator:2.11.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
