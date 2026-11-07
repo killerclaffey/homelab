@@ -27,6 +27,21 @@ spec:
             enabled: true
           # No NFD on this cluster; every node has a GPU, so run everywhere.
           node_selector_enabled: false
+          # Device plugin container: spc_t lets it connect to kubelet.sock
+          # (SELinux denies container_t). SCC: hostmount-anyuid-v2.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            seLinuxOptions:
+              type: spc_t
+          # Labeller must open /dev/dri/card* + /dev/kfd. SCC: privileged.
+          lbl:
+            securityContext:
+              privileged: true
+              # chart default is false, which is invalid alongside privileged
+              allowPrivilegeEscalation: true
     # Namespace (PSA privileged) + SCC RoleBinding for the chart's pods
     - repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
       targetRevision: HEAD

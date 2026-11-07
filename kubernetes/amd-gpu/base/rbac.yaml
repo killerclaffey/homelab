@@ -1,22 +1,37 @@
-# The amd-gpu Helm chart is not OpenShift-aware. Both DaemonSets need hostPath
-# volumes and run as root, so grant hostmount-anyuid (hostPath + RunAsAny UID,
-# but still non-privileged with the default container_t SELinux type).
+# The amd-gpu Helm chart is not OpenShift-aware; grant SCCs to its pods.
 #
-# - default:                     used by the device-plugin DaemonSet (chart sets no SA)
-# - amd-gpu-node-labeller-sa:    created by the chart for the labeller DaemonSet
+# Device plugin (uses the "default" SA — chart sets no serviceAccountName):
+#   needs hostPath (/sys, /var/lib/kubelet/device-plugins) and must connect to
+#   kubelet.sock, which SELinux denies for container_t. The chart values set
+#   seLinuxOptions.type=spc_t, which requires an SCC with seLinuxContext
+#   RunAsAny -> hostmount-anyuid-v2 (still non-privileged, all caps dropped).
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: amd-gpu-scc-hostmount-anyuid
+  name: amd-gpu-scc-hostmount-anyuid-v2
   namespace: amd-gpu
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: system:openshift:scc:hostmount-anyuid
+  name: system:openshift:scc:hostmount-anyuid-v2
 subjects:
   - kind: ServiceAccount
     name: default
     namespace: amd-gpu
+---
+# Node labeller (amd-gpu-node-labeller-sa, created by the chart):
+#   opens /dev/kfd and /dev/dri/card* via libdrm. A hostPath-mounted /dev is
+#   blocked by the device cgroup unless the container is privileged.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: amd-gpu-scc-privileged
+  namespace: amd-gpu
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
   - kind: ServiceAccount
     name: amd-gpu-node-labeller-sa
     namespace: amd-gpu
