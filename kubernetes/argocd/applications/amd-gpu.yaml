@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: amd-gpu
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: argocd
+spec:
+  destination:
+    namespace: amd-gpu
+    server: https://kubernetes.default.svc
+  project: default
+  sources:
+    # ROCm/k8s-device-plugin — advertises amd.com/gpu on nodes with /dev/kfd.
+    # All nodes (k81-k84) have an AMD iGPU (PCI 1002:1900) with the in-tree
+    # amdgpu kernel driver, so no AMD GPU Operator / driver install is needed.
+    - repoURL: https://rocm.github.io/k8s-device-plugin
+      chart: amd-gpu
+      targetRevision: 0.22.0
+      helm:
+        values: |
+          # Labels nodes with amd.com/gpu.{family,device-id,vram,cu-count,...}
+          labeller:
+            enabled: true
+          # No NFD on this cluster; every node has a GPU, so run everywhere.
+          node_selector_enabled: false
+    # Namespace (PSA privileged) + SCC RoleBinding for the chart's pods
+    - repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
+      targetRevision: HEAD
+      path: kubernetes/amd-gpu/overlays/okd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - RespectIgnoreDifferences=true
+    - ServerSideApply=true
+    - CreateNamespace=true

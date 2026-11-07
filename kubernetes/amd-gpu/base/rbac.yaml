@@ -1,0 +1,22 @@
+# The amd-gpu Helm chart is not OpenShift-aware. Both DaemonSets need hostPath
+# volumes and run as root, so grant hostmount-anyuid (hostPath + RunAsAny UID,
+# but still non-privileged with the default container_t SELinux type).
+#
+# - default:                     used by the device-plugin DaemonSet (chart sets no SA)
+# - amd-gpu-node-labeller-sa:    created by the chart for the labeller DaemonSet
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: amd-gpu-scc-hostmount-anyuid
+  namespace: amd-gpu
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:hostmount-anyuid
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: amd-gpu
+  - kind: ServiceAccount
+    name: amd-gpu-node-labeller-sa
+    namespace: amd-gpu

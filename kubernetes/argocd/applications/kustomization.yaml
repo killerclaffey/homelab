@@ -31,3 +31,4 @@ resources:
   - 9router.yaml
   - nextcloud-fpm.yaml
   - tailscale.yaml
+  - amd-gpu.yaml
