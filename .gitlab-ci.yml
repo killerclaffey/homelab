@@ -1,6 +1,24 @@
 stages:
   - test
 
+# Sets $BASE, the commit to diff HEAD against:
+# - MR pipelines:   the MR diff base (merge-base with the target branch)
+# - main pushes:    the branch tip before this push, so multi-commit pushes are
+#                   fully covered. Falls back to HEAD~1 when GitLab has no
+#                   "before" SHA (manual/scheduled runs) or it is no longer in
+#                   history (force-push).
+.diff-base: &diff-base |
+  if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+    BASE="$CI_MERGE_REQUEST_DIFF_BASE_SHA"
+  else
+    BASE="$CI_COMMIT_BEFORE_SHA"
+    if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] \
+       || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+      BASE="$(git rev-parse HEAD~1)"
+    fi
+  fi
+  echo "Diff base: $BASE"
+
 gitleaks:
   stage: test
   image:
@@ -8,13 +26,10 @@ gitleaks:
     entrypoint: [""]
   variables:
     GIT_DEPTH: 0
+  before_script:
+    - *diff-base
   script:
-    - |
-      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
-        gitleaks detect --source . --verbose --redact --log-opts="$CI_MERGE_REQUEST_DIFF_BASE_SHA..HEAD"
-      else
-        gitleaks detect --source . --verbose --redact --log-opts="HEAD~1..HEAD"
-      fi
+    - gitleaks detect --source . --verbose --redact --log-opts="$BASE..HEAD"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -27,8 +42,18 @@ gitops-ci:
   variables:
     GIT_DEPTH: 0
     GITLAB_HOST: "${CI_SERVER_HOST}"
+  before_script:
+    - *diff-base
   script:
-    - k8s-gitops-ci pipeline --assume-openshift --comment
+    # Without an explicit --target-branch the tool diffs against origin/main,
+    # which on a push to main is HEAD itself -> "files to validate: 0".
+    # In MRs, --url/--pr provide the context --comment needs to post results
+    # (authenticated via the GITLAB_TOKEN CI/CD variable).
+    - |
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        set -- --comment --forge gitlab --url "$CI_PROJECT_URL" --pr "$CI_MERGE_REQUEST_IID"
+      fi
+      k8s-gitops-ci pipeline --assume-openshift --target-branch "$BASE" "$@"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
