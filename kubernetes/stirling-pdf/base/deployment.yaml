@@ -21,9 +21,14 @@ spec:
         app.kubernetes.io/instance: stirling-pdf
         app.kubernetes.io/name: stirling-pdf
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
       containers:
         - name: stirling-pdf
-          image: docker.io/stirlingtools/stirling-pdf:3.1.0
+          image: docker.io/stirlingtools/stirling-pdf:3.1.0@sha256:0b33f7ed24912de5b65b90ada2b1b42e2abc24f2029f8692adc944a148522f74
           command: ["/bin/bash", "/custom/stirling-init.sh"]
           imagePullPolicy: Always
           ports:
@@ -39,11 +44,20 @@ spec:
               value: "true"
             - name: UI_APPNAME
               value: "Stirling PDF"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 1536Mi
+            limits:
+              cpu: 1000m
+              memory: 3072Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
@@ -52,21 +66,21 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             tcpSocket:
-              port: 8080
+              port: http
             timeoutSeconds: 1
           readinessProbe:
             failureThreshold: 3
             periodSeconds: 10
             successThreshold: 1
             tcpSocket:
-              port: 8080
+              port: http
             timeoutSeconds: 1
           startupProbe:
             failureThreshold: 30
             periodSeconds: 5
             successThreshold: 1
             tcpSocket:
-              port: 8080
+              port: http
             timeoutSeconds: 1
           volumeMounts:
             - mountPath: /configs
@@ -100,5 +114,5 @@ spec:
           emptyDir: {}
         - name: init-script
           configMap:
+            defaultMode: 0777
             name: stirling-pdf-init
-            defaultMode: 0755
