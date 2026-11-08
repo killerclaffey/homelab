@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/name: renovate
     app.kubernetes.io/instance: renovate
 spec:
-  suspend: false            # explicit so ArgoCD (SSA) owns this field and reverts manual patches
-  schedule: "30 22 * * *"   # runs daily at 10:30 PM America/New_York
+  suspend: false # explicit so ArgoCD (SSA) owns this field and reverts manual patches
+  schedule: "30 22 * * *" # runs daily at 10:30 PM America/New_York
   timeZone: America/New_York
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
@@ -20,10 +20,14 @@ spec:
       backoffLimit: 2
       template:
         spec:
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          dnsPolicy: ClusterFirst
           restartPolicy: Never
+          schedulerName: default-scheduler
           containers:
             - name: renovate
-              image: ghcr.io/renovatebot/renovate:44
+              image: ghcr.io/renovatebot/renovate:44@sha256:0d4a5af4e1d73308ddcba85928258444443bbd1ee5416978ecfe1465e41fc688
               imagePullPolicy: IfNotPresent
               env:
                 # GitLab self-hosted (primary)
@@ -72,6 +76,8 @@ spec:
                 capabilities:
                   drop:
                     - ALL
+                privileged: false
+                readOnlyRootFilesystem: false
                 runAsNonRoot: true
                 seccompProfile:
                   type: RuntimeDefault
