@@ -59,7 +59,7 @@ spec:
             value: "2"
       initContainers:
         - name: init-config
-          image: docker.io/library/busybox:1.38
+          image: docker.io/library/busybox:1.38@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
           command:
             - sh
             - -c
@@ -68,8 +68,17 @@ spec:
           volumeMounts:
             - name: homeassistant
               mountPath: /config
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 32Mi
           securityContext:
             allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1001080000
             seccompProfile:
@@ -108,7 +117,9 @@ spec:
               value: "1"
           ports:
             # - hostPort: 8123
-            - containerPort: 8123
+            - name: https
+              containerPort: 8123
+              protocol: TCP
           resources:
             limits:
               cpu: 300m
@@ -133,7 +144,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /manifest.json
-              port: 8123
+              port: https
               scheme: HTTPS
             timeoutSeconds: 1
             periodSeconds: 10
@@ -142,7 +153,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /manifest.json
-              port: 8123
+              port: https
               scheme: HTTPS
             timeoutSeconds: 1
             periodSeconds: 10
@@ -151,7 +162,7 @@ spec:
           startupProbe:
             httpGet:
               path: /manifest.json
-              port: 8123
+              port: https
               scheme: HTTPS
             timeoutSeconds: 1
             periodSeconds: 5
