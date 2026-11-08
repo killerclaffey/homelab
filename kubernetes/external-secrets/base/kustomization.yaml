@@ -4,4 +4,3 @@ resources:
   - namespace.yaml
   - cluster-secret-store.yaml
   - rbac.yaml
-

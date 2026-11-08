@@ -18,4 +18,3 @@ resources:
   - external-secret.yaml
   - central.yaml
   - secured-cluster.yaml
-
