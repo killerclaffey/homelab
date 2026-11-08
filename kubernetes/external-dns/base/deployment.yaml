@@ -15,10 +15,20 @@ spec:
       labels:
         app: external-dns
     spec:
+      automountServiceAccountToken: true
+      enableServiceLinks: false
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: external-dns
       containers:
         - name: external-dns
-          image: registry.k8s.io/external-dns/external-dns:v0.24.0
+          image: registry.k8s.io/external-dns/external-dns:v0.24.0@sha256:88bb90d44d3fd81b4fc5fcff4bada0dcef327539ee150f257f06be86f2086656
+          imagePullPolicy: IfNotPresent
           args:
             - --log-level=info
             - --log-format=text
@@ -38,3 +48,20 @@ spec:
                 secretKeyRef:
                   name: cloudflare-api-token
                   key: token
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
