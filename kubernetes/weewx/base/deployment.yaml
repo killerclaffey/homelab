@@ -21,6 +21,11 @@ spec:
         app.kubernetes.io/instance: weewx
         app.kubernetes.io/name: weewx
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
         fsGroupChangePolicy: "OnRootMismatch"
@@ -28,24 +33,35 @@ spec:
           type: RuntimeDefault
       containers:
         - name: weewx
-          image: ghcr.io/felddy/weewx:5.5.6
+          image: ghcr.io/felddy/weewx:5.5.6@sha256:41a0c4e6b3eb68477a37a1f9846ffe778661b05bcbba3eddb33b2a5beb28c246
           imagePullPolicy: Always
           env:
             - name: TIMEZONE
               value: "America/Detroit"
             - name: TZ
               value: "America/Detroit"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
             runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
           volumeMounts:
             - mountPath: /data
               name: weewx-data
         - name: web
-          image: registry.access.redhat.com/ubi9/nginx-124:latest
+          image: registry.access.redhat.com/ubi9/nginx-124:latest@sha256:12e17d275515787129650a5f37f13fd5d0d284595a14b94dcbc44fecec480ee2
           command:
             - /usr/libexec/s2i/run
           imagePullPolicy: Always
@@ -56,32 +72,43 @@ spec:
             - containerPort: 8080
               name: http
               protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
             runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
           livenessProbe:
             failureThreshold: 3
             periodSeconds: 10
             successThreshold: 1
             tcpSocket:
-              port: 8080
+              port: http
             timeoutSeconds: 1
           readinessProbe:
             failureThreshold: 3
             periodSeconds: 10
             successThreshold: 1
             tcpSocket:
-              port: 8080
+              port: http
             timeoutSeconds: 1
           startupProbe:
             failureThreshold: 30
             periodSeconds: 5
             successThreshold: 1
             tcpSocket:
-              port: 8080
+              port: http
             timeoutSeconds: 1
           volumeMounts:
             - mountPath: /data
@@ -93,6 +120,7 @@ spec:
         - name: weewx-data
           persistentVolumeClaim:
             claimName: weewx-data
-        - name: nginx-config
-          configMap:
+        - configMap:
+            defaultMode: 420
             name: weewx-nginx-config
+          name: nginx-config
