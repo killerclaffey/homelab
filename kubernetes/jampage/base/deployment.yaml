@@ -15,9 +15,14 @@ spec:
       labels:
         app: jampage
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
       initContainers:
         - name: init-config
-          image: ghcr.io/gethomepage/homepage:v2.7.0
+          image: ghcr.io/gethomepage/homepage:v2.7.0@sha256:19c5c09184458a41b7b5915e71463a39f36cd33540f41bdbed008791b8182d5f
           command:
             - /bin/sh
             - -c
@@ -33,6 +38,23 @@ spec:
               cp /app/config-templates/settings/settings.yaml /app/config/
               mkdir -p /app/config/logs
               echo "Init complete."
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
           volumeMounts:
             - name: writable-next
               mountPath: /writable-next
@@ -48,7 +70,17 @@ spec:
               mountPath: /app/config-templates/settings
       containers:
         - name: jampage
-          image: ghcr.io/gethomepage/homepage:v2.7.0
+          image: ghcr.io/gethomepage/homepage:v2.7.0@sha256:19c5c09184458a41b7b5915e71463a39f36cd33540f41bdbed008791b8182d5f
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
           ports:
             - containerPort: 3000
               name: http
