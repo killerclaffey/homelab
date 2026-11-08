@@ -56,7 +56,8 @@ spec:
             runAsUser: 1001080000 # Custom OKD UID
           ports:
             # - hostPort: 8095
-            - containerPort: 8095
+            - name: http
+              containerPort: 8095
               protocol: TCP
           resources:
             limits:
@@ -71,7 +72,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 8095
+              port: http
               scheme: HTTP
             timeoutSeconds: 1
             periodSeconds: 10
@@ -80,7 +81,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8095
+              port: http
               scheme: HTTP
             timeoutSeconds: 1
             periodSeconds: 10
@@ -89,7 +90,7 @@ spec:
           startupProbe:
             httpGet:
               path: /
-              port: 8095
+              port: http
               scheme: HTTP
             timeoutSeconds: 1
             periodSeconds: 5
