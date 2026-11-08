@@ -18,13 +18,18 @@ spec:
         app.kubernetes.io/name: tailscale
     spec:
       serviceAccountName: tailscale
+      automountServiceAccountToken: true
+      enableServiceLinks: false
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: tailscale
-          image: docker.io/tailscale/tailscale:stable
+          image: docker.io/tailscale/tailscale:stable@sha256:5244f014aa3ad6b80db621ce161989d3cfc2a03c16024525e72d1b40a7a5dd2e
           imagePullPolicy: IfNotPresent
           env:
             - name: HOME
@@ -51,6 +56,13 @@ spec:
                   name: tailscale-auth
                   key: TS_AUTHKEY
                   optional: true
+          ports:
+            - name: socks5
+              containerPort: 1055
+              protocol: TCP
+            - name: http-proxy
+              containerPort: 1080
+              protocol: TCP
           resources:
             requests:
               cpu: 25m
