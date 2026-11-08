@@ -49,8 +49,12 @@ gitops-ci:
     # which on a push to main is HEAD itself -> "files to validate: 0".
     # In MRs, --url/--pr provide the context --comment needs to post results
     # (authenticated via the GITLAB_TOKEN CI/CD variable).
+    # With --url the tool re-clones the repo but supplies no credentials, and
+    # this project is private, so authenticate git with the job token. The
+    # helper reads $CI_JOB_TOKEN at runtime; the token is never written to disk.
     - |
       if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        git config --global credential.helper '!f() { echo username=gitlab-ci-token; echo "password=${CI_JOB_TOKEN}"; }; f'
         set -- --comment --forge gitlab --url "$CI_PROJECT_URL" --pr "$CI_MERGE_REQUEST_IID"
       fi
       k8s-gitops-ci pipeline --assume-openshift --target-branch "$BASE" "$@"
