@@ -4,7 +4,7 @@ metadata:
   name: bikely-dev
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '2'
+    argocd.argoproj.io/sync-wave: "2"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     app.kubernetes.io/instance: argocd
@@ -22,9 +22,9 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - RespectIgnoreDifferences=true
-    - ServerSideApply=true
-    - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+      - CreateNamespace=true
   ignoreDifferences:
     - group: apps
       kind: Deployment

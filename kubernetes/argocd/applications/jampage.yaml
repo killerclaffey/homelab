@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   project: default
   source:
@@ -19,7 +20,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - SkipDryRunOnMissingResource=true
-    - RespectIgnoreDifferences=true
-    - CreateNamespace=true
-    - ServerSideApply=true
+      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+      - CreateNamespace=true
+      - ServerSideApply=true

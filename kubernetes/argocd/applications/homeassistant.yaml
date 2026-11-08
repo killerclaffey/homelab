@@ -22,6 +22,6 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - RespectIgnoreDifferences=true
-    - ServerSideApply=true
-    - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+      - CreateNamespace=true
