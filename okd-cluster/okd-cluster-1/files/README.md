@@ -5,6 +5,7 @@ This guide walks you through creating ISO files for an OKD cluster with static I
 ## Overview
 
 **Cluster Configuration:**
+
 - Cluster Name: `okd`
 - Base Domain: `claffey.cloud`
 - Network: `10.0.20.0/24`
@@ -12,11 +13,12 @@ This guide walks you through creating ISO files for an OKD cluster with static I
 - DNS Server: `10.0.20.1`
 
 **Node Configuration:**
-| Hostname | IP Address    | Role   | MAC Address Required |
-|----------|---------------|--------|---------------------|
-| k81      | 10.0.20.100   | Master | Yes                 |
-| k82      | 10.0.20.101   | Master | Yes                 |
-| k83      | 10.0.20.102   | Master | Yes                 |
+
+| Hostname | IP Address  | Role   | MAC Address Required |
+| -------- | ----------- | ------ | -------------------- |
+| k81      | 10.0.20.100 | Master | Yes                  |
+| k82      | 10.0.20.101 | Master | Yes                  |
+| k83      | 10.0.20.102 | Master | Yes                  |
 
 ## Prerequisites
 
@@ -34,6 +36,7 @@ sudo mv openshift-install /usr/local/bin/
 ### 2. Gather Required Information
 
 #### A. MAC Addresses
+
 Get MAC addresses for each node's primary network interface:
 
 ```bash
@@ -46,6 +49,7 @@ ip link show
 ```
 
 #### B. SSH Key
+
 Generate an SSH key if you don't have one:
 
 ```bash
@@ -54,6 +58,7 @@ cat ~/.ssh/id_rsa.pub
 ```
 
 #### C. Network Interface Name
+
 Verify the network interface name (commonly `enp1s0`, `ens3`, `eth0`, etc.):
 
 ```bash
@@ -99,6 +104,7 @@ nslookup 10.0.20.100
 ### 1. install-config.yaml
 
 Update the following fields:
+
 - `sshKey`: Your SSH public key
 
 ```yaml
@@ -128,12 +134,14 @@ sshKey: 'YOUR_SSH_PUBLIC_KEY_HERE'
 ### 2. agent-config.yaml
 
 Update the following fields:
+
 - `macAddress`: MAC address for each node
 - `interfaces[].name`: Network interface name (if different from `enp1s0`)
 - `dns-resolver.config.server`: DNS server IP (if different)
 - `routes.config.next-hop-address`: Gateway IP (if different)
 
 **Key Points:**
+
 - `rendezvousIP`: Must be set to the IP of the first master node (10.0.20.100)
 - Each host must have a unique `hostname`, `macAddress`, and IP address
 - The `networkConfig` section uses NMState format for network configuration
@@ -173,6 +181,7 @@ openshift-install agent create image
 ```
 
 This will create:
+
 - `agent.x86_64.iso` - The bootable ISO for all nodes
 - `auth/kubeconfig` - Cluster access credentials (after installation)
 - `auth/kubeadmin-password` - Admin password (after installation)
@@ -182,6 +191,7 @@ This will create:
 **Important:** Boot the rendezvous host (k81 - 10.0.20.100) first!
 
 1. Copy the ISO to each node or make it available via network boot:
+
    ```bash
    # Using scp
    scp agent.x86_64.iso root@k81:/tmp/
@@ -205,7 +215,8 @@ openshift-install agent wait-for bootstrap-complete --log-level=info
 ```
 
 This typically takes 15-30 minutes. You'll see output like:
-```
+
+```text
 INFO Waiting up to 30m0s for the Kubernetes API at https://api.okd.claffey.cloud:6443...
 INFO API v1.28.0 up
 INFO Waiting up to 30m0s for bootstrapping to complete...
@@ -218,7 +229,8 @@ openshift-install agent wait-for install-complete --log-level=info
 ```
 
 This takes another 30-45 minutes. You'll see:
-```
+
+```text
 INFO Waiting up to 40m0s for the cluster at https://api.okd.claffey.cloud:6443 to initialize...
 INFO Cluster is initialized
 INFO Waiting up to 10m0s for the openshift-console route to be created...
@@ -269,6 +281,7 @@ sudo podman logs assisted-service
 **Symptom:** Only one node appears in the cluster
 
 **Solution:**
+
 - Ensure all nodes are on the same network
 - Check firewall rules allow traffic between nodes
 - Verify DNS resolution from each node
@@ -279,6 +292,7 @@ sudo podman logs assisted-service
 **Symptom:** Node gets DHCP address instead of static IP
 
 **Solution:**
+
 - Verify MAC address matches the physical hardware
 - Check interface name is correct (enp1s0, ens3, etc.)
 - Review agent logs: `sudo journalctl -u agent.service`
@@ -288,6 +302,7 @@ sudo podman logs assisted-service
 **Symptom:** Nodes cannot resolve cluster domains
 
 **Solution:**
+
 - Verify DNS server is accessible from nodes
 - Check DNS records are properly configured
 - Test with: `nslookup api.okd.claffey.cloud 10.0.20.1`
@@ -297,6 +312,7 @@ sudo podman logs assisted-service
 **Symptom:** Installation stops progressing
 
 **Solution:**
+
 ```bash
 # Check cluster operators
 oc get co
@@ -312,16 +328,16 @@ oc logs -n openshift-<operator-name> <pod-name>
 
 Ensure these ports are open between cluster nodes:
 
-| Port      | Protocol | Purpose                  |
-|-----------|----------|--------------------------|
-| 6443      | TCP      | Kubernetes API           |
-| 22623     | TCP      | Machine Config Server    |
-| 2379-2380 | TCP      | etcd                     |
-| 10250     | TCP      | Kubelet                  |
-| 9000-9999 | TCP/UDP  | Host services            |
-| 4789      | UDP      | VXLAN (OVN)             |
-| 6081      | UDP      | Geneve (OVN)            |
-| 30000-32767 | TCP    | NodePort services        |
+| Port        | Protocol | Purpose               |
+| ----------- | -------- | --------------------- |
+| 6443        | TCP      | Kubernetes API        |
+| 22623       | TCP      | Machine Config Server |
+| 2379-2380   | TCP      | etcd                  |
+| 10250       | TCP      | Kubelet               |
+| 9000-9999   | TCP/UDP  | Host services         |
+| 4789        | UDP      | VXLAN (OVN)           |
+| 6081        | UDP      | Geneve (OVN)          |
+| 30000-32767 | TCP      | NodePort services     |
 
 ## Post-Installation
 
@@ -415,5 +431,6 @@ networkConfig:
 ## Support
 
 For issues or questions:
-- OKD Discussion: https://github.com/okd-project/okd/discussions
+
+- OKD Discussion: <https://github.com/okd-project/okd/discussions>
 - Kubernetes Slack: #openshift-users channel

@@ -1,19 +1,73 @@
-# HomeAssistant
+# Home Assistant
 
-```bash
-kubectl kustomize kubernetes/homeassistant/overlays/okd | argocd-vault-plugin generate - | kubectl apply -f -
+Declarative deployment of Home Assistant Core, CloudNativePG PostgreSQL, and Music Assistant on OpenShift/OKD.
+
+---
+
+## Architecture
+
+- **Home Assistant Core (`base/statefulset.yaml`)**: StatefulSet running Home Assistant Core on port `8123`, configured with persistent configuration storage and Prometheus monitoring.
+- **Database (`components/cnpg`)**: High-availability CloudNativePG PostgreSQL cluster (`homeassistant`) dedicated to event recorder history.
+- **Music Assistant (`components/music`)**: StatefulSet providing multi-room audio orchestration (`music-assistant`) on port `8095`.
+- **Ingress (`components/openshift`)**: OpenShift Routes:
+  - `home.apps.okd.claffey.cloud` → Home Assistant Core with `reencrypt` TLS termination (OpenShift service CA).
+  - `music.apps.okd.claffey.cloud` → Music Assistant with `edge` TLS termination.
+- **Security & Network Policies**: Isolated namespace with declarative `NetworkPolicy` resources restricting ingress and pod-to-pod communication.
+- **Backup & Recovery**: Persistent volume data is labeled for scheduled Velero / OADP backup snapshots.
+
+---
+
+## Directory Structure
+
+```text
+kubernetes/homeassistant/
+├── base/                     # Core namespace, StatefulSet, PVCs, Service, and NetworkPolicy
+│   ├── config/               # Declarative Home Assistant configuration files
+│   ├── kustomization.yaml    # Base Kustomization resource definition
+│   ├── limit-range.yaml      # Namespace resource limits
+│   ├── namespace.yaml        # Namespace definition with security labels
+│   ├── network-policy.yaml   # Pod egress/ingress isolation rules
+│   ├── pvc.yaml              # Core configuration volume claim
+│   ├── secret.yaml           # Placeholder / ExternalSecret definitions
+│   ├── service.yaml          # ClusterIP service for Home Assistant
+│   ├── service-account.yaml  # Workload ServiceAccount
+│   ├── service-monitor.yaml  # Prometheus metrics scraping configuration
+│   ├── statefulset.yaml      # Home Assistant Core workload specification
+│   └── velero.yaml           # OADP backup metadata
+├── components/
+│   ├── cnpg/                 # CloudNativePG Cluster, NetworkPolicy, and PodMonitor
+│   ├── music/                # Music Assistant StatefulSet, Service, PVC, and Route
+│   └── openshift/            # OpenShift Routes and SCC/RBAC definitions
+├── overlays/
+│   ├── okd/                  # Production OKD overlay assembling base + components
+│   ├── k3s/                  # Experimental / edge K3s overlay
+│   └── sno/                  # Single Node OpenShift overlay
+└── README.md
 ```
 
-## REF
+---
 
-- <https://blog.paul-steele.com/tech/2018/12/25/homeassistant-kubernetes-zwave-oh-my.html>
-- <https://community.home-assistant.io/t/haha-highly-available-home-assistant/128426>
-- <https://console.cloud.google.com/cloudpubsub/subscription/detail/HomeAssistant?project=tidal-eon-320014&tab=details>
-- <https://console.nest.google.com/device-access/project/573a3683-373e-480f-a125-a94fafc77e86/information>
-- <https://github.com/dseifert/homeassistant2influxdb>
-- <https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_subscription>
-- <https://www.home-assistant.io/integrations/nest/>
-- <https://www.reddit.com/r/homeassistant/comments/im49ud/is_it_possible_to_get_data_from_my_utilitys_meters/>
-- <https://www.reddit.com/r/homeassistant/comments/sq97e7/psa_if_youre_using_octoprint_use_mqtt_instead_of/>
-- <https://www.reddit.com/r/homeassistant/comments/wa1g5x/running_homeassistant_as_nonroot_in_k8s/>
-- <https://github.com/dronenb/HomeLab/blob/main/kubernetes/manifests/home-assistant/statefulset.yaml#L33-L57>
+## Deployment & GitOps
+
+This workload is managed continuously by ArgoCD via [`kubernetes/argocd/applications/homeassistant.yaml`](../argocd/applications/homeassistant.yaml) targeting the `overlays/okd` overlay.
+
+To verify deployment and operational status:
+
+```bash
+# Check pod rollout status
+oc get pods -n homeassistant -l app=homeassistant
+
+# Inspect PostgreSQL cluster health
+oc get cluster -n homeassistant
+
+# Verify active ingress routes
+oc get routes -n homeassistant
+```
+
+---
+
+## References
+
+- [Home Assistant Container Documentation](https://www.home-assistant.io/installation/raspberrypi#install-home-assistant-container)
+- [CloudNativePG Operator Documentation](https://cloudnative-pg.io/documentation/)
+- [Music Assistant Documentation](https://music-assistant.io/)

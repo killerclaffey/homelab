@@ -4,8 +4,8 @@ A production-ready, fully featured container image replication utility designed 
 
 Two identical implementations are provided for compatibility across platforms:
 
-1. 📄 **[Sync-ManifestImagesToRegistry.ps1](file:///C:/Users/rclaf/sync/homelab/scripts/image-replicator/Sync-ManifestImagesToRegistry.ps1)** (PowerShell)
-2. 📄 **[Sync-ManifestImagesToRegistry.sh](file:///C:/Users/rclaf/sync/homelab/scripts/image-replicator/Sync-ManifestImagesToRegistry.sh)** (Bash)
+1. 📄 **[Sync-ManifestImagesToRegistry.ps1](Sync-ManifestImagesToRegistry.ps1)** (PowerShell)
+2. 📄 **[Sync-ManifestImagesToRegistry.sh](Sync-ManifestImagesToRegistry.sh)** (Bash)
 
 Both scripts share identical logic, security validations, and execution safety controls, running completely in-memory without requiring any host-based Skopeo installation.
 

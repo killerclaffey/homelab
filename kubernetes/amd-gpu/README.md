@@ -7,7 +7,7 @@ Deploys the [ROCm k8s-device-plugin](https://github.com/ROCm/k8s-device-plugin) 
 
 ## Hardware
 
-Every node is an HP EliteMini with a Radeon 780M-class iGPU (PCI `1002:1900`, `GC_11_0_1` / gfx1103) on the in-tree `amdgpu` driver. No AMD GPU Operator or out-of-tree driver needed.
+Every node is a Minisforum UM890 Pro with a Radeon 780M-class iGPU (AMD Ryzen 9 8945HS APU, PCI `1002:1900`, `GC_11_0_1` / gfx1103) on the in-tree `amdgpu` driver. No AMD GPU Operator or out-of-tree driver needed.
 
 | Node | System RAM | Dedicated VRAM (BIOS UMA) | GTT (shared) | `amd.com/gpu.vram` label | BIOS |
 | ---- | ---------- | ------------------------- | ------------ | ------------------------ | ---- |

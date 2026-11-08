@@ -1,11 +1,13 @@
 # OKD Cluster Node Configuration
 
 ## Overview
+
 The OKD cluster consists of three Minisforum UM890 mini PCs serving as control plane nodes with worker capabilities. Each node runs Fedora CoreOS (FCOS) and has identical hardware specifications.
 
 ## Hardware Specifications
 
 ### Minisforum UM890 (All Nodes)
+
 - **Processor**: AMD Ryzen 9 8945HS
 - **CPU Cores**: 16 cores per node (48 cores total)
 - **Memory**: 64 GiB DDR5 per node (192 GiB total)
@@ -21,6 +23,7 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 ### K81 - Control Plane Node 1
 
 **Network Configuration:**
+
 - **Hostname**: k81.okd.claffey.cloud
 - **Primary MAC**: 58:47:ca:7c:33:ae
 - **Primary IP**: 10.0.20.100 (VLAN 20 - OKD-Infra)
@@ -29,17 +32,21 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 - **DNS**: 10.0.20.2, 10.0.1.1
 
 **Roles:**
+
 - Control Plane (master)
 - Worker (workloads enabled)
 
 **Cluster Network Allocation:**
+
 - Pod CIDR: 10.128.0.0/23 (example - assigned by OVN)
 
 **DHCP Configuration:**
+
 - Static reservation in Kea DHCP on OPNsense
 - MAC: 58:47:ca:7c:33:ae → IP: 10.0.20.100
 
 **Services Running:**
+
 - Kubernetes API Server
 - etcd
 - Scheduler
@@ -52,6 +59,7 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 ### K82 - Control Plane Node 2
 
 **Network Configuration:**
+
 - **Hostname**: k82.okd.claffey.cloud
 - **Primary MAC**: 58:47:ca:7b:8f:78
 - **Primary IP**: 10.0.20.101 (VLAN 20 - OKD-Infra)
@@ -60,17 +68,21 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 - **DNS**: 10.0.20.2, 10.0.1.1
 
 **Roles:**
+
 - Control Plane (master)
 - Worker (workloads enabled)
 
 **Cluster Network Allocation:**
+
 - Pod CIDR: 10.128.2.0/23 (example - assigned by OVN)
 
 **DHCP Configuration:**
+
 - Static reservation in Kea DHCP on OPNsense
 - MAC: 58:47:ca:7b:8f:78 → IP: 10.0.20.101
 
 **Services Running:**
+
 - Kubernetes API Server
 - etcd
 - Scheduler
@@ -83,6 +95,7 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 ### K83 - Control Plane Node 3
 
 **Network Configuration:**
+
 - **Hostname**: k83.okd.claffey.cloud
 - **Primary MAC**: 58:47:ca:7d:ee:43
 - **Primary IP**: 10.0.20.102 (VLAN 20 - OKD-Infra)
@@ -91,21 +104,21 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 - **DNS**: 10.0.20.2, 10.0.1.1
 
 **Roles:**
-- Control Plane (master)
-- Worker (workloads enabled)
 
-**Roles:**
 - Control Plane (master)
 - Worker (workloads enabled)
 
 **Cluster Network Allocation:**
+
 - Pod CIDR: 10.128.4.0/23 (example - assigned by OVN)
 
 **DHCP Configuration:**
+
 - Static reservation in Kea DHCP on OPNsense
 - MAC: 58:47:ca:7d:ee:43 → IP: 10.0.20.102
 
 **Services Running:**
+
 - Kubernetes API Server
 - etcd
 - Scheduler
@@ -118,6 +131,7 @@ The OKD cluster consists of three Minisforum UM890 mini PCs serving as control p
 ## Network Interface Configuration
 
 ### Primary Interface (OKD-Infra VLAN 20)
+
 All nodes use their primary NIC for cluster communication:
 
 ```yaml
@@ -146,6 +160,7 @@ interfaces:
 ```
 
 ### Secondary Interface (OKD-Storage VLAN 30) - Optional
+
 If using dedicated storage network, configure secondary NIC:
 
 ```yaml
@@ -169,6 +184,7 @@ interfaces:
 ## Storage Configuration
 
 ### Local Storage
+
 Each node has local storage managed by the Local Storage Operator:
 
 - **Total Capacity**: ~545 GB per node
@@ -181,6 +197,7 @@ Each node has local storage managed by the Local Storage Operator:
   - etcd data
 
 ### Network Storage (TrueNAS)
+
 Nodes connect to TrueNAS Scale via VLAN 30 for shared storage:
 
 - **NFS**: For ReadWriteMany (RWX) persistent volumes
@@ -190,13 +207,15 @@ Nodes connect to TrueNAS Scale via VLAN 30 for shared storage:
 ## Operating System
 
 ### Fedora CoreOS (FCOS)
+
 - **Distribution**: Fedora CoreOS (OKD base OS)
 - **Container Runtime**: CRI-O
 - **Init System**: systemd
 - **Updates**: Automatic updates via rpm-ostree and Zincati
 - **Configuration**: Managed via Ignition and Machine Config Operator
 
-### Key FCOS Features:
+### Key FCOS Features
+
 - Immutable OS design
 - Automated atomic updates
 - Rollback capability
@@ -205,6 +224,7 @@ Nodes connect to TrueNAS Scale via VLAN 30 for shared storage:
 ## Cluster Roles
 
 ### Control Plane Responsibilities
+
 All three nodes participate in control plane operations:
 
 1. **etcd Cluster**:
@@ -226,6 +246,7 @@ All three nodes participate in control plane operations:
    - Manages node lifecycle, replication, endpoints
 
 ### Worker Responsibilities
+
 All nodes also run workloads:
 
 - **Kubelet**: Manages pods on the node
@@ -236,6 +257,7 @@ All nodes also run workloads:
 ## Resource Allocation
 
 ### Per-Node Resources
+
 ```yaml
 Node: K81 (example - same for K82, K83)
   Capacity:
@@ -250,6 +272,7 @@ Node: K81 (example - same for K82, K83)
 ```
 
 ### Cluster Totals
+
 - **Total CPU**: 48 cores
 - **Total Memory**: 192 GiB
 - **Total Storage**: 1.63 TB (local)
@@ -257,11 +280,13 @@ Node: K81 (example - same for K82, K83)
 ## High Availability Configuration
 
 ### etcd Quorum
+
 - **Minimum Nodes for Quorum**: 2 out of 3
 - **Can Tolerate**: 1 node failure
 - **Recommended**: Keep all 3 nodes running for best reliability
 
 ### API Load Balancing
+
 - **VIP**: 10.0.20.5
 - **Backend Nodes**: K81:6443, K82:6443, K83:6443
 - **Health Check**: TCP port 6443
@@ -270,6 +295,7 @@ Node: K81 (example - same for K82, K83)
 ## Node Access
 
 ### SSH Access
+
 ```bash
 # Access via core user (FCOS default)
 ssh core@10.0.20.100  # K81
@@ -285,13 +311,16 @@ ssh core@k83.okd.claffey.cloud
 **Note**: SSH authentication should use key-based authentication configured during installation.
 
 ### Console Access
+
 Physical console access available via:
+
 - Direct HDMI connection
 - Serial console (if configured)
 
 ## Node Maintenance
 
 ### Cordoning a Node
+
 Before maintenance, drain workloads:
 
 ```bash
@@ -308,6 +337,7 @@ oc adm uncordon k81
 ```
 
 ### Rebooting a Node
+
 ```bash
 # SSH to the node
 ssh core@10.0.20.100
@@ -317,6 +347,7 @@ sudo systemctl reboot
 ```
 
 ### Checking Node Status
+
 ```bash
 # List all nodes
 oc get nodes
@@ -331,11 +362,13 @@ oc adm top node k81
 ## Monitoring
 
 ### Node Health Checks
+
 - **Node Healthcheck Operator**: Monitors node health and remediates issues
 - **Fence Agents Remediation**: Provides node fencing for unhealthy nodes
 - **Cluster Observability**: Metrics and monitoring for node performance
 
 ### Key Metrics to Monitor
+
 - CPU utilization
 - Memory usage
 - Disk I/O and capacity
@@ -346,6 +379,7 @@ oc adm top node k81
 ## Troubleshooting
 
 ### Node Not Ready
+
 ```bash
 # Check node status
 oc get nodes
@@ -362,6 +396,7 @@ sudo journalctl -u crio -f
 ```
 
 ### Network Issues
+
 ```bash
 # Check OVN pods
 oc get pods -n openshift-ovn-kubernetes
@@ -375,6 +410,7 @@ ping 10.0.20.5  # API VIP
 ```
 
 ### Storage Issues
+
 ```bash
 # Check local storage operator
 oc get pods -n openshift-local-storage
@@ -388,6 +424,7 @@ showmount -e <truenas-ip>
 ```
 
 ### etcd Health
+
 ```bash
 # Check etcd cluster health
 oc get etcd -o=jsonpath='{range .items[0].status.conditions[?(@.type=="EtcdMembersAvailable")]}{.message}{"\n"}{end}'
@@ -400,11 +437,13 @@ etcdctl member list -w table
 ## Backup and Recovery
 
 ### Node Backup
+
 - **Configuration**: Managed by Machine Config Operator (MCP)
 - **etcd Backup**: Regular etcd snapshots via OADP
 - **Local Data**: Not typically backed up (ephemeral)
 
 ### Node Recovery
+
 If a node fails:
 
 1. **Temporary Failure**: Cluster continues with remaining nodes (if quorum maintained)
@@ -414,16 +453,19 @@ If a node fails:
 ## Security
 
 ### Disk Encryption
+
 - **Method**: LUKS full-disk encryption
 - **Key Management**: Tang/Clevis for automatic unlocking (if configured)
 - **Boot**: May require manual unlock if Tang server unavailable
 
 ### Network Security
+
 - **Firewall**: OPNsense controls inter-VLAN access
 - **Network Policies**: Pod-to-pod communication controlled within cluster
 - **TLS**: All cluster communication encrypted
 
 ### Access Control
+
 - **SSH**: Key-based authentication only
 - **Kubernetes RBAC**: Role-based access control for cluster resources
 - **Service Accounts**: Automated access control for pods
@@ -431,12 +473,14 @@ If a node fails:
 ## Node-Specific Notes
 
 ### Power Management
+
 - Configure BIOS for:
   - Auto-restart on power loss
   - Wake-on-LAN (optional)
   - Disable sleep/hibernate
 
 ### BIOS Settings
+
 - **Virtualization**: Enabled (AMD-V/SVM)
 - **IOMMU**: Enabled (for OpenShift Virtualization)
 - **Secure Boot**: Disabled (typically for FCOS)

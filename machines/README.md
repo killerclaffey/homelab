@@ -10,6 +10,7 @@ This directory manages the declarative boot configurations for the physical cont
 machines/
 ├── README.md
 ├── apply-boot-config.ps1       # PowerShell automation script (compiles base + overlay and pushes to node)
+├── apply-boot-config.yml       # Ansible playbook for SSH-based bootloader reconciliation
 ├── base/
 │   └── grub.cfg                # Shared redirect bootloader script (common to all nodes)
 └── overlays/                   # Node-specific variables/overlays

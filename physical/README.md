@@ -1,158 +1,133 @@
 # Physical Infrastructure Documentation
 
-This folder contains documentation for my homelab's physical setup, including rack mounting, cabling, and hardware placement.
+This directory documents the homelab physical infrastructure, including rack mounting, equipment layout, cabling standards, and power delivery.
+
+---
 
 ## Files
 
-- [rackmount-plan.md](rackmount-plan.md) - Detailed rack mounting plan and layout
+- [rackmount-plan.md](rackmount-plan.md) - Detailed 15U rack mounting layout and bill of materials
 
-## My Physical Setup Overview
+---
+
+## Physical Setup Overview
 
 ### Rack Configuration
 
-I'm using a standard 19-inch server rack to organize all my homelab equipment.
+Equipment is housed in a standard 19-inch open-frame rack organized into dedicated tiers to ensure optimal airflow, thermal management, and accessible cabling runs.
 
 ### Equipment Layout
 
-My rack is organized from top to bottom for optimal airflow and cable management:
+The rack is structured from top to bottom:
 
-1. **Networking Tier** (Top)
-   - TRENDnet TEG-3102WS 10-port switch (1U or shelf)
-   - Protectli VP2430 OPNSense firewall (shelf)
-   - 2x Netgear RBK50 WiFi APs (shelf or mounted)
+1. **Networking Tier (Top)**
+   - TRENDnet TEG-3102WS 10-port multi-gigabit switch (1U / shelf)
+   - Protectli VP2430 OPNsense firewall appliance
+   - 2x Netgear RBK50 WiFi access points (mesh configuration)
 
-2. **Compute Tier** (Middle)
-   - 3x Minisforum UM890 (OKD cluster nodes)
-   - Minisforum N5 Pro (TrueNAS storage)
+2. **Compute Tier (Middle)**
+   - 4x Minisforum UM890 Pro mini PCs (OKD cluster nodes: `k81`, `k82`, `k83`, `k84`)
+   - Minisforum N5 Pro storage appliance (TrueNAS SCALE)
 
-3. **Accessories Tier**
-   - Raspberry Pi + GL.iNet Comet KVM
-   - Cable management
+3. **Management & Console Tier**
+   - Raspberry Pi 4 + GL.iNet Comet KVM for out-of-band crash cart access
+   - 24-port keystone patch panel (multimedia + RJ45 pass-through)
 
-4. **Storage Tier** (Bottom)
-   - UPS (if applicable)
-   - Heavy equipment at bottom for stability
+4. **Storage & Power Tier (Bottom)**
+   - Rackmount Power Distribution Unit (PDU) / UPS
+   - Heavy chassis equipment positioned at base for center-of-gravity stability
 
-### Cabling Strategy
+---
 
-**Network Cabling**
-- Short patch cables for rack-internal connections
-- Color coding by VLAN/purpose:
-  - Blue: Management (VLAN 1)
-  - Green: Trunk lines
-  - Red: Direct connections (Helium)
-  - White: General purpose
+## Cabling Strategy
 
-**Power Cabling**
-- All equipment powered through UPS (if available)
-- Cable ties and velcro straps for organization
-- Leave slack for maintenance
+### Network Cabling
 
-**Storage Cabling**
-- 10G connections for TrueNAS to switch
-- 2.5G connections for UM890s to switch
+- Short Cat6 patch cables utilized for intra-rack connections.
+- Color coding standards by VLAN and traffic profile:
+  - **Blue**: Management traffic (VLAN 1)
+  - **Green**: Multi-VLAN trunk links
+  - **Red**: Dedicated direct links (Helium hotspot, WAN)
+  - **White**: General purpose access ports
 
-### Physical Connections
+### Power Cabling
 
-**OPNSense Protectli VP2430**
-- Port 1 (2.5G) → Internet/Modem (WAN)
+- All active compute and networking equipment is fed through surge protection and UPS backup.
+- Power bricks are secured with velcro ties with service loops maintained for device servicing.
+
+### Storage & Interconnect Cabling
+
+- **Thunderbolt 4 / USB4 Mesh**: 40Gbps passive cables interconnected in a dual-homed ring between cluster nodes and TrueNAS storage.
+- **Ethernet Uplinks**:
+  - 10G SFP+ connection between TrueNAS and TRENDnet switch port 9.
+  - 2.5GbE connections between Minisforum UM890 Pro nodes and switch access ports.
+
+---
+
+## Physical Port Assignments
+
+### OPNsense Protectli VP2430
+
+- Port 1 (2.5G) → Internet / Cable Modem (WAN)
 - Port 2 (2.5G) → Switch Port 1 (Trunk)
 - Port 3 (2.5G) → Helium Hotspot (Direct)
-- Port 4 (2.5G) → Available
+- Port 4 (2.5G) → Available / Diagnostics
 
-**TRENDnet TEG-3102WS Switch**
-- Port 1 (2.5G) → OPNSense Port 2 (Trunk)
-- Port 2-8 (2.5G) → Available/Access ports
-- Port 9 (10G) → TrueNAS (Trunk)
-- Port 10 (10G) → Desktop/Workstation
+### TRENDnet TEG-3102WS Switch
 
-**TrueNAS N5 Pro**
-- 10G NIC → Switch Port 9 (Trunk)
-- USB ports → External drives (optional)
+- Port 1 (2.5G) → OPNsense Port 2 (Trunk)
+- Ports 2–5 (2.5G) → OKD Cluster Nodes (`k81`, `k82`, `k83`, `k84`)
+- Ports 6–8 (2.5G) → Access points and management devices
+- Port 9 (10G SFP+) → TrueNAS Storage (Trunk)
+- Port 10 (10G SFP+) → Workstation Uplink
 
-**OKD Cluster Nodes (3x UM890)**
-- Each node: 2.5G NIC → Switch (Ports 2-4 or via additional ports)
-- Multiple NICs per node for VLAN separation (if supported)
+### TrueNAS N5 Pro
 
-**WiFi Access Points**
-- AP1: Switch access port → Internal switch handles VLAN tagging
-- AP2: Switch access port → Internal switch handles VLAN tagging
-- Placed for optimal coverage
+- 10G SFP+ → Switch Port 9 (Trunk)
+- Thunderbolt 4 Ports 0 & 1 → Ring connections to `k81` and `k84`
 
-**Raspberry Pi + KVM**
-- Network: Switch access port (Management VLAN)
-- USB/HDMI: To server console ports
+### OKD Cluster Nodes (4x Minisforum UM890 Pro)
 
-## Cable Management
+- Primary 2.5GbE NIC → Switch Ports 2–5 (VLAN 20 OKD-Infra)
+- Dual USB4 / Thunderbolt 4 Ports → Inter-node mesh network (`tb-br0`)
 
-### Best Practices I Follow
+### Out-of-Band KVM & Management
 
-1. **Horizontal Cable Management**: Use the back of the rack for vertical runs
-2. **Velcro Ties**: Prefer velcro over zip ties for flexibility
-3. **Service Loops**: Leave extra cable length for maintenance
-4. **Labeling**: Label both ends of each cable
-5. **Color Coding**: Use different colors for different purposes
+- Raspberry Pi 4 Ethernet → Switch access port (Management VLAN)
+- Front multimedia patch panel: HDMI and USB keystones routed directly to console ports
 
-### Cable Labels
+---
 
-I label cables with:
-- Source device and port
-- Destination device and port
-- VLAN/Purpose (if applicable)
+## Cable Management Standards
 
-Example: "OPNSense P2 → Switch P1 (Trunk)"
+1. **Structured Vertical Routing**: Cables run vertically along rear rack posts to preserve front airflow.
+2. **Hook-and-Loop Fasteners**: Velcro straps are used exclusively in place of zip ties to prevent jacket compression.
+3. **Service Loops**: A minimum 6-inch service loop is maintained at all termination endpoints.
+4. **Dual-End Labeling**: Both ends of every patch cable are labeled with:
+   - Source device and physical port
+   - Destination device and physical port
+   - Subnet or VLAN assignment
 
-## Cooling and Airflow
+---
+
+## Environmental & Thermal Management
 
 ### Airflow Design
-- Cold air intake from front
-- Hot air exhaust from rear
-- Hottest equipment at top
-- Adequate spacing between devices
 
-### Monitoring
-- Check temperatures regularly
-- Ensure fans are working
-- Add cooling if needed (rack fans)
+- Cold aisle intake occurs across the front panel of all chassis.
+- Exhaust air discharges out the rear.
+- Device spacing maintains vertical clearance between higher-wattage nodes and storage arrays.
 
-## Physical Security
+### Monitoring & Maintenance
 
-- Rack in secure location
-- Cable lock or rack door (if needed)
-- Access control to room
+- Ambient temperatures and chassis sensors are monitored continuously via Prometheus node exporters.
+- Quarterly visual inspection and dust filter cleaning.
 
-## Maintenance Access
-
-### Regular Maintenance
-- Weekly: Visual inspection
-- Monthly: Dust cleaning
-- Quarterly: Cable management review
-- Annually: Deep cleaning
-
-### Emergency Access
-- KVM connected to Pi for remote console access
-- Tailscale VPN for remote management
-- Physical access plan for power issues
-
-## Future Expansion
-
-### Available Rack Space
-- Room for additional compute nodes
-- Space for UPS
-- Space for additional networking equipment
-
-### Upgrade Path
-- Additional UM890 nodes for worker pool
-- Secondary OPNSense for HA
-- Additional switch for more ports
-- Dedicated storage expansion
-
-## Documentation
-
-For detailed rack mounting instructions, see:
-- [rackmount-plan.md](rackmount-plan.md)
+---
 
 ## References
 
-- [Main Setup Plan](../README.md)
-- [Network Configuration](../network/)
+- [Rackmount Build Plan](rackmount-plan.md)
+- [Main Setup Guide](../README.md)
+- [Thunderbolt 4 / USB4 Mesh Network](../docs/network/thunderbolt-mesh-topology.md)
+- [Cluster Network Configuration](../okd-cluster/trial-os-cluster1-test-installation/Network_Configuration.md)

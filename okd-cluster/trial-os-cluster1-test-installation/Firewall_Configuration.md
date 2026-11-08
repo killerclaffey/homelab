@@ -1,19 +1,22 @@
 # OKD Cluster Firewall Configuration
 
 ## Overview
+
 This document details the OPNsense firewall configuration for the OKD cluster, including VLAN interfaces, virtual IPs, DHCP reservations, DNS records, and firewall rules.
 
 ## OPNsense System Information
 
 ### Hardware & Network Interfaces
+
 - **Hostname**: firewall.claffey.cloud
 - **Domain**: claffey.cloud
 - **Timezone**: America/Detroit
 - **Platform**: Intel (with CPU microcode updates enabled)
 
 ### Physical Interfaces
+
 | Interface | Device | Description | Configuration |
-|-----------|--------|-------------|---------------|
+| ----------- | -------- | ------------- | --------------- |
 | WAN | igc0 | Internet Connection | DHCP (IPv4), DHCPv6 (IPv6) |
 | LAN | igc1 | Internal Network | 10.0.0.1/24 (Base LAN) |
 | OPT2 | igc3 | Additional Network | 172.16.0.1/28 |
@@ -23,7 +26,7 @@ This document details the OPNsense firewall configuration for the OKD cluster, i
 All VLANs are configured on the LAN interface (igc1):
 
 | VLAN ID | Interface | Name | Subnet | Description |
-|---------|-----------|------|--------|-------------|
+| --------- | ----------- | ------ | -------- | ------------- |
 | 1 | vlan01 | Management | 10.0.1.0/24 | Infrastructure, workstations, living room |
 | 20 | vlan02 | OKDInfra | 10.0.20.0/24 | Cluster nodes, bootstrap, DNS |
 | 30 | vlan03 | OKDStorage | 10.0.30.0/24 | TrueNAS NFS/iSCSI backend |
@@ -36,7 +39,8 @@ All VLANs are configured on the LAN interface (igc1):
 ### OKD-Related VLAN Interfaces
 
 #### VLAN 20 - OKD Infrastructure
-```
+
+```yaml
 Interface: opt4 (vlan02)
 Description: OKDInfra
 Enabled: Yes
@@ -46,7 +50,8 @@ IP Address: 10.0.20.1/24
 **Purpose**: Cluster nodes, control plane, internal services
 
 #### VLAN 30 - OKD Storage
-```
+
+```yaml
 Interface: opt5 (vlan03)
 Description: OKDStorage
 Enabled: Yes
@@ -56,7 +61,8 @@ IP Address: 10.0.30.1/24
 **Purpose**: Isolated storage network for TrueNAS NFS/iSCSI traffic
 
 #### VLAN 40 - Services
-```
+
+```yaml
 Interface: opt6 (vlan04)
 Description: Services
 Enabled: Yes
@@ -70,6 +76,7 @@ IP Address: 10.0.40.1/32
 Virtual IPs provide high-availability endpoints for the OKD cluster:
 
 ### Scrutiny Monitoring (Non-OKD)
+
 ```yaml
 VIP: 10.0.0.2/24
 Interface: lan
@@ -79,6 +86,7 @@ Purpose: HDD health monitoring service
 ```
 
 ### OKD API Load Balancer
+
 ```yaml
 VIP: 10.0.20.5/24
 Interface: opt4 (OKDInfra - VLAN 20)
@@ -90,6 +98,7 @@ Backends: K81:6443, K82:6443, K83:6443
 ```
 
 ### OKD Apps Internal VIP
+
 ```yaml
 VIP: 10.0.20.6/24
 Interface: opt4 (OKDInfra - VLAN 20)
@@ -100,6 +109,7 @@ DNS: *.apps-int.okd.claffey.cloud
 ```
 
 ### OKD Apps External VIP
+
 ```yaml
 VIP: 10.0.40.10/24
 Interface: opt6 (Services - VLAN 40)
@@ -112,6 +122,7 @@ DNS: *.apps.okd.claffey.cloud
 ## DHCP Configuration (Kea)
 
 ### VLAN 20 (OKD-Infra) Subnet
+
 ```yaml
 Subnet: 10.0.20.0/24
 DHCP Range: 10.0.20.100 - 10.0.20.200
@@ -122,7 +133,8 @@ Domain: Auto-configured (claffey.cloud)
 
 #### Static DHCP Reservations - OKD Cluster Nodes
 
-**K81 - Control Plane Node 1**
+##### K81 - Control Plane Node 1
+
 ```yaml
 MAC Address: 58:47:ca:7c:33:ae
 IP Address: 10.0.20.100
@@ -130,7 +142,8 @@ Hostname: K81
 Description: OKD Control Plane Node 1
 ```
 
-**K82 - Control Plane Node 2**
+##### K82 - Control Plane Node 2
+
 ```yaml
 MAC Address: 58:47:ca:7b:8f:78
 IP Address: 10.0.20.101
@@ -138,7 +151,8 @@ Hostname: K82
 Description: OKD Control Plane Node 2
 ```
 
-**K83 - Control Plane Node 3**
+##### K83 - Control Plane Node 3
+
 ```yaml
 MAC Address: 58:47:ca:7d:ee:43
 IP Address: 10.0.20.102
@@ -149,6 +163,7 @@ Description: OKD Control Plane Node 3
 ### Other VLAN DHCP Configuration
 
 #### VLAN 1 (Management)
+
 ```yaml
 Subnet: 10.0.1.0/24
 DHCP Range: 10.0.1.100 - 10.0.1.250
@@ -156,12 +171,14 @@ Domain: claffey.cloud
 ```
 
 #### VLAN 50 (IoT/Surveillance)
+
 ```yaml
 Subnet: 10.0.50.0/24
 DHCP Range: 10.0.50.100 - 10.0.50.200
 ```
 
 #### VLAN 99 (Guest WiFi)
+
 ```yaml
 Subnet: 10.0.99.0/24
 DHCP Range: 10.0.99.100 - 10.0.99.200
@@ -170,6 +187,7 @@ DHCP Range: 10.0.99.100 - 10.0.99.200
 ## DNS Configuration (Unbound)
 
 ### General Settings
+
 - **Enabled**: Yes
 - **Listen Port**: 53
 - **Active Interfaces**: lan, opt2
@@ -181,6 +199,7 @@ DHCP Range: 10.0.99.100 - 10.0.99.200
 ### DNS Host Overrides
 
 #### Infrastructure Hosts
+
 ```dns
 firewall.claffey.cloud.     A    10.0.0.1      # OPNsense Firewall
 nas.claffey.cloud.          A    10.0.0.62     # TrueNAS Scale
@@ -190,6 +209,7 @@ scrutiny.claffey.cloud.     A    10.0.0.2      # Scrutiny HAProxy
 ```
 
 #### OKD Cluster DNS (To Be Added)
+
 ```dns
 # API Endpoints
 api.okd.claffey.cloud.           A    10.0.20.5
@@ -212,6 +232,7 @@ k83.okd.claffey.cloud.           A    10.0.20.102
 OPNsense is configured with DNS-over-TLS (DoT) to multiple upstream providers:
 
 #### Cloudflare DNS
+
 ```yaml
 Primary:
   Server: 1.1.1.1
@@ -227,6 +248,7 @@ Secondary:
 ```
 
 #### Quad9 DNS
+
 ```yaml
 Primary:
   Server: 9.9.9.9
@@ -242,6 +264,7 @@ Secondary:
 ```
 
 #### Google DNS
+
 ```yaml
 Primary:
   Server: 8.8.8.8
@@ -257,6 +280,7 @@ Secondary:
 ```
 
 ### Advanced DNS Settings
+
 - **Private Domain**: claffey.cloud
 - **Private Address Ranges**:
   - 0.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16
@@ -267,6 +291,7 @@ Secondary:
 ## Firewall Rules
 
 ### Default LAN Rules
+
 ```yaml
 # Allow LAN to any (IPv4)
 Type: pass
@@ -288,6 +313,7 @@ Description: Default allow LAN IPv6 to any rule
 ### Required OKD Firewall Rules
 
 #### VLAN 20 (OKD-Infra) Rules
+
 ```yaml
 # Allow Management VLAN access to OKD-Infra
 Type: pass
@@ -330,6 +356,7 @@ Description: Allow internal app ingress
 ```
 
 #### VLAN 30 (OKD-Storage) Rules
+
 ```yaml
 # DENY all except from OKD-Infra
 Type: reject
@@ -356,6 +383,7 @@ Description: Prevent storage network internet access
 ```
 
 #### VLAN 40 (Services) Rules
+
 ```yaml
 # Allow Management VLAN to Services
 Type: pass
@@ -376,6 +404,7 @@ Description: Allow external app ingress
 ## NAT Configuration
 
 ### Outbound NAT
+
 ```yaml
 Mode: Automatic
 ```
@@ -383,16 +412,19 @@ Mode: Automatic
 Automatic outbound NAT is configured for all internal VLANs to access the internet via the WAN interface.
 
 ### Port Forwarding
+
 No external port forwarding is configured for OKD cluster services. All access is internal-only or via VPN (recommended for security).
 
 ## High Availability & Monitoring
 
 ### Monit Service Monitoring
+
 ```yaml
 Enabled: No (currently disabled)
 ```
 
 ### Backup Configuration
+
 ```yaml
 # Git Backup
 Enabled: Yes
@@ -406,6 +438,7 @@ Firewall configuration is automatically backed up to GitHub repository.
 ## SSL/TLS Certificates
 
 ### ACME Client (Let's Encrypt)
+
 ```yaml
 Enabled: No (currently disabled)
 Account: Lets Encrypt (rclaffey77@gmail.com)
@@ -418,6 +451,7 @@ Certificates:
 ```
 
 ### Cloudflare DNS Integration
+
 ```yaml
 API Token: [CONFIGURED]
 Account ID: fb8311a8698a4972173ae881c1c9f97f
@@ -428,6 +462,7 @@ Used for automated DNS validation when obtaining SSL certificates.
 ## HAProxy Configuration
 
 ### Scrutiny Frontend (Non-OKD)
+
 ```yaml
 Name: scrutiny_frontend
 Bind: 10.0.0.2:80
@@ -441,6 +476,7 @@ Backend: scrutiny_backend
 ## Security Settings
 
 ### System Security
+
 - **Bogons Update**: Weekly
 - **Disable VLAN Hardware Filter**: Yes
 - **Disable Checksum Offloading**: Yes
@@ -448,6 +484,7 @@ Backend: scrutiny_backend
 - **Disable Large Receive Offloading**: Yes
 
 ### SSH Configuration
+
 ```yaml
 Enabled: Yes
 Interfaces: lan (Management only)
@@ -458,6 +495,7 @@ Group: admins
 ```
 
 ### Firewall Optimization
+
 ```yaml
 Optimization: Conservative
 Firewall Maximum States: Default
@@ -467,6 +505,7 @@ Firewall Advanced: pf_share_forward enabled
 ## Recommended Configuration Additions
 
 ### 1. DNS Host Overrides for OKD
+
 Add the following DNS entries to Unbound:
 
 ```bash
@@ -480,7 +519,7 @@ k83.okd.claffey.cloud         → 10.0.20.102
 
 For wildcard DNS (*.apps.okd.claffey.cloud), add custom Unbound configuration:
 
-```
+```yaml
 # System → Settings → Advanced → Custom Options
 server:
   local-zone: "apps.okd.claffey.cloud." redirect
@@ -491,6 +530,7 @@ server:
 ```
 
 ### 2. Firewall Rules for OKD
+
 Add specific firewall rules as documented in the "Required OKD Firewall Rules" section above.
 
 ### 3. HAProxy for OKD API Load Balancing
@@ -500,6 +540,7 @@ Add specific firewall rules as documented in the "Required OKD Firewall Rules" s
 **Backend Name**: `okd_api_backend`
 
 **Real Servers**:
+
 ```yaml
 Server 1:
   Name: k81_api
@@ -530,6 +571,7 @@ Server 3:
 ```
 
 **Backend Settings**:
+
 ```yaml
 Mode: TCP
 Balance Algorithm: roundrobin
@@ -555,6 +597,7 @@ Default Backend: okd_api_backend
 ```
 
 **Frontend Settings**:
+
 ```yaml
 Mode: TCP
 Max Connections: 2000
@@ -568,7 +611,8 @@ Advanced:
 
 #### OPNsense Web UI Configuration Steps
 
-**Step 1: Create Backend (Real Servers)**
+##### Step 1: Create Backend (Real Servers)
+
 1. Navigate to: `Services → HAProxy → Real Servers`
 2. Click `+ Add` for each server:
 
@@ -602,7 +646,8 @@ Advanced:
    - Mode: `active`
    - Click `Save`
 
-**Step 2: Create Backend Pool**
+##### Step 2: Create Backend Pool
+
 1. Navigate to: `Services → HAProxy → Virtual Services → Backend Pools`
 2. Click `+ Add`
 3. Configure:
@@ -616,12 +661,15 @@ Advanced:
    - Check timeout: `3000` (milliseconds)
    - Retries: `3`
    - Advanced settings (optional):
-     ```
+
+     ```text
      option tcp-check
      ```
+
 4. Click `Save`
 
-**Step 3: Create Frontend (Public Service)**
+##### Step 3: Create Frontend (Public Service)
+
 1. Navigate to: `Services → HAProxy → Virtual Services → Public Services`
 2. Click `+ Add`
 3. Configure:
@@ -636,12 +684,15 @@ Advanced:
    - Max connections: `2000`
    - Client timeout: `30000`
    - Advanced settings (optional):
-     ```
+
+     ```text
      option tcplog
      ```
+
 4. Click `Save`
 
-**Step 4: Apply Configuration**
+##### Step 4: Apply Configuration
+
 1. Click `Apply` at the top of the HAProxy page
 2. Verify HAProxy service restarts successfully
 3. Navigate to: `Services → HAProxy → Diagnostics → Stats`
@@ -649,7 +700,8 @@ Advanced:
 
 #### Testing the API Load Balancer
 
-**Test 1: Check HAProxy is listening on VIP**
+##### Test 1: Check HAProxy is listening on VIP
+
 ```bash
 # From OPNsense firewall or another host on VLAN 20
 netstat -an | grep 6443
@@ -659,17 +711,18 @@ netstat -an | grep 6443
 sockstat -4 -l | grep 6443
 ```
 
-**Test 2: Test API connectivity through load balancer**
+##### Test 2: Test API connectivity through load balancer
+
 ```bash
 # From a management host
 curl -k https://10.0.20.5:6443/version
 
-# Or using kubectl/oc (if kubeconfig points to api.okd.claffey.cloud → 10.0.20.5)
-kubectl version
+# Or using oc (if kubeconfig points to api.okd.claffey.cloud → 10.0.20.5)
 oc version
 ```
 
-**Test 3: Verify load balancing across nodes**
+##### Test 3: Verify load balancing across nodes
+
 ```bash
 # Check HAProxy stats page
 # Navigate to: Services → HAProxy → Diagnostics → Stats
@@ -679,11 +732,12 @@ oc version
 #   - No errors
 ```
 
-**Test 4: Test failover**
+##### Test 4: Test failover
+
 ```bash
 # Shutdown one control plane node (e.g., k81)
 # API should remain accessible via VIP
-kubectl get nodes
+oc get nodes
 
 # All API calls should succeed via remaining nodes
 # HAProxy stats should show k81_api as DOWN
@@ -692,6 +746,7 @@ kubectl get nodes
 #### Monitoring and Troubleshooting
 
 **Check HAProxy Status**:
+
 ```bash
 # Via OPNsense Web UI
 Services → HAProxy → Diagnostics → Stats
@@ -701,6 +756,7 @@ sockstat -4 | grep haproxy
 ```
 
 **View HAProxy Logs**:
+
 ```bash
 # Via OPNsense Web UI
 System → Log Files → HAProxy
@@ -729,6 +785,7 @@ tail -f /var/log/haproxy.log
 ## Troubleshooting
 
 ### Check VLAN Configuration
+
 ```bash
 # Via SSH to OPNsense
 ifconfig vlan02  # OKD-Infra
@@ -737,12 +794,14 @@ ifconfig vlan04  # Services
 ```
 
 ### Check Virtual IPs
+
 ```bash
 ifconfig opt4  # Should show 10.0.20.1 and 10.0.20.5, 10.0.20.6
 ifconfig opt6  # Should show 10.0.40.10
 ```
 
 ### Check Firewall States
+
 ```bash
 # Via OPNsense Web UI
 Firewall → Diagnostics → States
@@ -752,6 +811,7 @@ pfctl -s state | grep 10.0.20
 ```
 
 ### Test DNS Resolution
+
 ```bash
 # From OPNsense
 dig @10.0.20.2 api.okd.claffey.cloud
@@ -763,6 +823,7 @@ dig api-int.okd.claffey.cloud
 ```
 
 ### Check DHCP Leases
+
 ```bash
 # Via OPNsense Web UI
 Services → Kea DHCP → Leases
@@ -773,6 +834,5 @@ Services → Kea DHCP → Leases
 ## References
 
 - [OPNsense Documentation](https://docs.opnsense.org/)
-- [OPNsense VLAN Configuration](../network/OPNsense-FIREWALL/OPNSense_VLAN_Configuration_Details.md)
 - [Network Configuration](Network_Configuration.md)
 - [Main OKD Cluster Documentation](README.md)

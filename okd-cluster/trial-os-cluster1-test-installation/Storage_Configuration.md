@@ -1,11 +1,12 @@
 # OKD Cluster Storage Configuration
 
 ## Overview
+
 The OKD cluster uses a hybrid storage approach combining local storage on each node and shared network storage provided by TrueNAS Scale. Storage is segregated on VLAN 30 (OKD-Storage) for security and performance isolation.
 
 ## Storage Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                   OKD Cluster Nodes                      │
 │              K81, K82, K83 (VLAN 20)                    │
@@ -37,10 +38,12 @@ The OKD cluster uses a hybrid storage approach combining local storage on each n
 ### Network Configuration
 
 **TrueNAS Interfaces:**
+
 - **Management**: 10.0.0.62 (VLAN 1 - Management)
 - **Storage**: 10.0.30.x (VLAN 30 - OKD-Storage)
 
 **Storage Network (VLAN 30):**
+
 - **Subnet**: 10.0.30.0/24
 - **Gateway**: 10.0.30.1 (OPNsense)
 - **Purpose**: Isolated NFS/iSCSI traffic
@@ -71,7 +74,8 @@ Pool Name: okd-storage
    - Configure exports for OKD cluster
 
 **Example NFS Export Configuration:**
-```
+
+```text
 # TrueNAS NFS export for OKD
 Path: /mnt/okd-storage/okd-nfs-pv
 Authorized Networks: 10.0.20.0/24 (VLAN 20 - OKD nodes only)
@@ -80,12 +84,14 @@ Maproot Group: wheel
 ```
 
 **NFS Security:**
+
 - **NFSv4** recommended (better security, performance)
 - **Kerberos**: Optional for enhanced security
 - **Firewall**: Allow NFS ports (TCP/UDP 2049) from VLAN 20 only
 
 **Required NFS Ports:**
-```
+
+```text
 TCP/2049  - NFS
 TCP/111   - Portmapper
 TCP/2049  - NFSv4 (if using NFSv4 only)
@@ -104,6 +110,7 @@ TCP/2049  - NFSv4 (if using NFSv4 only)
    - IQN-based or IP-based authentication
 
 3. **Target Configuration:**
+
 ```yaml
 Target Name: iqn.2005-10.org.freenas.ctl:okd-cluster
 Portal Group: Storage Network (10.0.30.x:3260)
@@ -111,12 +118,14 @@ Initiator Group: okd-nodes
 ```
 
 **iSCSI Security:**
+
 - **CHAP Authentication**: Recommended for security
 - **Firewall**: Allow iSCSI (TCP/3260) from VLAN 20 only
 
 ## Storage Classes
 
 ### Local Storage Class
+
 Provided by the Local Storage Operator for node-local persistent volumes.
 
 ```yaml
@@ -129,12 +138,14 @@ volumeBindingMode: WaitForFirstConsumer
 ```
 
 **Use Cases:**
+
 - High-performance local storage
 - Temporary data
 - Logs and metrics (if not using shared storage)
 - etcd storage (built-in)
 
 **Limitations:**
+
 - No data redundancy (single node)
 - Pod cannot move to another node
 - Manual provisioning required
@@ -165,6 +176,7 @@ allowVolumeExpansion: true
 ```
 
 **Use Cases:**
+
 - Shared storage (ReadWriteMany)
 - Application data requiring persistence
 - Shared configuration
@@ -193,6 +205,7 @@ allowVolumeExpansion: true
 ```
 
 **Use Cases:**
+
 - High-performance block storage
 - Databases requiring block devices
 - ReadWriteOnce volumes
@@ -282,7 +295,7 @@ OpenShift requires persistent storage for the internal image registry.
 
 ### Registry Configuration (Using NFS)
 
-```yaml
+```bash
 oc patch configs.imageregistry.operator.openshift.io cluster \
   --type merge \
   --patch '{"spec":{"storage":{"pvc":{"claim":""}}}}'
@@ -294,6 +307,7 @@ oc patch configs.imageregistry.operator.openshift.io cluster \
 ```
 
 **Create Image Registry PVC:**
+
 ```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -309,7 +323,7 @@ spec:
       storage: 100Gi  # Adjust based on image volume
 ```
 
-### Verification
+### Image Registry Verification
 
 ```bash
 # Check registry storage
@@ -329,6 +343,7 @@ oc get pods -n openshift-image-registry
 The OADP (OpenShift API for Data Protection) operator is installed for backup and restore.
 
 **DataProtectionApplication CR:**
+
 ```yaml
 apiVersion: oadp.openshift.io/v1alpha1
 kind: DataProtectionApplication
@@ -366,16 +381,19 @@ spec:
 
 ### Backup Storage Options
 
-**Option 1: TrueNAS S3-Compatible (MinIO)**
+#### Option 1: TrueNAS S3-Compatible (MinIO)
+
 - Configure MinIO on TrueNAS
 - Create bucket: `okd-backups`
 - Use S3-compatible API
 
-**Option 2: NFS for Backups**
+#### Option 2: NFS for Backups
+
 - Mount NFS share in OADP pods
 - Store backups on TrueNAS NFS
 
-**Option 3: Local Storage**
+#### Option 3: Local Storage
+
 - Use local storage for temporary backups
 - Less reliable (single node)
 
@@ -420,6 +438,7 @@ oc get pods -n openshift-adp
 ### NFS Mount Options
 
 For better NFS performance:
+
 ```yaml
 mountOptions:
   - nfsvers=4.1      # Use NFSv4.1
@@ -435,11 +454,13 @@ mountOptions:
 ### Network Optimization
 
 **VLAN 30 QoS:**
+
 - Priority traffic for storage
 - Dedicated bandwidth
 - Low latency configuration
 
 **TrueNAS Network Settings:**
+
 - Jumbo frames: MTU 9000 (if supported by network)
 - Flow control: Enabled
 - Link aggregation: Optional for redundancy
@@ -466,6 +487,7 @@ df -h
 ### Storage Metrics
 
 Monitor via Cluster Observability:
+
 - PV/PVC capacity and usage
 - I/O latency and throughput
 - NFS mount statistics
@@ -545,16 +567,19 @@ ping -c 1000 10.0.30.x | grep loss
 ## Security Considerations
 
 ### Network Isolation
+
 - VLAN 30 is isolated from other networks
 - Only OKD nodes (VLAN 20) can access storage network
 - No internet access from VLAN 30
 
 ### Access Control
+
 - NFS exports restricted to 10.0.20.0/24
 - iSCSI initiator groups limit access
 - CHAP authentication for iSCSI (recommended)
 
 ### Encryption
+
 - **At Rest**: TrueNAS pool encryption (optional)
 - **In Transit**:
   - NFSv4 with Kerberos (optional)
@@ -562,6 +587,7 @@ ping -c 1000 10.0.30.x | grep loss
   - VLAN isolation provides network segregation
 
 ### Data Protection
+
 - Regular backups via OADP
 - TrueNAS snapshots for quick recovery
 - Replication to secondary storage (optional)
@@ -569,10 +595,12 @@ ping -c 1000 10.0.30.x | grep loss
 ## Capacity Planning
 
 ### Current Capacity
+
 - **Local Storage**: 1.63 TB total (~545 GB per node)
 - **TrueNAS**: Capacity depends on pool configuration
 
 ### Storage Growth Monitoring
+
 ```bash
 # Check cluster-wide storage usage
 oc get pv --no-headers | awk '{sum+=$5} END {print sum}'
@@ -582,6 +610,7 @@ oc get pvc --all-namespaces -o json | jq '.items[] | {name: .metadata.name, name
 ```
 
 ### Expansion Procedures
+
 1. **TrueNAS**: Add disks to pool, expand dataset
 2. **PVC Expansion**: Edit PVC spec (if storage class allows)
 3. **Local Storage**: Add additional local volumes via LocalVolume CR
@@ -589,17 +618,20 @@ oc get pvc --all-namespaces -o json | jq '.items[] | {name: .metadata.name, name
 ## Best Practices
 
 ### Storage Selection
+
 - **Local Storage**: High-performance, ephemeral workloads
 - **NFS**: Shared storage, multi-pod access (RWX)
 - **iSCSI**: Database workloads, high I/O requirements
 
 ### Data Management
+
 - Use appropriate storage class for workload
 - Set resource quotas per namespace
 - Implement backup schedules for critical data
 - Monitor storage usage regularly
 
 ### Performance
+
 - Keep storage network (VLAN 30) dedicated for storage traffic
 - Use appropriate NFS mount options
 - Consider SSD storage on TrueNAS for high-performance workloads
