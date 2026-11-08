@@ -10,5 +10,3 @@ components:
 
 patches:
   - path: statefulset-patch.yaml
-
-

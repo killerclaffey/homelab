@@ -10,10 +10,10 @@ projected into the `renovate-credentials` Secret by
 updating Vault — External Secrets re-syncs within 1h (`refreshInterval: 1h`).
 Never put token or private key values in git.
 
-| Vault property | Env var | Platform / Purpose | Scope / Format |
-| --- | --- | --- | --- |
-| `gitlab-token` | `RENOVATE_TOKEN` | self-hosted GitLab | `api`, Developer |
-| `github-token` | `GITHUB_COM_TOKEN` | github.com | **no scopes** |
+| Vault property    | Env var                    | Platform / Purpose | Scope / Format                              |
+| ----------------- | -------------------------- | ------------------ | ------------------------------------------- |
+| `gitlab-token`    | `RENOVATE_TOKEN`           | self-hosted GitLab | `api`, Developer                            |
+| `github-token`    | `GITHUB_COM_TOKEN`         | github.com         | **no scopes**                               |
 | `git-private-key` | `RENOVATE_GIT_PRIVATE_KEY` | Git commit signing | OpenPGP armored private key (no passphrase) |
 
 ---
@@ -24,6 +24,7 @@ This is the token Renovate uses to scan the repo, push branches, and open merge
 requests.
 
 The project uses the existing Project Bot account:
+
 - **Username:** `project_11_bot_4abbd1f2c9ae224f4b72294b882553c2`
 - **Email:** `project_11_bot_4abbd1f2c9ae224f4b72294b882553c2@noreply.gitlab.apps.okd.claffey.cloud`
 - **Role:** Developer on `rclaffey/homelab`
@@ -35,7 +36,7 @@ on the bot user account, and that the matching GPG public key is registered to i
 
 **Why `api` and not something narrower.** Renovate's GitLab platform requires
 the `api` scope for real runs (`read_api` only covers `--dry-run`). Repository
-scopes like `write_repository` grant git push but *not* the REST calls Renovate
+scopes like `write_repository` grant git push but _not_ the REST calls Renovate
 depends on: creating merge requests, applying `labels`, setting `assignees` and
 `reviewers`, and maintaining the Dependency Dashboard issue — all configured in
 [`renovate.json`](../../renovate.json). There is no narrower scope that works.
@@ -106,7 +107,7 @@ under the `GIT_PRIVATE_KEY` key.
 ## GitHub token — `github-token`
 
 This token never writes anything and has nothing to do with hosting the repo.
-Renovate uses github.com as a *data source*:
+Renovate uses github.com as a _data source_:
 
 - **Changelogs / release notes** rendered into MR bodies for any dependency
   whose source is on GitHub.
@@ -119,11 +120,11 @@ Renovate uses github.com as a *data source*:
 **Create:** GitHub → Settings → Developer settings → Personal access tokens →
 Tokens (classic) → Generate new token
 
-| Setting | Value |
-| --- | --- |
-| Type | Classic PAT |
-| Scopes | **none — leave every checkbox unticked** |
-| Expiry | your choice; record it |
+| Setting | Value                                    |
+| ------- | ---------------------------------------- |
+| Type    | Classic PAT                              |
+| Scopes  | **none — leave every checkbox unticked** |
+| Expiry  | your choice; record it                   |
 
 A classic token with zero scopes still authenticates, which is all that is
 needed: it grants read-only access to public data at the higher rate limit.

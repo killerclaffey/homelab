@@ -1,11 +1,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- clusterrole-truenas-csi-controller-role.yaml
-- configmap-truenas-csi-config-yaml
-- daemonset-truenas-csi-node-yaml
-- deployment-truenas-csi-controller-yaml
-- namespace.yaml
-- pvc-test-yaml
-- storageclass-truenas-nfs-bulk-yaml
-- storageclass-truenas-nfs-hdd-yaml
+  - clusterrole-truenas-csi-controller-role.yaml
+  - configmap-truenas-csi-config-yaml
+  - daemonset-truenas-csi-node-yaml
+  - deployment-truenas-csi-controller-yaml
+  - namespace.yaml
+  - pvc-test-yaml
+  - storageclass-truenas-nfs-bulk-yaml
+  - storageclass-truenas-nfs-hdd-yaml

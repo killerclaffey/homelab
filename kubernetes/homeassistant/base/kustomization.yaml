@@ -12,12 +12,11 @@ resources:
   - statefulset.yaml
   - velero.yaml
   - service-monitor.yaml
-  # - secret.yaml
+    # - secret.yaml
 
 configMapGenerator:
-  - name: homeassistant-config
-    files:
+  - files:
       - ./config/configuration.yaml
+    name: homeassistant-config
     options:
       disableNameSuffixHash: true
-
