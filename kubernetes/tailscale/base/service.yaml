@@ -12,9 +12,9 @@ spec:
   ports:
     - name: socks5
       port: 1055
-      targetPort: 1055
+      targetPort: socks5
       protocol: TCP
     - name: http-proxy
       port: 1080
-      targetPort: 1080
+      targetPort: http-proxy
       protocol: TCP
