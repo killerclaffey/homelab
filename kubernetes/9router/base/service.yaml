@@ -12,7 +12,7 @@ spec:
     - name: http
       port: 20128
       protocol: TCP
-      targetPort: 20128
+      targetPort: http
   selector:
     app.kubernetes.io/instance: 9router
     app.kubernetes.io/name: 9router
