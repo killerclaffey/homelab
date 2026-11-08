@@ -1,8 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": ["config:recommended"],
   "timezone": "America/New_York",
   "schedule": ["after 10pm every weekday", "every weekend"],
   "semanticCommits": "enabled",
@@ -15,7 +13,10 @@
     "fileMatch": ["kubernetes/.+(\\.yaml|\\.yml|-yaml|-yml)$"]
   },
   "docker-compose": {
-    "fileMatch": ["(^|/)[^/]*compose[^/]*\\.yaml$", "(^|/)[^/]*compose[^/]*\\.yml$"]
+    "fileMatch": [
+      "(^|/)[^/]*compose[^/]*\\.yaml$",
+      "(^|/)[^/]*compose[^/]*\\.yml$"
+    ]
   },
   "packageRules": [
     {
@@ -33,7 +34,7 @@
     {
       "description": "Pin digests for all container images",
       "matchManagers": ["kubernetes", "docker-compose", "dockerfile"],
-      "pinDigests": false
+      "pinDigests": true
     },
     {
       "description": "OKD/OpenShift system images - skip",
@@ -42,7 +43,9 @@
     },
     {
       "description": "Internal OpenShift registry - CI-built images with no upstream to track; lookups fail on the service-CA cert",
-      "matchPackagePatterns": ["^image-registry\\.openshift-image-registry\\.svc:5000/"],
+      "matchPackagePatterns": [
+        "^image-registry\\.openshift-image-registry\\.svc:5000/"
+      ],
       "enabled": false
     },
     {
