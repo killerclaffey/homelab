@@ -19,9 +19,18 @@ spec:
       labels:
         app: bikely-tileserver
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: tileserver
-          image: nginx:alpine
+          image: docker.io/library/nginx:alpine@sha256:2db7d28517d1fba17c2da3210395f7be11a11b419246ad0da2edf782af72f367
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -31,7 +40,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /health
-              port: 8080
+              port: http
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 15
@@ -40,7 +49,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /health
-              port: 8080
+              port: http
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -54,6 +63,8 @@ spec:
               memory: 64Mi
           securityContext:
             allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: false
             capabilities:
               drop:
                 - ALL
@@ -70,10 +81,6 @@ spec:
               name: nginx-run
             - mountPath: /var/log/nginx
               name: nginx-logs
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
         - configMap:
