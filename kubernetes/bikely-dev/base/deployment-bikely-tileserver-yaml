@@ -30,7 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: tileserver
-          image: docker.io/library/nginx:alpine@sha256:2db7d28517d1fba17c2da3210395f7be11a11b419246ad0da2edf782af72f367
+          image: docker.io/library/nginx:alpine@sha256:697b0b156c70b91130853fd0675c6be36665939d5f93dce2686be04b4c3f98a8
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
