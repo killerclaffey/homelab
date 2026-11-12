@@ -50,7 +50,7 @@ spec:
         - name: TRANSFORMERS_CACHE
           value: /cache
         # renovate: datasource=github-releases depName=immich-app/immich
-        image: ghcr.io/immich-app/immich-machine-learning:v3.3.1@sha256:513c831cfb010ad319341a0c86b42c575a0d5b688d3e8cae346ee624074a58ed
+        image: ghcr.io/immich-app/immich-machine-learning:v3.4.1@sha256:8adebf414256f6e4f837bfbb66fa94f14f4da7260e3a1d65cbba49e4e35d8764
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
