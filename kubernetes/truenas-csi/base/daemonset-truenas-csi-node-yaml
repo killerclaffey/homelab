@@ -66,7 +66,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
-        image: quay.io/truenas_solutions/truenas-csi:v1.4.0
+        image: quay.io/truenas_solutions/truenas-csi:v1.4.0@sha256:fb669f220d1eea7c04f34757d2f3f414a702f4ae111c82bb65fa9e3280d33819
         imagePullPolicy: IfNotPresent
         lifecycle:
           postStart:
@@ -123,7 +123,7 @@ spec:
           value: /csi/csi.sock
         - name: DRIVER_REG_SOCK_PATH
           value: /var/lib/kubelet/plugins/csi.truenas.io/csi.sock
-        image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.18.0
+        image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.18.0@sha256:b7fefd08651f00ac4df1a196ed4c621c2451fbb899297fe9fad9e36c667af0c0
         imagePullPolicy: IfNotPresent
         name: csi-node-driver-registrar
         resources:
@@ -143,7 +143,7 @@ spec:
       - args:
         - --csi-address=/csi/csi.sock
         - --health-port=9809
-        image: registry.k8s.io/sig-storage/livenessprobe:v2.20.0
+        image: registry.k8s.io/sig-storage/livenessprobe:v2.20.0@sha256:19f2cf2f40e1987c7943945deca5f65cd4e4bf5cc0657fc78a5df131861578e8
         imagePullPolicy: IfNotPresent
         name: liveness-probe
         resources:

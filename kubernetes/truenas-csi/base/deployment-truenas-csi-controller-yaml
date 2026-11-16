@@ -73,7 +73,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
-        image: quay.io/truenas_solutions/truenas-csi:v1.4.0
+        image: quay.io/truenas_solutions/truenas-csi:v1.4.0@sha256:fb669f220d1eea7c04f34757d2f3f414a702f4ae111c82bb65fa9e3280d33819
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
@@ -112,7 +112,7 @@ spec:
         env:
         - name: ADDRESS
           value: /csi/csi.sock
-        image: registry.k8s.io/sig-storage/csi-provisioner:v6.4.0
+        image: registry.k8s.io/sig-storage/csi-provisioner:v6.4.0@sha256:6ebe60fd8ed67a7f8a90d34402e9e706b274e53612d6fa5fbb8285728db622e2
         imagePullPolicy: IfNotPresent
         name: csi-provisioner
         resources:
@@ -134,7 +134,7 @@ spec:
         env:
         - name: ADDRESS
           value: /csi/csi.sock
-        image: registry.k8s.io/sig-storage/csi-attacher:v4.13.0
+        image: registry.k8s.io/sig-storage/csi-attacher:v4.13.0@sha256:d1a26170efed45491074ca4545c81844eee2b9043fb885ac01fb4aed6f8b72d2
         imagePullPolicy: IfNotPresent
         name: csi-attacher
         resources:
@@ -156,7 +156,7 @@ spec:
         env:
         - name: ADDRESS
           value: /csi/csi.sock
-        image: registry.k8s.io/sig-storage/csi-snapshotter:v8.7.0
+        image: registry.k8s.io/sig-storage/csi-snapshotter:v8.7.0@sha256:b03d3334f8035fa42660b166f6eb819a659a14774da020eb1b6c52cd422eaadb
         imagePullPolicy: IfNotPresent
         name: csi-snapshotter
         resources:
@@ -178,7 +178,7 @@ spec:
         env:
         - name: ADDRESS
           value: /csi/csi.sock
-        image: registry.k8s.io/sig-storage/csi-resizer:v2.3.0
+        image: registry.k8s.io/sig-storage/csi-resizer:v2.3.0@sha256:48fb3deb93cd848e3c8998b6368f4322c93bb5ce4a90d1307b6dda0dbefb9a0e
         imagePullPolicy: IfNotPresent
         name: csi-resizer
         resources:
@@ -196,7 +196,7 @@ spec:
       - args:
         - --csi-address=/csi/csi.sock
         - --health-port=9808
-        image: registry.k8s.io/sig-storage/livenessprobe:v2.20.0
+        image: registry.k8s.io/sig-storage/livenessprobe:v2.20.0@sha256:19f2cf2f40e1987c7943945deca5f65cd4e4bf5cc0657fc78a5df131861578e8
         imagePullPolicy: IfNotPresent
         name: liveness-probe
         resources:

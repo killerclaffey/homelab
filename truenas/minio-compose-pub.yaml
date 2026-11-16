@@ -24,13 +24,13 @@ services:
         target: /certs/private.key
       - source: public
         target: /certs/public.crt
-    user: '568:568'
+    user: "568:568"
     group_add:
       - 568
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4096M
     environment:
       MINIO_ROOT_USER: "admin"
@@ -67,12 +67,12 @@ services:
     command:
       - console
       - server
-      - '--port'
-      - '30212'
-      - '--certs-dir'
+      - "--port"
+      - "30212"
+      - "--certs-dir"
       - /certs
-      - '--tls-port'
-      - '30213'
+      - "--tls-port"
+      - "30213"
     configs:
       - source: private
         target: /certs/private.key
@@ -86,21 +86,21 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4096M
     environment:
       CONSOLE_MINIO_SERVER: https://minio.claffey.cloud:9000
       CONSOLE_MINIO_SERVER_TLS_SKIP_VERIFICATION: "true"
-      GID: '568'
-      GROUP_ID: '568'
+      GID: "568"
+      GROUP_ID: "568"
       NVIDIA_VISIBLE_DEVICES: void
-      PGID: '568'
-      PUID: '568'
+      PGID: "568"
+      PUID: "568"
       TZ: America/Detroit
-      UID: '568'
-      UMASK: '002'
-      UMASK_SET: '002'
-      USER_ID: '568'
+      UID: "568"
+      UMASK: "002"
+      UMASK_SET: "002"
+      USER_ID: "568"
     group_add:
       - 568
     healthcheck:
@@ -111,17 +111,17 @@ services:
       test:
         - CMD
         - curl
-        - '-k'
-        - '--request'
+        - "-k"
+        - "--request"
         - GET
-        - '--silent'
-        - '--output'
+        - "--silent"
+        - "--output"
         - /dev/null
-        - '--show-error'
-        - '--fail'
+        - "--show-error"
+        - "--fail"
         - https://127.0.0.1:30213/api/v1/login
       timeout: 5s
-    image: ghcr.io/huncrys/minio-console:v1.8.1
+    image: ghcr.io/huncrys/minio-console:v1.8.1@sha256:c4b0be15c6fd1aacb0fed9f93a5390bf360c409d3a3b1929636cf357dbd3570a
     platform: linux/amd64
     ports:
       - mode: ingress
@@ -138,7 +138,7 @@ services:
       - no-new-privileges=true
     stdin_open: false
     tty: false
-    user: '568:568'
+    user: "568:568"
     volumes:
       - bind:
           create_host_path: false
@@ -161,27 +161,27 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 1024M
     entrypoint:
       - python3
       - /script/permissions.py
     environment:
-      GID: '568'
-      GROUP_ID: '568'
+      GID: "568"
+      GROUP_ID: "568"
       NVIDIA_VISIBLE_DEVICES: void
-      PGID: '568'
-      PUID: '568'
+      PGID: "568"
+      PUID: "568"
       TZ: America/Detroit
-      UID: '568'
-      UMASK: '002'
-      UMASK_SET: '002'
-      USER_ID: '568'
+      UID: "568"
+      UMASK: "002"
+      UMASK_SET: "002"
+      USER_ID: "568"
     group_add:
       - 568
     healthcheck:
       disable: true
-    image: ixsystems/container-utils:1.1.2
+    image: ixsystems/container-utils:1.1.2@sha256:a3bab63aabcb020ad1c1036444657287d336e855650b837dc291235265fd0ff3
     network_mode: none
     platform: linux/amd64
     privileged: false
@@ -190,7 +190,7 @@ services:
       - no-new-privileges=true
     stdin_open: false
     tty: false
-    user: '0:0'
+    user: "0:0"
     volumes:
       - bind:
           create_host_path: false

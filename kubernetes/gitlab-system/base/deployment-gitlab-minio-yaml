@@ -48,7 +48,7 @@ spec:
         env:
         - name: TZ
           value: UTC
-        image: registry.gitlab.com/gitlab-org/cloud-native/mirror/images/minio/minio:RELEASE.2017-12-28T01-21-00Z
+        image: registry.gitlab.com/gitlab-org/cloud-native/mirror/images/minio/minio:RELEASE.2017-12-28T01-21-00Z@sha256:3611f1644cf5447e2f3639b4212ade26155f6a0632bef155c4d6510811c1fe1d
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -90,7 +90,7 @@ spec:
         env:
         - name: TZ
           value: UTC
-        image: registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.11.14
+        image: registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.11.14@sha256:45a0ebe2916f397dda96909fabf7c6fc7945db643205e5fd9b8f240b10fce804
         imagePullPolicy: IfNotPresent
         name: configure
         resources:

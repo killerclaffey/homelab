@@ -62,12 +62,37 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: velero-12.1.0
 rules:
-- apiGroups:
-    - "*"
-  resources:
-    - "*"
-  verbs:
-    - "*"
+  - apiGroups:
+      - ""
+      - "velero.io"
+      - "apps"
+      - "batch"
+      - "coordination.k8s.io"
+    resources:
+      - "pods"
+      - "configmaps"
+      - "secrets"
+      - "leases"
+      - "jobs"
+      - "backups"
+      - "restores"
+      - "backupstoragelocations"
+      - "volumesnapshotlocations"
+      - "podvolumebackups"
+      - "podvolumerestores"
+      - "backuprepositories"
+      - "schedules"
+      - "deletebackuprequests"
+      - "downloadrequests"
+      - "serverstatusrequests"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+      - "create"
+      - "update"
+      - "patch"
+      - "delete"
 ---
 # Source: velero/templates/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -150,12 +175,14 @@ spec:
         checksum/secret: REPLACE_ME_SHA256_1
     spec:
       restartPolicy: Always
+      schedulerName: default-scheduler
       serviceAccountName: velero-server
       automountServiceAccountToken: true
+      enableServiceLinks: false
       terminationGracePeriodSeconds: 3600
       containers:
         - name: velero
-          image: "docker.io/velero/velero:v1.18.4"
+          image: "docker.io/velero/velero:v1.18.4@sha256:c89fb5b6d1fd6afd368e0f483e6f5555fd62851a1eada8ac5c72482e674ca17b"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http-monitoring
@@ -188,6 +215,23 @@ spec:
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
           volumeMounts:
             - name: plugins
               mountPath: /plugins
@@ -225,11 +269,28 @@ spec:
               value: /credentials/cloud
       dnsPolicy: ClusterFirst
       initContainers:
-        - image: docker.io/velero/velero-plugin-for-aws:v1.14.4
+        - image: docker.io/velero/velero-plugin-for-aws:v1.14.4@sha256:c85a7fa803569e3128c33e4f5766f84ab156c8d171c9f1dd2715581d45ce98fa
           name: velero-plugin-for-aws
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
           volumeMounts:
-          - mountPath: /target
-            name: plugins
+            - mountPath: /target
+              name: plugins
       volumes:
         - name: cloud-credentials
           secret:
@@ -245,6 +306,8 @@ kind: BackupStorageLocation
 metadata:
   name: default
   namespace: velero
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     app.kubernetes.io/name: velero
     app.kubernetes.io/instance: velero
@@ -297,16 +360,16 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: velero-12.1.0
 rules:
-- apiGroups: 
-    - "apiextensions.k8s.io"
-  resources: 
-    - "customresourcedefinitions"
-  verbs: 
-    - create
-    - patch
-    - update
-    - get
-    - list
+  - apiGroups:
+      - "apiextensions.k8s.io"
+    resources:
+      - "customresourcedefinitions"
+    verbs:
+      - create
+      - patch
+      - update
+      - get
+      - list
 ---
 # Source: velero/templates/upgrade-crds/clusterrolebinding-upgrade.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -353,11 +416,14 @@ spec:
     metadata:
       name: velero-upgrade-crds
     spec:
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      schedulerName: default-scheduler
       serviceAccountName: velero-server-upgrade-crds
       automountServiceAccountToken: true
       containers:
         - name: velero
-          image: "docker.io/velero/velero:v1.18.4"
+          image: "docker.io/velero/velero:v1.18.4@sha256:c89fb5b6d1fd6afd368e0f483e6f5555fd62851a1eada8ac5c72482e674ca17b"
           imagePullPolicy: IfNotPresent
           command:
             - /velero
@@ -365,4 +431,21 @@ spec:
             - install
             - --crds-only
             - --apply
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
       restartPolicy: OnFailure
