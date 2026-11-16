@@ -28,7 +28,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: valkey
-          image: quay.io/sclorg/valkey-8-c10s:c10s@sha256:07068d87fdf6e02c791c0686bb853b1488861b2a3b92a454e7a25365f1a82602
+          image: quay.io/sclorg/valkey-8-c10s:c10s@sha256:0382c1b2717c11ca43bb80e94c6506e6d916d714812ca48a514dcca318a553a4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 6379
