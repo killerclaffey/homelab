@@ -89,7 +89,7 @@ spec:
       containers:
         - name: homeassistant
           # renovate: datasource=docker depName=docker.io/homeassistant/home-assistant
-          image: docker.io/homeassistant/home-assistant:2026.10.1@sha256:130241f28d01fa80dfa3b44f7d89781c188d8642ecab9024f079f19f9f82baa0
+          image: docker.io/homeassistant/home-assistant:2026.11.1@sha256:6785d1eca68747a524c156faae1b139ed415c07357386ae6fe17291986e59e82
           securityContext:
             allowPrivilegeEscalation: true
             seccompProfile:
