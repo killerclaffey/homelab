@@ -1,0 +1,89 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: gitlab-rails-db
+  namespace: gitlab-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: gitlab-system
+spec:
+  enablePDB: false
+  imageName: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie@sha256:6b8f23131e02fb4f2765fd1c7f9bca1c09a0b8b5aa90d69a3c5e8e5c60fa3d76"
+  instances: 1
+  imagePullPolicy: IfNotPresent
+  logLevel: info
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  postgresUID: 26
+  postgresGID: 999
+  bootstrap:
+    initdb:
+      database: gitlabhq_production
+      owner: gitlab
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+        - CREATE EXTENSION IF NOT EXISTS btree_gist;
+        - CREATE EXTENSION IF NOT EXISTS plpgsql;
+        - CREATE EXTENSION IF NOT EXISTS amcheck;
+        - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+  enableSuperuserAccess: false
+  monitoring:
+    enablePodMonitor: false
+  storage:
+    storageClass: tns-nvmeof-nvme
+    size: 20Gi
+  walStorage:
+    storageClass: tns-nvmeof-nvme
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  seccompProfile:
+    type: RuntimeDefault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-rails-db-cluster-reader
+rules:
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - clusters
+      - clusters/status
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-rails-db-cluster-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gitlab-rails-db-cluster-reader
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-rails-db
+    namespace: gitlab-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-rails-db-cnpg-scc
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnpg-postgres-scc-use
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-rails-db
+    namespace: gitlab-system

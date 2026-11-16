@@ -1,0 +1,86 @@
+apiVersion: v1
+data:
+  config.json: "{\n  \"version\": \"20\",\n  \"credential\": {\n    \"accessKey\"\
+    : \"ACCESS_KEY\",\n    \"secretKey\": \"SECRET_KEY\"\n  },\n  \"region\": \"us-east-1\"\
+    ,\n  \"browser\": \"on\",\n  \"domain\": \"\",\n  \"logger\": {\n    \"console\"\
+    : {\n      \"enable\": true\n    },\n    \"file\": {\n      \"enable\": false,\n\
+    \      \"fileName\": \"\"\n    }\n  },\n  \"notify\": {\n    \"amqp\": {\n   \
+    \   \"1\": {\n        \"enable\": false,\n        \"url\": \"\",\n        \"exchange\"\
+    : \"\",\n        \"routingKey\": \"\",\n        \"exchangeType\": \"\",\n    \
+    \    \"deliveryMode\": 0,\n        \"mandatory\": false,\n        \"immediate\"\
+    : false,\n        \"durable\": false,\n        \"internal\": false,\n        \"\
+    noWait\": false,\n        \"autoDeleted\": false\n      }\n    },\n    \"nats\"\
+    : {\n      \"1\": {\n        \"enable\": false,\n        \"address\": \"\",\n\
+    \        \"subject\": \"\",\n        \"username\": \"\",\n        \"password\"\
+    : \"\",\n        \"token\": \"\",\n        \"secure\": false,\n        \"pingInterval\"\
+    : 0,\n        \"streaming\": {\n          \"enable\": false,\n          \"clusterID\"\
+    : \"\",\n          \"clientID\": \"\",\n          \"async\": false,\n        \
+    \  \"maxPubAcksInflight\": 0\n        }\n      }\n    },\n    \"elasticsearch\"\
+    : {\n      \"1\": {\n        \"enable\": false,\n        \"format\": \"namespace\"\
+    ,\n        \"url\": \"\",\n        \"index\": \"\"\n      }\n    },\n    \"redis\"\
+    : {\n      \"1\": {\n        \"enable\": false,\n        \"format\": \"namespace\"\
+    ,\n        \"address\": \"\",\n        \"password\": \"\",\n        \"key\": \"\
+    \"\n      }\n    },\n    \"postgresql\": {\n      \"1\": {\n        \"enable\"\
+    : false,\n        \"format\": \"namespace\",\n        \"connectionString\": \"\
+    \",\n        \"table\": \"\",\n        \"host\": \"\",\n        \"port\": \"\"\
+    ,\n        \"user\": \"\",\n        \"password\": \"\",\n        \"database\"\
+    : \"\"\n      }\n    },\n    \"kafka\": {\n      \"1\": {\n        \"enable\"\
+    : false,\n        \"brokers\": null,\n        \"topic\": \"\"\n      }\n    },\n\
+    \    \"webhook\": {\n      \"1\": {\n        \"enable\": false,\n        \"endpoint\"\
+    : \"\"\n      }\n    },\n    \"mysql\": {\n      \"1\": {\n        \"enable\"\
+    : false,\n        \"format\": \"namespace\",\n        \"dsnString\": \"\",\n \
+    \       \"table\": \"\",\n        \"host\": \"\",\n        \"port\": \"\",\n \
+    \       \"user\": \"\",\n        \"password\": \"\",\n        \"database\": \"\
+    \"\n      }\n    },\n    \"mqtt\": {\n      \"1\": {\n        \"enable\": false,\n\
+    \        \"broker\": \"\",\n        \"topic\": \"\",\n        \"qos\": 0,\n  \
+    \      \"clientId\": \"\",\n        \"username\": \"\",\n        \"password\"\
+    : \"\"\n      }\n    }\n  }\n}"
+  configure: sed -e 's@ACCESS_KEY@'"$(cat /config/accesskey)"'@' -e 's@SECRET_KEY@'"$(cat
+    /config/secretkey)"'@' /config/config.json > /minio/config.json
+  initialize: "#!/bin/sh\n# minio/mc container has Busybox Ash, be sure to be POSIX\
+    \ compliant and avoid Bash-isms\nset -e ; # Have script exit in the event of a\
+    \ failed command.\n\n# connectToMinio\n# Use a check-sleep-check loop to wait\
+    \ for Minio service to be available\nconnectToMinio() {\n  set -e ; # fail if\
+    \ we can't read the keys.\n  ACCESS=$(cat /config/accesskey) ; SECRET=$(cat /config/secretkey)\
+    \ ;\n  set +e ; # The connections to minio are allowed to fail.\n  echo \"Connecting\
+    \ to Minio server: http://$MINIO_ENDPOINT:$MINIO_PORT\" ;\n  MC_COMMAND=\"mc config\
+    \ host add myminio http://$MINIO_ENDPOINT:$MINIO_PORT $ACCESS $SECRET\" ;\n  $MC_COMMAND\
+    \ ;\n  STATUS=$? ;\n  until [ $STATUS -eq 0 ] ;\n  do\n    sleep 1 ; # 1 second\
+    \ intervals between attempts\n    $MC_COMMAND ;\n    STATUS=$? ;\n  done ;\n \
+    \ set -e ; # reset `e` as active\n  return 0\n}\n\n# checkBucketExists ($bucket)\n\
+    # Check if the bucket exists, by using the exit code of `mc ls`\ncheckBucketExists()\
+    \ {\n  BUCKET=$1\n  CMD=$(/usr/bin/mc ls myminio/$BUCKET > /dev/null 2>&1)\n \
+    \ return $?\n}\n\n# createBucket ($bucket, $policy, $purge)\n# Ensure bucket exists,\
+    \ purging if asked to\ncreateBucket() {\n  BUCKET=$1\n  POLICY=$2\n  PURGE=$3\n\
+    \n\n  # Purge the bucket, if set & exists\n  # Since PURGE is user input, check\
+    \ explicitly for `true`\n  if [ $PURGE = true ]; then\n    if checkBucketExists\
+    \ $BUCKET ; then\n      echo \"Purging bucket '$BUCKET'.\"\n      set +e ; # don't\
+    \ exit if this fails\n      /usr/bin/mc rm -r --force myminio/$BUCKET\n      set\
+    \ -e ; # reset `e` as active\n    else\n      echo \"Bucket '$BUCKET' does not\
+    \ exist, skipping purge.\"\n    fi\n  fi\n\n  # Create the bucket if it does not\
+    \ exist\n  if ! checkBucketExists $BUCKET ; then\n    echo \"Creating bucket '$BUCKET'\"\
+    \n    /usr/bin/mc mb myminio/$BUCKET\n  else\n    echo \"Bucket '$BUCKET' already\
+    \ exists.\"\n  fi\n\n  # At this point, the bucket should exist, skip checking\
+    \ for existance\n  # Set policy on the bucket\n  echo \"Setting policy of bucket\
+    \ '$BUCKET' to '$POLICY'.\"\n  /usr/bin/mc policy $POLICY myminio/$BUCKET\n}\n\
+    \nconnectToMinio\ncreateBucket registry none false\ncreateBucket git-lfs none\
+    \ false\ncreateBucket runner-cache none false\ncreateBucket gitlab-uploads none\
+    \ false\ncreateBucket gitlab-artifacts none false\ncreateBucket gitlab-backups\
+    \ none false\ncreateBucket gitlab-packages none false\ncreateBucket tmp none false\n\
+    createBucket gitlab-mr-diffs none false\ncreateBucket gitlab-terraform-state none\
+    \ false\ncreateBucket gitlab-ci-secure-files none false\ncreateBucket gitlab-dependency-proxy\
+    \ none false\ncreateBucket gitlab-pages none false"
+kind: ConfigMap
+metadata:
+  labels:
+    app: minio
+    app.kubernetes.io/component: minio
+    app.kubernetes.io/instance: gitlab-minio
+    app.kubernetes.io/managed-by: gitlab-operator
+    app.kubernetes.io/name: gitlab
+    app.kubernetes.io/part-of: gitlab
+    chart: minio-0.4.3
+    heritage: Helm
+    release: gitlab
+  name: gitlab-minio-config-cm
+  namespace: gitlab-system

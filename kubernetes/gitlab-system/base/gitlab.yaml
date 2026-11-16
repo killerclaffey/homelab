@@ -34,6 +34,12 @@ spec:
             requests:
               cpu: 100m
               memory: 600M
+        toolbox:
+          backups:
+            objectStorage:
+              config:
+                key: config
+                secret: gitlab-object-storage-s3cmd
         webservice:
           maxReplicas: 2
           minReplicas: 1
@@ -47,6 +53,17 @@ spec:
       gitlab-runner:
         install: true
       global:
+        appConfig:
+          object_store:
+            connection:
+              key: config
+              secret: gitlab-object-storage
+            enabled: true
+            proxy_download: true
+        gatewayApi:
+          configureCertmanager: false
+          enabled: false
+          installEnvoy: false
         hosts:
           domain: apps.okd.claffey.cloud
           https: true
@@ -54,35 +71,30 @@ spec:
           annotations: {}
           class: openshift-default
           configureCertmanager: false
+          enabled: true
           provider: openshift
+        psql:
+          host: gitlab-rails-db-rw.gitlab-system.svc
+          password:
+            key: password
+            secret: gitlab-rails-db-app
+        redis:
+          auth:
+            enabled: false
+          host: gitlab-valkey.gitlab-system.svc
         shell:
           port: 22
         smtp:
           enabled: false
         storageClass: truenas-nfs-bulk
-      minio:
-        persistence:
-          size: 100Gi
-          storageClass: truenas-nfs-bulk
       nginx-ingress:
         enabled: false
-      postgresql:
-        primary:
-          persistence:
-            size: 10Gi
-            storageClass: truenas-nfs-bulk
       prometheus:
         install: false
-      redis:
-        master:
-          persistence:
-            size: 5Gi
-            storageClass: truenas-nfs-bulk
-          resources:
-            requests:
-              cpu: 50m
-              memory: 100Mi
-            limits:
-              cpu: 200m
-              memory: 256Mi
-    version: 9.11.16
+      registry:
+        storage:
+          key: config
+          redirect:
+            disable: true
+          secret: gitlab-registry-storage
+    version: 10.0.11
