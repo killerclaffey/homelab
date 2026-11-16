@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: tailscale
-          image: docker.io/tailscale/tailscale:stable@sha256:5244f014aa3ad6b80db621ce161989d3cfc2a03c16024525e72d1b40a7a5dd2e
+          image: docker.io/tailscale/tailscale:stable@sha256:91b7c58cbce2f1273f1d76046892fcd45b8cdd5efe70a45c8ede53d041e89688
           imagePullPolicy: IfNotPresent
           env:
             - name: HOME
