@@ -36,7 +36,7 @@ spec:
           containers:
             - name: nextcloud-preview
               # renovate: datasource=docker depName=docker.io/nextcloud
-              image: docker.io/nextcloud:35.0.1-fpm@sha256:db6dab0a41c88e203613c2f3f5636189c0d062f84eedcf097b062c0bb183a73d
+              image: docker.io/nextcloud:35.0.3-fpm@sha256:eaf746a8ad73b8eda91704de8d51b68d93aa2e778bcb96ee81df720abd2f076a
               env:
                 - name: PHP_MEMORY_LIMIT
                   value: 2G
