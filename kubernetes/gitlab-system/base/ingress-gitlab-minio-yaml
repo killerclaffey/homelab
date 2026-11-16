@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.provider: openshift
+  labels:
+    app: minio
+    app.kubernetes.io/component: minio
+    app.kubernetes.io/instance: gitlab-minio
+    app.kubernetes.io/managed-by: argocd
+  name: gitlab-minio
+  namespace: gitlab-system
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: minio.apps.okd.claffey.cloud
+      http:
+        paths:
+          - backend:
+              service:
+                name: gitlab-minio-svc
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - minio.apps.okd.claffey.cloud
+      secretName: gitlab-wildcard-tls

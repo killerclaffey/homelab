@@ -6,6 +6,7 @@ resources:
   - valkey.yaml
   - configmap-gitlab-minio-config-cm-yaml
   - deployment-gitlab-minio-yaml
+  - ingress-gitlab-minio-yaml
   - pvc-gitlab-minio-yaml
   - service-gitlab-minio-svc-yaml
   - deployment-gitlab-controller-manager-yaml
