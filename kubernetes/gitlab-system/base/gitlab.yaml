@@ -2,6 +2,7 @@ apiVersion: apps.gitlab.com/v1beta1
 kind: GitLab
 metadata:
   annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "2"
   name: gitlab
   namespace: gitlab-system
@@ -14,8 +15,8 @@ spec:
         gitaly:
           git:
             config:
-            - key: safe.directory
-              value: '*'
+              - key: safe.directory
+                value: "*"
           persistence:
             size: 50Gi
             storageClass: truenas-nfs-bulk
@@ -84,4 +85,4 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
-    version: 9.11.4
+    version: 9.11.16
