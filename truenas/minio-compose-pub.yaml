@@ -121,7 +121,7 @@ services:
         - '--fail'
         - https://127.0.0.1:30213/api/v1/login
       timeout: 5s
-    image: ghcr.io/huncrys/minio-console:v1.8.1
+    image: ghcr.io/huncrys/minio-console:v1.8.1@sha256:c4b0be15c6fd1aacb0fed9f93a5390bf360c409d3a3b1929636cf357dbd3570a
     platform: linux/amd64
     ports:
       - mode: ingress
@@ -181,7 +181,7 @@ services:
       - 568
     healthcheck:
       disable: true
-    image: ixsystems/container-utils:1.1.2
+    image: ixsystems/container-utils:1.1.2@sha256:a3bab63aabcb020ad1c1036444657287d336e855650b837dc291235265fd0ff3
     network_mode: none
     platform: linux/amd64
     privileged: false

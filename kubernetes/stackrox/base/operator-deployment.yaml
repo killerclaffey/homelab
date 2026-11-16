@@ -50,7 +50,7 @@ spec:
                 containerName: manager
                 divisor: "0"
                 resource: limits.memory
-        image: "quay.io/stackrox-io/stackrox-operator:5.0.0"
+        image: "quay.io/stackrox-io/stackrox-operator:5.0.0@sha256:ed30ab7a5e2a6d57ee734a86082e6fa6f8fc955124e8f8f31465c6b4dd6d9802"
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
