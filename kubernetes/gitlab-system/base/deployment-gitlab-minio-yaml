@@ -5,13 +5,9 @@ metadata:
     app: minio
     app.kubernetes.io/component: minio
     app.kubernetes.io/instance: gitlab-minio
-    app.kubernetes.io/managed-by: gitlab-operator
-    app.kubernetes.io/name: gitlab
-    app.kubernetes.io/part-of: gitlab
     app.kubernetes.io/version: RELEASE.2017-12-28T01-21-00Z
     chart: minio-0.4.3
-    heritage: Helm
-    release: gitlab
+    app.kubernetes.io/managed-by: argocd
   name: gitlab-minio
   namespace: gitlab-system
 spec:

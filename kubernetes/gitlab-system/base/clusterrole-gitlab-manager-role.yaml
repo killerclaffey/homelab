@@ -164,6 +164,7 @@ rules:
   - apiGroups:
       - gateway.networking.k8s.io
     resources:
+      - backendtlspolicies
       - httproutes
       - tcproutes
       - gateways
@@ -181,6 +182,7 @@ rules:
       - envoyproxies
       - envoypatchpolicies
       - clienttrafficpolicies
+      - backendtrafficpolicies
       - securitypolicies
     verbs:
       - create
