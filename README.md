@@ -45,7 +45,7 @@ Install the ArgoCD Operator and start the instance on the cluster by applying th
 oc apply -k kubernetes/argocd/overlays/okd
 ```
 
-*This creates the `argocd` namespace, configures the operator, and deploys the self-managed ArgoCD instance.*
+_This creates the `argocd` namespace, configures the operator, and deploys the self-managed ArgoCD instance._
 
 Verify status:
 
@@ -82,21 +82,21 @@ ArgoCD will automatically discover, deploy, and reconcile all 31 application wor
 
 ### TrueNAS CSI Storage & High-Speed Mesh
 
-* **Standard Storage (`truenas-csi`)**: Provisions block (iSCSI port `3260`) and file (NFS port `2049`) persistent volumes backed by TrueNAS SCALE (`10.0.20.2`).
-* **High-Speed Mesh Storage (`tns-csi`)**: High-performance NVMe-oF and iSCSI storage running over a dedicated 40Gbps Thunderbolt 4 / USB4 mesh network connecting cluster nodes to TrueNAS (`10.0.50.2`).
-* See [Thunderbolt Mesh Topology](docs/network/thunderbolt-mesh-topology.md) for network diagrams, bridge persistence, and fio benchmark metrics.
+- **Standard Storage (`truenas-csi`)**: Provisions block (iSCSI port `3260`) and file (NFS port `2049`) persistent volumes backed by TrueNAS SCALE (`10.0.20.2`).
+- **High-Speed Mesh Storage (`tns-csi`)**: High-performance NVMe-oF and iSCSI storage running over a dedicated 40Gbps Thunderbolt 4 / USB4 mesh network connecting cluster nodes to TrueNAS (`10.0.50.2`).
+- See [Thunderbolt Mesh Topology](docs/network/thunderbolt-mesh-topology.md) for network diagrams, bridge persistence, and fio benchmark metrics.
 
 ### Uptime Kuma Declarative Seeding
 
-* Seeding is automated via a custom background script defined in [`seeder-configmap.yaml`](kubernetes/uptime-kuma/base/seeder-configmap.yaml).
-* The script waits for database tables to initialize after migrations, then idempotently provisions HTTP monitors for cluster routes:
-  * ArgoCD
-  * Mealie
-  * Immich
-  * GitLab
-  * Uptime Kuma (internal probe)
+- Seeding is automated via a custom background script defined in [`seeder-configmap.yaml`](kubernetes/uptime-kuma/base/seeder-configmap.yaml).
+- The script waits for database tables to initialize after migrations, then idempotently provisions HTTP monitors for cluster routes:
+  - ArgoCD
+  - Mealie
+  - Immich
+  - GitLab
+  - Uptime Kuma (internal probe)
 
 ### Host Boot Management
 
-* Physical control-plane master node boot configurations are versioned under [`machines/`](machines/).
-* See [`machines/README.md`](machines/README.md) for details on reconciling EFI partition UUIDs (`bootuuid.cfg`) via PowerShell (`apply-boot-config.ps1`) or Ansible (`apply-boot-config.yml`).
+- Physical control-plane master node boot configurations are versioned under [`machines/`](machines/).
+- See [`machines/README.md`](machines/README.md) for details on reconciling EFI partition UUIDs (`bootuuid.cfg`) via PowerShell (`apply-boot-config.ps1`) or Ansible (`apply-boot-config.yml`).

@@ -57,9 +57,9 @@ boot
 
 Contains the local block device filesystem UUID for `/dev/nvme0n1p3` (the `/boot` partition) on each respective node:
 
-* **`k81`:** `93d26952-ba0b-4647-acab-05b3eb75708e`
-* **`k82`:** `8f3990dc-d30d-4330-a192-8f5542079e1a`
-* **`k83`:** `1cdef842-7f5a-44a1-a9a0-409006f0f23f`
+- **`k81`:** `93d26952-ba0b-4647-acab-05b3eb75708e`
+- **`k82`:** `8f3990dc-d30d-4330-a192-8f5542079e1a`
+- **`k83`:** `1cdef842-7f5a-44a1-a9a0-409006f0f23f`
 
 ---
 

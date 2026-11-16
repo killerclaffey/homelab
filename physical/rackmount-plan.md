@@ -58,48 +58,48 @@
 
 The first block of ports is dedicated to multimedia for connecting a monitor and keyboard directly into the front of the rack.
 
-| Port 1 | Port 2 | Port 3 | Port 4 | Port 5 | Port 6 | Ports 7-24 |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **HDMI** | **HDMI** | **USB 3.0** | **USB 3.0** | **USB-C** | **USB-C** | **Ethernet** |
-| *(Pi 4 Video)* | *(Main Node)* | *(Keyboard)* | *(Mouse/Drive)* | *(Data)* | *(Data)* | *(Network)* |
+| Port 1         | Port 2        | Port 3       | Port 4          | Port 5    | Port 6    | Ports 7-24   |
+| :------------- | :------------ | :----------- | :-------------- | :-------- | :-------- | :----------- |
+| **HDMI**       | **HDMI**      | **USB 3.0**  | **USB 3.0**     | **USB-C** | **USB-C** | **Ethernet** |
+| _(Pi 4 Video)_ | _(Main Node)_ | _(Keyboard)_ | _(Mouse/Drive)_ | _(Data)_  | _(Data)_  | _(Network)_  |
 
-* **Spacing Note:** Multimedia keystones are wide. Spacing may require skipping a slot between HDMI/USB ports if tolerances are tight, or arranging them across alternating ports (1-3-5-7).
+- **Spacing Note:** Multimedia keystones are wide. Spacing may require skipping a slot between HDMI/USB ports if tolerances are tight, or arranging them across alternating ports (1-3-5-7).
 
 ---
 
 ## 4. Cost Analysis & Bill of Materials (BOM)
 
-*Prices are estimates based on current market data.*
+_Prices are estimates based on current market data._
 
 ### A. Core Hardware (Already Owned/Selected)
 
-| Item | Price | Status |
-| :--- | :--- | :--- |
-| **Modem Mount (Hive Tech)** | $79.11 | **Owned** |
-| **Switch (TRENDnet)** | $123.82 | **Selected** |
-| **Protectli Firewall Shelf** | $49.00 | **Selected** |
+| Item                         | Price   | Status       |
+| :--------------------------- | :------ | :----------- |
+| **Modem Mount (Hive Tech)**  | $79.11  | **Owned**    |
+| **Switch (TRENDnet)**        | $123.82 | **Selected** |
+| **Protectli Firewall Shelf** | $49.00  | **Selected** |
 
 ### B. Infrastructure Needed (To Buy)
 
-| Item | Est. Cost | Notes |
-| :--- | :--- | :--- |
-| **15U Open Frame Rack** | $145.00 | *StarTech 15U Open Frame or Echogear* |
-| **3x Mini PC Mount (2U)** | ~$95.00 | *Etsy "Minisforum UM890 Rack Mount 3-slot"* |
-| **Heavy Duty Shelf (For NAS)** | $38.00 | *NavePoint 1U Vented 4-Post Shelf* |
-| **24-Port Patch Panel** | $18.00 | *Cable Matters 24-Port Keystone Blank* |
-| **Rack Mount PDU** | $45.00 | *CyberPower or Tripp Lite 1U PDU* |
+| Item                           | Est. Cost | Notes                                       |
+| :----------------------------- | :-------- | :------------------------------------------ |
+| **15U Open Frame Rack**        | $145.00   | _StarTech 15U Open Frame or Echogear_       |
+| **3x Mini PC Mount (2U)**      | ~$95.00   | _Etsy "Minisforum UM890 Rack Mount 3-slot"_ |
+| **Heavy Duty Shelf (For NAS)** | $38.00    | _NavePoint 1U Vented 4-Post Shelf_          |
+| **24-Port Patch Panel**        | $18.00    | _Cable Matters 24-Port Keystone Blank_      |
+| **Rack Mount PDU**             | $45.00    | _CyberPower or Tripp Lite 1U PDU_           |
 
 ### C. Connectivity & Multimedia (The "Crash Cart" Kit)
 
-| Item | Est. Cost | Notes |
-| :--- | :--- | :--- |
-| **2x HDMI Keystones** | $14.00 | *4K/60Hz Rated (Female-to-Female)* |
-| **2x USB 3.0 Keystones** | $12.00 | *Type-A (Female-to-Female)* |
-| **2x USB-C Keystones** | $20.00 | *Type-C 3.1 (Data Pass-through)* |
-| **18x RJ45 Couplers** | $20.00 | *Cat6 Network Keystones* |
-| **Internal HDMI/USB Cables** | $30.00 | *Short (1-3ft) cables to connect devices to keystones inside* |
-| **Slim Network Cables** | $25.00 | *20-pack SlimRun Cat6 (6-inch & 1ft)* |
-| **Power Ext. Cords** | $15.00 | *For bulky power bricks* |
+| Item                         | Est. Cost | Notes                                                         |
+| :--------------------------- | :-------- | :------------------------------------------------------------ |
+| **2x HDMI Keystones**        | $14.00    | _4K/60Hz Rated (Female-to-Female)_                            |
+| **2x USB 3.0 Keystones**     | $12.00    | _Type-A (Female-to-Female)_                                   |
+| **2x USB-C Keystones**       | $20.00    | _Type-C 3.1 (Data Pass-through)_                              |
+| **18x RJ45 Couplers**        | $20.00    | _Cat6 Network Keystones_                                      |
+| **Internal HDMI/USB Cables** | $30.00    | _Short (1-3ft) cables to connect devices to keystones inside_ |
+| **Slim Network Cables**      | $25.00    | _20-pack SlimRun Cat6 (6-inch & 1ft)_                         |
+| **Power Ext. Cords**         | $15.00    | _For bulky power bricks_                                      |
 
 ### Total Estimated Project Cost: ~$728.93
 
@@ -126,8 +126,8 @@ To make the front ports work, you must wire the inside:
 
 ## 6. Action Items Checklist
 
-* [ ] **Order Rack:** Purchase 15U Open Frame rack.
-* [ ] **Verify Mounts:** Confirm the Hive Tech mount for the UM890 supports **3 units**.
-* [ ] **Buy Multimedia Keystones:** Ensure HDMI is 4K rated and USB-C supports 10Gbps.
-* [ ] **Buy Internal Cables:** Verify internal HDMI and USB cables are acquired to connect chassis ports to keystones inside the rack.
-* [ ] **Plan Spacing:** When installing the patch panel, check if the USB/HDMI keystones fit side-by-side. If not, space them out (Port 1, 3, 5).
+- [ ] **Order Rack:** Purchase 15U Open Frame rack.
+- [ ] **Verify Mounts:** Confirm the Hive Tech mount for the UM890 supports **3 units**.
+- [ ] **Buy Multimedia Keystones:** Ensure HDMI is 4K rated and USB-C supports 10Gbps.
+- [ ] **Buy Internal Cables:** Verify internal HDMI and USB cables are acquired to connect chassis ports to keystones inside the rack.
+- [ ] **Plan Spacing:** When installing the patch panel, check if the USB/HDMI keystones fit side-by-side. If not, space them out (Port 1, 3, 5).
