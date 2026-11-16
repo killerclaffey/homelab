@@ -29,7 +29,7 @@ spec:
       containers:
         - name: paperless-ngx
           # renovate: datasource=github-releases depName=paperless-ngx/paperless-ngx
-          image: ghcr.io/paperless-ngx/paperless-ngx:3.3.1@sha256:cb91bfb468e63025a9d10c01b54c33665113668eee61b490db96de19b860b9c4
+          image: ghcr.io/paperless-ngx/paperless-ngx:3.4.2@sha256:d704e84f88300eb6ab001ab15720a2330ff99169cf9f94d6b8fcc44b63a84c84
           imagePullPolicy: IfNotPresent
           env:
             - name: PAPERLESS_DBHOST
