@@ -32,10 +32,10 @@ spec:
     enablePodMonitor: false
   storage:
     storageClass: tns-nvmeof-nvme
-    size: 10Gi
+    size: 25Gi
   walStorage:
     storageClass: tns-nvmeof-nvme
-    size: 5Gi
+    size: 10Gi
   resources:
     requests:
       cpu: 50m
