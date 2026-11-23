@@ -18,7 +18,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: '2026-11-22T12:49:00-05:00'
+        kubectl.kubernetes.io/restartedAt: '2026-11-22T22:22:00-05:00'
       labels:
         app: bikely-frontend
     spec:
@@ -26,7 +26,7 @@ spec:
       - env:
         - name: VITE_API_URL
           value: https://devbikely.claffey.cloud/api
-        image: image-registry.openshift-image-registry.svc:5000/bikely-dev/fitness-app-frontend:v26
+        image: image-registry.openshift-image-registry.svc:5000/bikely-dev/fitness-app-frontend:v27
         imagePullPolicy: IfNotPresent
         name: frontend
         ports:
