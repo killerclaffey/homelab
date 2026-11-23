@@ -28,7 +28,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: '2026-11-22T22:22:00-05:00'
+        kubectl.kubernetes.io/restartedAt: '2026-11-23T10:05:00-05:00'
       labels:
         app: bikely-backend
         app.kubernetes.io/managed-by: kustomize
@@ -78,6 +78,21 @@ spec:
             configMapKeyRef:
               key: STRAVA_REDIRECT_URI
               name: bikely-config
+        - name: STRAVA_SYNC_TICK_MS
+          valueFrom:
+            configMapKeyRef:
+              key: STRAVA_SYNC_TICK_MS
+              name: bikely-config
+        - name: BIKELY_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              key: BIKELY_SERVICE_URL
+              name: bikely-config
+        - name: LY_SERVICE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: LY_SERVICE_TOKEN
+              name: bikely-secrets
         image: image-registry.openshift-image-registry.svc:5000/bikely/backend:latest
         imagePullPolicy: Always
         livenessProbe:

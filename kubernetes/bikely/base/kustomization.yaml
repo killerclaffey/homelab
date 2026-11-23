@@ -5,6 +5,7 @@ resources:
   - configmap-bikely-config-yaml
   - configmap-nginx-config-yaml
   - configmap-tileserver-config-yaml
+  - cronjob-strava-sync-tick-yaml
   - deployment-bikely-backend-yaml
   - deployment-bikely-frontend-yaml
   - deployment-bikely-tileserver-yaml

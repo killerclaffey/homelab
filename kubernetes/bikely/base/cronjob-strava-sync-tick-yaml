@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: strava-sync-tick
+  namespace: bikely
+  labels:
+    app: strava-sync-tick
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bikely
+    deployment: okd
+    environment: production
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 120
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: tick
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  curl -fsS --max-time 30 -X POST \
+                    -H "x-ly-service-token: ${LY_SERVICE_TOKEN}" \
+                    http://bikely-backend-service:4000/api/strava/sync/tick
+                  echo ""
+              env:
+                - name: LY_SERVICE_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: bikely-secrets
+                      key: LY_SERVICE_TOKEN
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
