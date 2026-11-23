@@ -7,6 +7,10 @@ metadata:
     app: strava-sync-tick
 spec:
   schedule: "0 */6 * * *"
+  # Suspended in dev so dev DB clones of prod Strava tokens cannot rotate
+  # single-use refresh tokens out from under production. Trigger manually via:
+  #   oc create job --from=cronjob/strava-sync-tick manual-tick -n bikely-dev
+  suspend: true
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 3
