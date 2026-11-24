@@ -182,7 +182,7 @@ spec:
       terminationGracePeriodSeconds: 3600
       containers:
         - name: velero
-          image: "docker.io/velero/velero:v1.18.4@sha256:c89fb5b6d1fd6afd368e0f483e6f5555fd62851a1eada8ac5c72482e674ca17b"
+          image: "docker.io/velero/velero:v1.19.0@sha256:da94e0de154f837db0ada37ea0c168428943dab2c872efc10481189925de395f"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http-monitoring
@@ -423,7 +423,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: velero
-          image: "docker.io/velero/velero:v1.18.4@sha256:c89fb5b6d1fd6afd368e0f483e6f5555fd62851a1eada8ac5c72482e674ca17b"
+          image: "docker.io/velero/velero:v1.19.0@sha256:da94e0de154f837db0ada37ea0c168428943dab2c872efc10481189925de395f"
           imagePullPolicy: IfNotPresent
           command:
             - /velero
