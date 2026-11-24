@@ -28,7 +28,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: tick
-              image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:08d4c70f1baf6537a0728656cf7942d561e74a35916509d205b6519861266352
               imagePullPolicy: IfNotPresent
               securityContext:
                 allowPrivilegeEscalation: false
