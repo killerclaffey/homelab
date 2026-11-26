@@ -22,7 +22,7 @@ MINIO_IAM_USER="${MINIO_IAM_USER:-cnpg-backups}"
 MC_IMAGE="${MC_IMAGE:-docker.io/bitnamilegacy/minio-client:2025.7.21-debian-12-r3}"
 
 VAULT_ONLY=false
-if [ "${1:-}" = "--vault-only" ]; then
+if [[ "${1:-}" = "--vault-only" ]]; then
   VAULT_ONLY=true
 fi
 
@@ -48,7 +48,7 @@ run_mc() {
     (
       set -a
       # shellcheck disable=SC1090
-      . "${env_file}"
+      source "${env_file}"
       set +a
       mc "$@"
     )
@@ -72,21 +72,21 @@ echo "------------------------------------------------------------------"
 ACCESS_KEY_ID="${ACCESS_KEY_ID:-}"
 SECRET_ACCESS_KEY="${SECRET_ACCESS_KEY:-}"
 
-if [ "${VAULT_ONLY}" = false ]; then
+if [[ "${VAULT_ONLY}" = false ]]; then
   MINIO_ROOT_USER="${MINIO_ROOT_USER:-}"
-  if [ -z "${MINIO_ROOT_USER}" ]; then
+  if [[ -z "${MINIO_ROOT_USER}" ]]; then
     read -rp "Enter MinIO Admin Username: " MINIO_ROOT_USER
   fi
   MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-}"
-  if [ -z "${MINIO_ROOT_PASSWORD}" ]; then
+  if [[ -z "${MINIO_ROOT_PASSWORD}" ]]; then
     read -rsp "Enter MinIO Admin Password: " MINIO_ROOT_PASSWORD
     echo ""
   fi
 
-  if [ -z "${ACCESS_KEY_ID}" ]; then
+  if [[ -z "${ACCESS_KEY_ID}" ]]; then
     ACCESS_KEY_ID="${MINIO_IAM_USER}"
   fi
-  if [ -z "${SECRET_ACCESS_KEY}" ]; then
+  if [[ -z "${SECRET_ACCESS_KEY}" ]]; then
     SECRET_ACCESS_KEY="$(generate_secret 40)"
   fi
 
@@ -154,7 +154,9 @@ EOF
   run_mc "${ADMIN_ENV_FILE}" admin user add nas "${ACCESS_KEY_ID}" "${SECRET_ACCESS_KEY}"
 
   echo "4. Attaching policy '${MINIO_POLICY_NAME}' to user '${ACCESS_KEY_ID}'..."
-  run_mc "${ADMIN_ENV_FILE}" admin policy attach nas "${MINIO_POLICY_NAME}" --user "${ACCESS_KEY_ID}" || true
+  set +e
+  run_mc "${ADMIN_ENV_FILE}" admin policy attach nas "${MINIO_POLICY_NAME}" --user "${ACCESS_KEY_ID}"
+  set -e
 
   echo "5. Verifying S3 access with the new least-privilege credentials..."
   USER_ENV_FILE="${TMPDIR_WORK}/user.env"
@@ -173,11 +175,11 @@ print(f"MC_HOST_cnpg={scheme}://{u}:{p}@{rest}")
   run_mc "${USER_ENV_FILE}" ls "cnpg/${MINIO_BUCKET}" >/dev/null
   echo "✅ MinIO bucket & least-privilege credentials verified!"
 else
-  if [ -z "${ACCESS_KEY_ID}" ]; then
+  if [[ -z "${ACCESS_KEY_ID}" ]]; then
     read -rp "Enter MinIO Access Key ID [${MINIO_IAM_USER}]: " INPUT_AK
     ACCESS_KEY_ID="${INPUT_AK:-${MINIO_IAM_USER}}"
   fi
-  if [ -z "${SECRET_ACCESS_KEY}" ]; then
+  if [[ -z "${SECRET_ACCESS_KEY}" ]]; then
     read -rsp "Enter MinIO Secret Access Key: " SECRET_ACCESS_KEY
     echo ""
   fi
@@ -199,16 +201,16 @@ echo "6. Writing credentials to Vault path: ${VAULT_PATH}..."
 if command -v oc >/dev/null 2>&1 && oc whoami >/dev/null 2>&1; then
   echo "Using 'oc exec' into Vault pod (vault-0)..."
   VAULT_TOKEN="${VAULT_TOKEN:-}"
-  if [ -z "${VAULT_TOKEN}" ]; then
+  if [[ -z "${VAULT_TOKEN}" ]]; then
     VAULT_TOKEN="$(oc get secret -n vault vault-unseal-keys -o jsonpath='{.data.ROOT_TOKEN}' 2>/dev/null | base64 -d 2>/dev/null || true)"
   fi
-  if [ -z "${VAULT_TOKEN}" ]; then
+  if [[ -z "${VAULT_TOKEN}" ]]; then
     VAULT_TOKEN="$(oc get secret -n vault vault-unseal-keys -o jsonpath='{.data.VAULT_DEV_ROOT_TOKEN_ID}' 2>/dev/null | base64 -d 2>/dev/null || true)"
   fi
-  if [ -z "${VAULT_TOKEN}" ]; then
+  if [[ -z "${VAULT_TOKEN}" ]]; then
     VAULT_TOKEN="$(oc get secret -n vault vault-unseal-keys -o jsonpath='{.data.vault-root-token}' 2>/dev/null | base64 -d 2>/dev/null || true)"
   fi
-  if [ -z "${VAULT_TOKEN}" ]; then
+  if [[ -z "${VAULT_TOKEN}" ]]; then
     read -rsp "Enter Vault Token (or Root Token): " VAULT_TOKEN
     echo ""
   fi
