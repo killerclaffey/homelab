@@ -28,7 +28,9 @@ fi
 
 TMPDIR_WORK="$(mktemp -d)"
 chmod 700 "${TMPDIR_WORK}"
-trap 'rm -rf "${TMPDIR_WORK}"' EXIT
+POLICY_DIR="$(mktemp -d)"
+chmod 755 "${POLICY_DIR}"
+trap 'rm -rf "${TMPDIR_WORK}" "${POLICY_DIR}"' EXIT
 
 generate_secret() {
   local length="${1:-40}"
@@ -51,7 +53,7 @@ run_mc() {
       mc "$@"
     )
   elif command -v podman >/dev/null 2>&1; then
-    podman run --rm --entrypoint mc --env-file "${env_file}" -v "${TMPDIR_WORK}:/work:ro,Z" "${MC_IMAGE}" "$@"
+    podman run --rm --entrypoint mc --env-file "${env_file}" -v "${POLICY_DIR}:/work:ro,Z" "${MC_IMAGE}" "$@"
   else
     echo "Error: neither 'mc' nor 'podman' is installed." >&2
     exit 1
@@ -103,7 +105,7 @@ print(f"MC_HOST_nas={scheme}://{u}:{p}@{rest}")
 ' > "${ADMIN_ENV_FILE}"
   )
 
-  POLICY_FILE="${TMPDIR_WORK}/policy.json"
+  POLICY_FILE="${POLICY_DIR}/policy.json"
   cat > "${POLICY_FILE}" <<EOF
 {
   "Version": "2012-10-17",
@@ -135,6 +137,7 @@ print(f"MC_HOST_nas={scheme}://{u}:{p}@{rest}")
   ]
 }
 EOF
+  chmod 644 "${POLICY_FILE}"
 
   POLICY_ARG="${POLICY_FILE}"
   if ! command -v mc >/dev/null 2>&1; then
