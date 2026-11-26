@@ -38,7 +38,7 @@ spec:
           value: http://immich-machine-learning:3003
         - name: REDIS_HOSTNAME
           value: immich-valkey
-        image: quay.io/sclorg/valkey-8-c10s:c10s@sha256:0382c1b2717c11ca43bb80e94c6506e6d916d714812ca48a514dcca318a553a4
+        image: quay.io/sclorg/valkey-8-c10s:c10s@sha256:5ab722e95096a7d306e1236bc10920a451b5e1bacc23420ba697f547f3c8ea0b
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
