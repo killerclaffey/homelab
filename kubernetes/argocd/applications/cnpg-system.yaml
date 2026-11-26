@@ -1,0 +1,62 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cnpg-system
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    app.kubernetes.io/instance: argocd
+spec:
+  destination:
+    namespace: cnpg-system
+    server: https://kubernetes.default.svc
+  project: default
+  sources:
+    - repoURL: https://cloudnative-pg.github.io/charts
+      chart: cloudnative-pg
+      targetRevision: 0.29.2
+      helm:
+        releaseName: cnpg
+        values: |
+          fullnameOverride: cnpg
+          crds:
+            create: true
+          serviceAccount:
+            create: true
+            name: cnpg-manager
+          config:
+            create: true
+            name: cnpg-controller-manager-config
+            secret: false
+            data:
+              ENABLE_INSTANCE_MANAGER_INPLACE_UPDATES: "true"
+              CLUSTERS_ROLLOUT_DELAY: "30"
+              INSTANCES_ROLLOUT_DELAY: "15"
+    - repoURL: https://cloudnative-pg.github.io/charts
+      chart: plugin-barman-cloud
+      targetRevision: 0.9.0
+      helm:
+        releaseName: plugin-barman-cloud
+        values: |
+          crds:
+            create: true
+          serviceAccount:
+            create: true
+            name: plugin-barman-cloud
+          certificate:
+            createClientCertificate: true
+            createServerCertificate: true
+            createIssuer: true
+    - repoURL: https://gitlab.apps.okd.claffey.cloud/rclaffey/homelab.git
+      targetRevision: HEAD
+      path: kubernetes/cnpg-system/overlays/okd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+      - CreateNamespace=true

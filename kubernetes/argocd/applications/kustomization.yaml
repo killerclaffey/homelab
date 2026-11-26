@@ -4,6 +4,7 @@ resources:
   - argocd.yaml
   - bikely-dev.yaml
   - bikely.yaml
+  - cnpg-system.yaml
   - external-dns.yaml
   - external-secrets.yaml
   - gitlab-system.yaml
