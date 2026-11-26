@@ -27,7 +27,7 @@ spec:
           schedulerName: default-scheduler
           containers:
             - name: renovate
-              image: ghcr.io/renovatebot/renovate:44@sha256:0123dd7efea6978a8347732aac8be14745cebb6b8653e77bc9ee290698d97e89
+              image: ghcr.io/renovatebot/renovate:44@sha256:9806d1b444f2b0b57d7c3b882d453b99c7494db07689c2e1abed8e6ae502b271
               imagePullPolicy: IfNotPresent
               env:
                 # GitLab self-hosted (primary)
