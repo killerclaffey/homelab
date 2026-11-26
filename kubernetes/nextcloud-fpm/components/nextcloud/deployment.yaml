@@ -42,7 +42,7 @@ spec:
       initContainers:
         - name: init-redis-session-ini
           # renovate: datasource=docker depName=docker.io/nextcloud
-          image: docker.io/nextcloud:35.0.3-fpm@sha256:eaf746a8ad73b8eda91704de8d51b68d93aa2e778bcb96ee81df720abd2f076a
+          image: docker.io/nextcloud:35.0.3-fpm@sha256:d94f573f34403c0ffa4292a244d572a53cae17963c44078636e2e64ef234e75b
           command:
             - "sh"
             - "-c"
@@ -69,7 +69,7 @@ spec:
               mountPath: "/usr/local/etc/php/conf.d"
         - name: init-max-children
           # renovate: datasource=docker depName=docker.io/nextcloud
-          image: docker.io/nextcloud:35.0.3-fpm@sha256:eaf746a8ad73b8eda91704de8d51b68d93aa2e778bcb96ee81df720abd2f076a
+          image: docker.io/nextcloud:35.0.3-fpm@sha256:d94f573f34403c0ffa4292a244d572a53cae17963c44078636e2e64ef234e75b
           command:
             - "sh"
             - "-c"
@@ -97,7 +97,7 @@ spec:
       containers:
         - name: nextcloud
           # renovate: datasource=docker depName=docker.io/nextcloud
-          image: docker.io/nextcloud:35.0.3-fpm@sha256:eaf746a8ad73b8eda91704de8d51b68d93aa2e778bcb96ee81df720abd2f076a
+          image: docker.io/nextcloud:35.0.3-fpm@sha256:d94f573f34403c0ffa4292a244d572a53cae17963c44078636e2e64ef234e75b
           env:
             - name: NEXTCLOUD_TRUSTED_DOMAINS
               value: nextcloud.apps.okd.claffey.cloud

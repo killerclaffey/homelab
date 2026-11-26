@@ -36,7 +36,7 @@ spec:
           containers:
             - name: nextcloud-cron
               # renovate: datasource=docker depName=docker.io/nextcloud
-              image: docker.io/nextcloud:35.0.3-fpm@sha256:eaf746a8ad73b8eda91704de8d51b68d93aa2e778bcb96ee81df720abd2f076a
+              image: docker.io/nextcloud:35.0.3-fpm@sha256:d94f573f34403c0ffa4292a244d572a53cae17963c44078636e2e64ef234e75b
               env:
                 - name: PHP_MEMORY_LIMIT
                   value: 2G
