@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cnpg-snapshot-pruner
+  namespace: bikely-dev
+  labels:
+    app.kubernetes.io/instance: bikely-dev
+    app.kubernetes.io/name: cnpg-snapshot-pruner
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cnpg-snapshot-pruner
+  namespace: bikely-dev
+  labels:
+    app.kubernetes.io/instance: bikely-dev
+    app.kubernetes.io/name: cnpg-snapshot-pruner
+rules:
+  - apiGroups:
+      - postgresql.cnpg.io
+    resources:
+      - backups
+    verbs:
+      - get
+      - list
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cnpg-snapshot-pruner
+  namespace: bikely-dev
+  labels:
+    app.kubernetes.io/instance: bikely-dev
+    app.kubernetes.io/name: cnpg-snapshot-pruner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cnpg-snapshot-pruner
+subjects:
+  - kind: ServiceAccount
+    name: cnpg-snapshot-pruner
+    namespace: bikely-dev
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cnpg-snapshot-pruner
+  namespace: bikely-dev
+  labels:
+    app.kubernetes.io/instance: bikely-dev
+    app.kubernetes.io/name: cnpg-snapshot-pruner
+spec:
+  schedule: "0 4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 180
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: cnpg-snapshot-pruner
+          automountServiceAccountToken: true
+          enableServiceLinks: false
+          dnsPolicy: ClusterFirst
+          schedulerName: default-scheduler
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: pruner
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest@sha256:08d4c70f1baf6537a0728656cf7942d561e74a35916509d205b6519861266352
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
+                seccompProfile:
+                  type: RuntimeDefault
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: SCHEDULED_BACKUP_NAME
+                  value: bikely-db-snapshot-daily
+                - name: RETENTION_DAYS
+                  value: "7"
+                - name: MIN_KEEP
+                  value: "2"
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                  CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                  API="https://kubernetes.default.svc/apis/postgresql.cnpg.io/v1/namespaces/${NAMESPACE}/backups"
+                  NOW=$(date -u +%s)
+                  CUTOFF=$((NOW - RETENTION_DAYS * 86400))
+
+                  # Fetch snapshot Backup objects in pretty JSON and extract "timestamp name"
+                  # for completed backups only (newest first after sort -r).
+                  ITEMS=$(curl -fsS --cacert "${CACERT}" -H "Authorization: Bearer ${TOKEN}" \
+                    "${API}?labelSelector=cnpg.io/scheduled-backup=${SCHEDULED_BACKUP_NAME}&pretty=true" \
+                    | awk '
+                      /^    \{$/ { name=""; ts=""; phase=""; in_meta=0; in_status=0 }
+                      /^      "metadata": \{$/ { in_meta=1; in_status=0; next }
+                      /^      "status": \{$/ { in_meta=0; in_status=1; next }
+                      /^      \},?$/ { in_meta=0; in_status=0 }
+                      in_meta && /^        "name": "/ {
+                        s=$0; sub(/^        "name": "/, "", s); sub(/",?$/, "", s); name=s
+                      }
+                      in_meta && /^        "creationTimestamp": "/ {
+                        s=$0; sub(/^        "creationTimestamp": "/, "", s); sub(/",?$/, "", s); ts=s
+                      }
+                      in_status && /^        "phase": "/ {
+                        s=$0; sub(/^        "phase": "/, "", s); sub(/",?$/, "", s); phase=s
+                      }
+                      /^    \},?$/ {
+                        if (name != "" && ts != "" && phase == "completed") {
+                          print ts " " name
+                        }
+                      }
+                    ' | sort -r)
+
+                  COUNT=0
+                  echo "${ITEMS}" | while read -r TS NAME; do
+                    [ -z "${NAME}" ] && continue
+                    COUNT=$((COUNT + 1))
+                    if [ "${COUNT}" -le "${MIN_KEEP}" ]; then
+                      echo "Keeping recent snapshot backup #${COUNT}: ${NAME} (${TS})"
+                      continue
+                    fi
+                    EPOCH=$(date -u -d "${TS}" +%s)
+                    if [ "${EPOCH}" -lt "${CUTOFF}" ]; then
+                      echo "Pruning expired (> ${RETENTION_DAYS}d) snapshot backup: ${NAME} (${TS})"
+                      curl -fsS --cacert "${CACERT}" -H "Authorization: Bearer ${TOKEN}" \
+                        -X DELETE "${API}/${NAME}" >/dev/null
+                    else
+                      echo "Retaining within ${RETENTION_DAYS}d window: ${NAME} (${TS})"
+                    fi
+                  done
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi

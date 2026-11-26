@@ -9,6 +9,10 @@ resources:
   - deployment-bikely-tileserver-yaml
   - deployment-bikely-upload-service-yaml
   - cluster-postgres.yaml
+  - external-secret-cnpg-minio.yaml
+  - objectstore-bikely-backups.yaml
+  - scheduledbackup-bikely-db.yaml
+  - cronjob-snapshot-prune.yaml
   - namespace.yaml
   - cronjob-postgres-backup-yaml
   - cronjob-strava-sync-tick-yaml

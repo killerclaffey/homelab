@@ -1,0 +1,38 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: bikely-prod-minio-store
+  namespace: bikely
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app.kubernetes.io/instance: bikely
+    app.kubernetes.io/name: bikely-db
+spec:
+  retentionPolicy: "14d"
+  configuration:
+    destinationPath: "s3://cnpg-backups/bikely-prod"
+    endpointURL: "https://minio.claffey.cloud:9000"
+    s3AddressingStyle: path
+    s3Credentials:
+      accessKeyId:
+        name: cnpg-minio-credentials
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: cnpg-minio-credentials
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+      maxParallel: 2
+    data:
+      compression: gzip
+      jobs: 2
+  instanceSidecarConfiguration:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi

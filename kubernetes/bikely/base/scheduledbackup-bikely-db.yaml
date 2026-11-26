@@ -1,0 +1,38 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: bikely-db-barman-daily
+  namespace: bikely
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/instance: bikely
+    app.kubernetes.io/name: bikely-db
+spec:
+  schedule: "0 15 2 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  cluster:
+    name: bikely-db
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: bikely-db-snapshot-daily
+  namespace: bikely
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/instance: bikely
+    app.kubernetes.io/name: bikely-db
+spec:
+  schedule: "0 45 2 * * *"
+  backupOwnerReference: self
+  method: volumeSnapshot
+  online: true
+  cluster:
+    name: bikely-db
