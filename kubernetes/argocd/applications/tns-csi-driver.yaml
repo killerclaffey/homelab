@@ -26,6 +26,11 @@ spec:
           existingSecret: "tns-csi-secret"
         openshift:
           enabled: true
+        snapshots:
+          enabled: true
+          volumeSnapshotClass:
+            create: true
+            deletionPolicy: Delete
         storageClasses:
           - name: tns-nfs-nvme
             enabled: true
