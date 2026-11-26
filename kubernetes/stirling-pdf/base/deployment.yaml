@@ -28,7 +28,7 @@ spec:
       schedulerName: default-scheduler
       containers:
         - name: stirling-pdf
-          image: docker.io/stirlingtools/stirling-pdf:3.3.0@sha256:b670779e1984ab3b7d2009d34b4fff63f6294aeb2325c97dc93f5f616bf4b9c7
+          image: docker.io/stirlingtools/stirling-pdf:3.5.0@sha256:d7ff3898302c226e2ff98668681c8dd158ecd248f35f2e36327bbeb772146f8a
           command: ["/bin/bash", "/custom/stirling-init.sh"]
           imagePullPolicy: Always
           ports:
