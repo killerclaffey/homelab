@@ -90,7 +90,7 @@ spec:
         env:
         - name: TZ
           value: UTC
-        image: registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v19.5.5@sha256:1fc6de931911654589144ead8f1c9bf764fd79d0e584a0a7cd1b5329ab36ba63
+        image: registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v19.6.2@sha256:4aebd7c58dde5e5020acdaa9ab5d02d9bbbfefc2b14595320a33573216c1354a
         imagePullPolicy: IfNotPresent
         name: configure
         resources:
