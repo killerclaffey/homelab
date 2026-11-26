@@ -33,7 +33,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: weewx
-          image: ghcr.io/felddy/weewx:5.5.6@sha256:41a0c4e6b3eb68477a37a1f9846ffe778661b05bcbba3eddb33b2a5beb28c246
+          image: ghcr.io/felddy/weewx:5.5.9@sha256:17e546056813ecf128ee6df026b98c18e384e5455063dbb35aef71ed4ab90d5e
           imagePullPolicy: Always
           env:
             - name: TIMEZONE

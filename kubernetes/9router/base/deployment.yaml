@@ -33,7 +33,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: 9router
-          image: docker.io/decolua/9router:0.5.119@sha256:38e58865ff111599f409f44430084ad0016c2ba530757ef545848d4bbe0cf007
+          image: docker.io/decolua/9router:0.5.123@sha256:b5f68a9d0f89a805f574b32ed00103a7f205ae0ddaa4e508ad6440e58a9bd07b
           imagePullPolicy: IfNotPresent
           command: ["node", "custom-server.js"]
           env:
