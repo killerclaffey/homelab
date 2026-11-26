@@ -19,7 +19,7 @@ MINIO_ENDPOINT="${MINIO_ENDPOINT:-https://minio.claffey.cloud:9000}"
 MINIO_BUCKET="${MINIO_BUCKET:-cnpg-backups}"
 MINIO_POLICY_NAME="${MINIO_POLICY_NAME:-cnpg-backups-rw}"
 MINIO_IAM_USER="${MINIO_IAM_USER:-cnpg-backups}"
-MC_IMAGE="${MC_IMAGE:-quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z}"
+MC_IMAGE="${MC_IMAGE:-docker.io/bitnamilegacy/minio-client:2025.7.21-debian-12-r3}"
 
 VAULT_ONLY=false
 if [ "${1:-}" = "--vault-only" ]; then
@@ -51,7 +51,7 @@ run_mc() {
       mc "$@"
     )
   elif command -v podman >/dev/null 2>&1; then
-    podman run --rm --env-file "${env_file}" -v "${TMPDIR_WORK}:/work:ro,Z" "${MC_IMAGE}" "$@"
+    podman run --rm --entrypoint mc --env-file "${env_file}" -v "${TMPDIR_WORK}:/work:ro,Z" "${MC_IMAGE}" "$@"
   else
     echo "Error: neither 'mc' nor 'podman' is installed." >&2
     exit 1
