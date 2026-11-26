@@ -49,7 +49,7 @@ spec:
           value: gitlab-nginx-ingress
         - name: PROMETHEUS_SERVICE_ACCOUNT
           value: gitlab-prometheus-server
-        image: registry.gitlab.com/gitlab-org/cloud-native/gitlab-operator:3.5.5@sha256:412db733e923d9536292c3e8ca6e550bc50b36999e9be3ef5a745c1b3f65a0ed
+        image: registry.gitlab.com/gitlab-org/cloud-native/gitlab-operator:3.6.2@sha256:ea06aff2866cfb8f2c8ad795df334092611d2473ecdcb61050fd79d46b03577a
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
