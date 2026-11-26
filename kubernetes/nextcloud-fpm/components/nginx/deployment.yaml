@@ -42,7 +42,7 @@ spec:
       containers:
         - name: nginx
           # renovate: datasource=docker depName=registry.access.redhat.com/ubi9/nginx-124
-          image: registry.access.redhat.com/ubi9/nginx-124:latest@sha256:728394512286300a97db9519960fc98459e5cf8dd576eea0c31b8bdd9369a487
+          image: registry.access.redhat.com/ubi9/nginx-124:latest@sha256:25689563c913e06be2879b36394e8a156b7a96ad1fd45e2cfcbf91dc5c071f70
           command:
             - nginx
             - -g

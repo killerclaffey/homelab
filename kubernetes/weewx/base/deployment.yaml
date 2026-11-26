@@ -61,7 +61,7 @@ spec:
             - mountPath: /data
               name: weewx-data
         - name: web
-          image: registry.access.redhat.com/ubi9/nginx-124:latest@sha256:af1f35dfa2ff5aa6867f3e18b7ad1544256768a4145e86cb6b9b8db853c942c2
+          image: registry.access.redhat.com/ubi9/nginx-124:latest@sha256:7ebf29440bcf878381158047771ccb4b567cb10d050d504ca2a3a65d90ecc394
           command:
             - /usr/libexec/s2i/run
           imagePullPolicy: Always
