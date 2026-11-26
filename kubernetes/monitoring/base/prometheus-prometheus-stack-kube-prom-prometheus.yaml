@@ -42,7 +42,7 @@ spec:
   evaluationInterval: 30s
   externalUrl: http://prometheus-stack-kube-prom-prometheus.monitoring:9090
   hostNetwork: false
-  image: quay.io/prometheus/prometheus:v3.9.1@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
+  image: quay.io/prometheus/prometheus:v3.16.0@sha256:9332054523223e2ddc18d8101799d54a4a8d823b030c53216f063a6c117773cd
   imagePullPolicy: IfNotPresent
   listenLocal: false
   logFormat: logfmt
@@ -95,5 +95,5 @@ spec:
         storageClassName: truenas-nfs-bulk
   tsdb:
     outOfOrderTimeWindow: 0s
-  version: v3.9.1
+  version: v3.16.0
   walCompression: true
