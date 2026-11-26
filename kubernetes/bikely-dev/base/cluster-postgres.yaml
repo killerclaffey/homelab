@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/name: bikely-db
 spec:
   enablePDB: false
-  imageName: "ghcr.io/cloudnative-pg/postgresql:18.3-system-trixie@sha256:006b7801eacd9706d6fb557520a414a7d938e4e71333da98695f6f03b20e4cee"
+  imageName: "ghcr.io/cloudnative-pg/postgresql:18.7-system-trixie@sha256:c437b7c6c00aa7e66f5d6de1dd83602391fdebd4ff776ffb1ab7aaba5e7351ad"
   instances: 1
   imagePullPolicy: IfNotPresent
   logLevel: info
@@ -45,6 +45,18 @@ spec:
       memory: 512Mi
   seccompProfile:
     type: RuntimeDefault
+  backup:
+    volumeSnapshot:
+      className: tns-nvmeof-nvme-snapshot
+      walClassName: tns-nvmeof-nvme-snapshot
+      snapshotOwnerReference: backup
+      online: true
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: bikely-dev-minio-store
+        serverName: bikely-dev-pg18
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
