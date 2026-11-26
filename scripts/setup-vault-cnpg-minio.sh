@@ -200,6 +200,9 @@ if command -v oc >/dev/null 2>&1 && oc whoami >/dev/null 2>&1; then
   echo "Using 'oc exec' into Vault pod (vault-0)..."
   VAULT_TOKEN="${VAULT_TOKEN:-}"
   if [ -z "${VAULT_TOKEN}" ]; then
+    VAULT_TOKEN="$(oc get secret -n vault vault-unseal-keys -o jsonpath='{.data.ROOT_TOKEN}' 2>/dev/null | base64 -d 2>/dev/null || true)"
+  fi
+  if [ -z "${VAULT_TOKEN}" ]; then
     VAULT_TOKEN="$(oc get secret -n vault vault-unseal-keys -o jsonpath='{.data.VAULT_DEV_ROOT_TOKEN_ID}' 2>/dev/null | base64 -d 2>/dev/null || true)"
   fi
   if [ -z "${VAULT_TOKEN}" ]; then
