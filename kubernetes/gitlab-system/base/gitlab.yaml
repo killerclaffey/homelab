@@ -97,4 +97,4 @@ spec:
           redirect:
             disable: true
           secret: gitlab-registry-storage
-    version: 10.6.2
+    version: 10.6.3
