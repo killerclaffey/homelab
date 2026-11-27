@@ -1,0 +1,12 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: set-worker-system-reserved-resources
+spec:
+  kubeletConfig:
+    systemReserved:
+      cpu: 500m
+      memory: 2Gi
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/worker: ""

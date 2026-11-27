@@ -96,15 +96,15 @@ spec:
         image: image-registry.openshift-image-registry.svc:5000/bikely/backend:latest
         imagePullPolicy: Always
         livenessProbe:
-          failureThreshold: 3
+          failureThreshold: 5
           httpGet:
             path: /api/health
             port: 4000
             scheme: HTTP
           initialDelaySeconds: 30
-          periodSeconds: 10
+          periodSeconds: 15
           successThreshold: 1
-          timeoutSeconds: 1
+          timeoutSeconds: 5
         name: backend
         ports:
         - containerPort: 4000
@@ -116,9 +116,9 @@ spec:
             port: 4000
             scheme: HTTP
           initialDelaySeconds: 5
-          periodSeconds: 5
+          periodSeconds: 10
           successThreshold: 1
-          timeoutSeconds: 1
+          timeoutSeconds: 3
         resources:
           limits:
             cpu: 1000m

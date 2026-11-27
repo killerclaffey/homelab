@@ -18,8 +18,11 @@ spec:
       - external-dns
       - external-secrets
       - gitlab-system
+      - homeassistant
       - immich
       - mealie
+      - nextcloud-fpm
+      - paperless-ngx
       - uptime-kuma
       - vault
     includeClusterResources: false

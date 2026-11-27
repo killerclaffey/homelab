@@ -12,7 +12,6 @@ resources:
   - mealie.yaml
   - monitoring.yaml
   - quay.yaml
-  - rook-ceph.yaml
   - truenas-csi.yaml
   - tns-csi-configs.yaml
   - tns-csi-driver.yaml

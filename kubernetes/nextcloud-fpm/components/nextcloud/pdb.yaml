@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/name: nextcloud
     app.kubernetes.io/instance: nextcloud-fpm
 spec:
-  minAvailable: 1
+  maxUnavailable: 1
   selector:
     matchLabels:
       app: nextcloud

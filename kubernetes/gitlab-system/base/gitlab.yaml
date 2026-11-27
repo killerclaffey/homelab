@@ -21,7 +21,7 @@ spec:
             size: 50Gi
             storageClass: truenas-nfs-bulk
         gitlab-shell:
-          maxReplicas: 1
+          maxReplicas: 2
           minReplicas: 1
           service:
             nodePort: 32022
