@@ -47,13 +47,18 @@ spec:
   seccompProfile:
     type: RuntimeDefault
   backup:
+    target: prefer-standby
     volumeSnapshot:
       className: tns-nvmeof-nvme-snapshot
       walClassName: tns-nvmeof-nvme-snapshot
       snapshotOwnerReference: backup
       online: true
+      onlineConfiguration:
+        immediateCheckpoint: false
+        waitForArchive: true
   plugins:
     - name: barman-cloud.cloudnative-pg.io
+      enabled: true
       isWALArchiver: true
       parameters:
         barmanObjectName: bikely-prod-minio-store

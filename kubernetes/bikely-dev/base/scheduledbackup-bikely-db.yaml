@@ -30,6 +30,9 @@ metadata:
     app.kubernetes.io/instance: bikely-dev
     app.kubernetes.io/name: bikely-db
 spec:
+  # Suspended: TrueNAS 26 rejects pool.snapshot.update with ENOTSUP for tns-csi regular
+  # COW snapshots. Re-enable once fenio/tns-csi fixes snapshot user-property handling.
+  suspend: true
   schedule: "0 30 2 * * *"
   backupOwnerReference: self
   method: volumeSnapshot
