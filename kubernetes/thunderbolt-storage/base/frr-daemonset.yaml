@@ -1,0 +1,179 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frr-tb-config-gen
+  namespace: thunderbolt-storage
+data:
+  daemons: |
+    bgpd=yes
+    bfdd=yes
+    zebra=yes
+    vtysh_enable=yes
+    zebra_options="  -A 127.0.0.1 -s 90000000"
+    bgpd_options="   -A 127.0.0.1"
+    bfdd_options="   -A 127.0.0.1"
+  generate-frr-conf.sh: |
+    #!/bin/sh
+    set -eu
+    HOST="${NODE_NAME%%.*}"
+    case "$HOST" in
+      k81) ASN=65081; LO="10.0.50.81" ;;
+      k82) ASN=65082; LO="10.0.50.82" ;;
+      k83) ASN=65083; LO="10.0.50.83" ;;
+      k84) ASN=65084; LO="10.0.50.84" ;;
+      *)   echo "Unknown host: $HOST" >&2; exit 1 ;;
+    esac
+
+    cat > /etc/frr-generated/frr.conf <<EOF
+    frr defaults datacenter
+    hostname ${HOST}
+    log stdout informational
+    service integrated-vtysh-config
+    !
+    ip forwarding
+    ipv6 forwarding
+    !
+    interface thunderbolt0
+     no ipv6 nd suppress-ra
+     ipv6 nd ra-interval 5
+    exit
+    !
+    interface thunderbolt1
+     no ipv6 nd suppress-ra
+     ipv6 nd ra-interval 5
+    exit
+    !
+    bfd
+     profile tb-fast
+      detect-multiplier 3
+      receive-interval 300
+      transmit-interval 300
+     exit
+    exit
+    !
+    ip prefix-list TB-FABRIC seq 10 permit 10.0.50.0/24 le 32
+    !
+    route-map TB-ALLOW permit 10
+     match ip address prefix-list TB-FABRIC
+    exit
+    !
+    route-map LAN-FALLBACK-IN permit 10
+     match ip address prefix-list TB-FABRIC
+     set local-preference 50
+    exit
+    !
+    router bgp ${ASN}
+     bgp router-id ${LO}
+     no bgp ebgp-requires-policy
+     bgp bestpath as-path multipath-relax
+     timers bgp 3 9
+     neighbor TB-PEERS peer-group
+     neighbor TB-PEERS remote-as external
+     neighbor TB-PEERS bfd profile tb-fast
+     neighbor TB-PEERS capability extended-nexthop
+     neighbor thunderbolt0 interface peer-group TB-PEERS
+     neighbor thunderbolt1 interface peer-group TB-PEERS
+     neighbor 10.0.20.2 remote-as 65002
+     neighbor 10.0.20.2 description TrueNAS-LAN-Fallback
+     neighbor 10.0.20.2 bfd profile tb-fast
+     !
+     address-family ipv4 unicast
+      network ${LO}/32
+      neighbor TB-PEERS route-map TB-ALLOW in
+      neighbor TB-PEERS route-map TB-ALLOW out
+      neighbor 10.0.20.2 route-map LAN-FALLBACK-IN in
+      neighbor 10.0.20.2 route-map TB-ALLOW out
+      maximum-paths 2
+     exit-address-family
+    exit
+    !
+    line vty
+    exit
+    EOF
+    cp /config-src/daemons /etc/frr-generated/daemons
+    touch /etc/frr-generated/vtysh.conf
+    chown -R 100:101 /etc/frr-generated 2>/dev/null || chmod -R a+rX /etc/frr-generated
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: frr-thunderbolt
+  namespace: thunderbolt-storage
+  labels:
+    app: frr-thunderbolt
+spec:
+  selector:
+    matchLabels:
+      app: frr-thunderbolt
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: frr-thunderbolt
+    spec:
+      serviceAccountName: thunderbolt-storage-sa
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      priorityClassName: system-node-critical
+      tolerations:
+        - operator: Exists
+      initContainers:
+        - name: render-frr-config
+          image: quay.io/frrouting/frr:10.7.1
+          command: ["/bin/sh", "/config-src/generate-frr-conf.sh"]
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: config-src
+              mountPath: /config-src
+              readOnly: true
+            - name: frr-conf
+              mountPath: /etc/frr-generated
+      containers:
+        - name: frr
+          image: quay.io/frrouting/frr:10.7.1
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - SYS_ADMIN
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          livenessProbe:
+            exec:
+              command: ["vtysh", "-c", "show bgp summary"]
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["vtysh", "-c", "show bfd peers brief"]
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: frr-conf
+              mountPath: /etc/frr
+      volumes:
+        - name: config-src
+          configMap:
+            name: frr-tb-config-gen
+            defaultMode: 0755
+        - name: frr-conf
+          emptyDir: {}

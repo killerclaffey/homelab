@@ -1,0 +1,166 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvme-multipath-sync-script
+  namespace: thunderbolt-storage
+data:
+  sync-multipath.sh: |
+    #!/bin/sh
+    # Reconciles native Linux NVMe-oF Multipath (Option A) on top of the L3 routed
+    # Thunderbolt fabric (Option B).
+    #
+    # For every TrueNAS subsystem currently mounted by a pod on this node, ensures
+    # BOTH controllers exist simultaneously:
+    #   - Primary (40Gbps Thunderbolt VIP via FRR): 10.0.50.2:4420
+    #   - Fallback (2.5GbE LAN VLAN 20):            10.0.20.2:4420
+    #
+    # Safety: Only reconciles subsystems whose block device is actively mounted in
+    # /proc/mounts, so NodeUnstageVolume (`nvme disconnect -n <subnqn>`) is never
+    # fought or re-attached after a PVC is unmounted/deleted.
+    set -u
+
+    NQN_PREFIX="${NQN_PREFIX:-nqn.2011-06.com.truenas:uuid:6fc676c7-0e1b-4155-981c-47acefc1f825:pvc-}"
+    PRIMARY_ADDR="${PRIMARY_ADDR:-10.0.50.2}"
+    FALLBACK_ADDR="${FALLBACK_ADDR:-10.0.20.2}"
+    PORT="${PORT:-4420}"
+    IOPOLICY="${IOPOLICY:-queue-depth}"
+    INTERVAL="${INTERVAL:-15}"
+
+    echo "[nvme-multipath-sync] starting (primary=${PRIMARY_ADDR}, fallback=${FALLBACK_ADDR}, iopolicy=${IOPOLICY})"
+
+    while true; do
+      # Collect currently mounted /dev/nvme*n* block device basenames
+      MOUNTED_DEVS="$(awk '$1 ~ /^\/dev\/nvme[0-9]+n[0-9]+/ { sub("^/dev/", "", $1); print $1 }' /host-proc/mounts 2>/dev/null | sort -u)"
+
+      for subsys_dir in /sys/class/nvme-subsystem/nvme-subsys*; do
+        [ -d "$subsys_dir" ] || continue
+        subnqn="$(cat "$subsys_dir/subsysnqn" 2>/dev/null || true)"
+        case "$subnqn" in
+          ${NQN_PREFIX}*) ;;
+          *) continue ;;
+        esac
+
+        # Check if any namespace under this subsystem is actively mounted
+        is_mounted=0
+        for ns in "$subsys_dir"/nvme*n*; do
+          [ -e "$ns" ] || continue
+          bname="$(basename "$ns")"
+          if echo "$MOUNTED_DEVS" | grep -qx "$bname"; then
+            is_mounted=1
+            break
+          fi
+        done
+        [ "$is_mounted" -eq 1 ] || continue
+
+        # Set iopolicy (queue-depth favors lower-latency 40Gbps TB automatically)
+        cur_policy="$(cat "$subsys_dir/iopolicy" 2>/dev/null || true)"
+        if [ "$cur_policy" != "$IOPOLICY" ] && [ -w "$subsys_dir/iopolicy" ]; then
+          echo "$IOPOLICY" > "$subsys_dir/iopolicy" 2>/dev/null && \
+            echo "[nvme-multipath-sync] set iopolicy=$IOPOLICY on $subnqn"
+        fi
+
+        # Inspect existing controller addresses for this subsystem
+        has_primary=0
+        has_fallback=0
+        for ctrl in "$subsys_dir"/nvme[0-9]*; do
+          [ -r "$ctrl/address" ] || continue
+          addr="$(cat "$ctrl/address" 2>/dev/null || true)"
+          case "$addr" in
+            *"traddr=${PRIMARY_ADDR},"*|*"traddr=${PRIMARY_ADDR}") has_primary=1 ;;
+            *"traddr=${FALLBACK_ADDR},"*|*"traddr=${FALLBACK_ADDR}") has_fallback=1 ;;
+          esac
+        done
+
+        if [ "$has_primary" -eq 0 ]; then
+          echo "[nvme-multipath-sync] attaching primary TB path ${PRIMARY_ADDR}:${PORT} for ${subnqn}"
+          nvme connect -t tcp -a "$PRIMARY_ADDR" -s "$PORT" -n "$subnqn" --keep-alive-tmo=5 --reconnect-delay=2 --ctrl-loss-tmo=60 2>&1 || true
+        fi
+
+        if [ "$has_fallback" -eq 0 ]; then
+          echo "[nvme-multipath-sync] attaching fallback LAN path ${FALLBACK_ADDR}:${PORT} for ${subnqn}"
+          nvme connect -t tcp -a "$FALLBACK_ADDR" -s "$PORT" -n "$subnqn" --keep-alive-tmo=5 --reconnect-delay=2 --ctrl-loss-tmo=60 2>&1 || true
+        fi
+      done
+
+      sleep "$INTERVAL"
+    done
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvme-multipath-sync
+  namespace: thunderbolt-storage
+  labels:
+    app: nvme-multipath-sync
+spec:
+  selector:
+    matchLabels:
+      app: nvme-multipath-sync
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nvme-multipath-sync
+    spec:
+      serviceAccountName: thunderbolt-storage-sa
+      hostNetwork: true
+      hostPID: true
+      dnsPolicy: ClusterFirstWithHostNet
+      priorityClassName: system-node-critical
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: nvme-multipath-sync
+          image: docker.io/bfenski/tns-csi:v0.17.6
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "/scripts/sync-multipath.sh"]
+          env:
+            - name: PRIMARY_ADDR
+              value: "10.0.50.2"
+            - name: FALLBACK_ADDR
+              value: "10.0.20.2"
+            - name: IOPOLICY
+              value: "queue-depth"
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: dev
+              mountPath: /dev
+            - name: sys
+              mountPath: /sys
+            - name: host-proc
+              mountPath: /host-proc
+              readOnly: true
+            - name: etc-nvme
+              mountPath: /etc/nvme
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: nvme-multipath-sync-script
+            defaultMode: 0755
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: host-proc
+          hostPath:
+            path: /proc
+        - name: etc-nvme
+          hostPath:
+            path: /etc/nvme
