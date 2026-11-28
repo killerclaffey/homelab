@@ -38,8 +38,8 @@ data:
     echo "[nvme-multipath-sync] starting on ${HOST} (primary=${PRIMARY_ADDR} src=${NODE_TB_IP}, fallback=${FALLBACK_ADDR} src=${NODE_LAN_IP}, iopolicy=${IOPOLICY})"
 
     while true; do
-      # Collect currently mounted /dev/nvme*n* block device basenames
-      MOUNTED_DEVS="$(awk '$1 ~ /^\/dev\/nvme[0-9]+n[0-9]+/ { sub("^/dev/", "", $1); print $1 }' /host-proc/mounts 2>/dev/null | sort -u)"
+      # Collect currently mounted /dev/nvme*n* block device basenames from the host mount namespace (PID 1)
+      MOUNTED_DEVS="$(awk '$1 ~ /^\/dev\/nvme[0-9]+n[0-9]+$/ { sub("^/dev/", "", $1); print $1 }' /host-proc/1/mounts 2>/dev/null | sort -u)"
 
       for subsys_dir in /sys/class/nvme-subsystem/nvme-subsys*; do
         [ -d "$subsys_dir" ] || continue
