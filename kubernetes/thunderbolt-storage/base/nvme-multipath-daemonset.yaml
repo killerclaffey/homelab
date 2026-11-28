@@ -26,7 +26,16 @@ data:
     IOPOLICY="${IOPOLICY:-queue-depth}"
     INTERVAL="${INTERVAL:-15}"
 
-    echo "[nvme-multipath-sync] starting (primary=${PRIMARY_ADDR}, fallback=${FALLBACK_ADDR}, iopolicy=${IOPOLICY})"
+    HOST="${NODE_NAME%%.*}"
+    case "$HOST" in
+      k81) NODE_TB_IP="10.0.50.81"; NODE_LAN_IP="10.0.20.100" ;;
+      k82) NODE_TB_IP="10.0.50.82"; NODE_LAN_IP="10.0.20.101" ;;
+      k83) NODE_TB_IP="10.0.50.83"; NODE_LAN_IP="10.0.20.102" ;;
+      k84) NODE_TB_IP="10.0.50.84"; NODE_LAN_IP="10.0.20.103" ;;
+      *)   echo "[nvme-multipath-sync] unknown host: $HOST" >&2; exit 1 ;;
+    esac
+
+    echo "[nvme-multipath-sync] starting on ${HOST} (primary=${PRIMARY_ADDR} src=${NODE_TB_IP}, fallback=${FALLBACK_ADDR} src=${NODE_LAN_IP}, iopolicy=${IOPOLICY})"
 
     while true; do
       # Collect currently mounted /dev/nvme*n* block device basenames
@@ -72,13 +81,13 @@ data:
         done
 
         if [ "$has_primary" -eq 0 ]; then
-          echo "[nvme-multipath-sync] attaching primary TB path ${PRIMARY_ADDR}:${PORT} for ${subnqn}"
-          nvme connect -t tcp -a "$PRIMARY_ADDR" -s "$PORT" -n "$subnqn" --keep-alive-tmo=5 --reconnect-delay=2 --ctrl-loss-tmo=60 2>&1 || true
+          echo "[nvme-multipath-sync] attaching primary TB path ${PRIMARY_ADDR}:${PORT} (host-traddr=${NODE_TB_IP}) for ${subnqn}"
+          nvme connect -t tcp -a "$PRIMARY_ADDR" --host-traddr="$NODE_TB_IP" -s "$PORT" -n "$subnqn" --keep-alive-tmo=5 --reconnect-delay=2 --ctrl-loss-tmo=60 2>&1 || true
         fi
 
         if [ "$has_fallback" -eq 0 ]; then
-          echo "[nvme-multipath-sync] attaching fallback LAN path ${FALLBACK_ADDR}:${PORT} for ${subnqn}"
-          nvme connect -t tcp -a "$FALLBACK_ADDR" -s "$PORT" -n "$subnqn" --keep-alive-tmo=5 --reconnect-delay=2 --ctrl-loss-tmo=60 2>&1 || true
+          echo "[nvme-multipath-sync] attaching fallback LAN path ${FALLBACK_ADDR}:${PORT} (host-traddr=${NODE_LAN_IP}) for ${subnqn}"
+          nvme connect -t tcp -a "$FALLBACK_ADDR" --host-traddr="$NODE_LAN_IP" -s "$PORT" -n "$subnqn" --keep-alive-tmo=5 --reconnect-delay=2 --ctrl-loss-tmo=60 2>&1 || true
         fi
       done
 
@@ -110,6 +119,13 @@ spec:
       hostPID: true
       dnsPolicy: ClusterFirstWithHostNet
       priorityClassName: system-node-critical
+      # Staged rollout gate:
+      #   Phase 4a (Dark-Ring): 0 nodes labeled -> FRR runs everywhere, 0 multipath pods.
+      #   Phase 4b Canary:      oc label node k82 thunderbolt-storage/multipath=enabled
+      #   Phase 4b Full:        oc label node k81 k83 k84.okd.claffey.cloud thunderbolt-storage/multipath=enabled
+      #   Emergency disable:    oc label node --all thunderbolt-storage/multipath-
+      nodeSelector:
+        thunderbolt-storage/multipath: "enabled"
       tolerations:
         - operator: Exists
       containers:
@@ -118,6 +134,10 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "/scripts/sync-multipath.sh"]
           env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: PRIMARY_ADDR
               value: "10.0.50.2"
             - name: FALLBACK_ADDR

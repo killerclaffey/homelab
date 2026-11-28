@@ -15,7 +15,7 @@ resources:
   - truenas-csi.yaml
   - tns-csi-configs.yaml
   - tns-csi-driver.yaml
-  # Uncomment after applying 99-{master,worker}-thunderbolt-l3 MachineConfigs & TrueNAS FRR (see ../homelab-network/docs/THUNDERBOLT-AB-IMPLEMENTATION-GUIDE.md)
+  # Uncomment during Phase 4a after MCO L3 rollout & TrueNAS FRR (see ../homelab-network/docs/CUTOVER-PLAN-FINAL.md)
   # - thunderbolt-storage.yaml
   - uptime-kuma.yaml
   - vault.yaml

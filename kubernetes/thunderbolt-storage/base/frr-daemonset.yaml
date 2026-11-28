@@ -62,6 +62,13 @@ data:
      set local-preference 50
     exit
     !
+    route-map SET-SRC permit 10
+     match ip address prefix-list TB-FABRIC
+     set src ${LO}
+    exit
+    !
+    ip protocol bgp route-map SET-SRC
+    !
     router bgp ${ASN}
      bgp router-id ${LO}
      no bgp ebgp-requires-policy
